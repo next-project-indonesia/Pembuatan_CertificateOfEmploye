@@ -8,15 +8,17 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
   <!-- jsPDF untuk download PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- html2canvas untuk konversi ke gambar -->
   <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   <!-- Excel Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Chart.js untuk grafik -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Font Awesome untuk ikon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- <link rel="stylesheet" href="astyle.css"> -->
 </head>
 <style>
   * {
@@ -32,20 +34,6 @@ body {
     min-height: 100vh;
     padding: 20px;
 }
-
-Tambahkan di CSS Anda
-/* .data-table-container { */
-    /* overflow-x: auto; */
-    /* margin-top: 20px; */
-    /* border-radius: 12px; */
-    /* background: white; */
-    /* box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); */
-/* } */
-/*  */
-/* .data-table { */
-    /* min-width: 1200px; */
-    Lebar minimum untuk menampung semua kolom
-/* } */
 
 .admin-container {
     max-width: 1400px;
@@ -229,6 +217,7 @@ Tambahkan di CSS Anda
 .admin-main {
     padding: 30px;
     background: #fff;
+    overflow-x: auto;
 }
 
 /* Data List */
@@ -313,13 +302,30 @@ Tambahkan di CSS Anda
     transform: translateY(-2px);
 }
 
+.btn-info {
+    background: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #138496;
+    transform: translateY(-2px);
+}
+
+/* FIX: Data Table Container */
+.data-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    min-width: 1200px;
+}
+
 .data-table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .data-table th {
@@ -331,12 +337,31 @@ Tambahkan di CSS Anda
     text-transform: uppercase;
     font-size: 13px;
     letter-spacing: 0.5px;
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.data-table th:hover {
+    background: #1a252f;
+}
+
+.data-table th.sort-asc::after {
+    content: " ↑";
+    font-size: 12px;
+}
+
+.data-table th.sort-desc::after {
+    content: " ↓";
+    font-size: 12px;
 }
 
 .data-table td {
     padding: 18px 15px;
     border-bottom: 1px solid #eee;
     vertical-align: middle;
+    white-space: nowrap;
 }
 
 .data-table tr:hover {
@@ -369,12 +394,86 @@ Tambahkan di CSS Anda
 .action-buttons {
     display: flex;
     gap: 8px;
+    flex-wrap: nowrap;
 }
 
 .btn-small {
     padding: 6px 12px;
     font-size: 12px;
     border-radius: 6px;
+    white-space: nowrap;
+}
+
+/* Pagination Styles */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #555;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.pagination-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.page-number {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.page-number:hover {
+    background: #f0f0f0;
+}
+
+.page-number.active {
+    background: #e74c3c;
+    color: white;
+    border-color: #e74c3c;
 }
 
 /* Preview Container */
@@ -412,105 +511,65 @@ Tambahkan di CSS Anda
     font-size: 14px;
 }
 
-/* Template Styling - REVISI SESUAI PERMINTAAN */
+/* Template Styling */
 .letter-container {
     width: 210mm;
-    /* Lebar A4 */
     min-height: 297mm;
-    /* Tinggi A4 */
     margin: 0 auto;
     padding: 20mm;
-    /* Margin seragam untuk A4 */
     box-sizing: border-box;
     position: relative;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-
-    /* Background yang optimal untuk keterbacaan */
-    background:
-        /* Overlay putih dengan opacity 85% */
-        linear-gradient(rgba(255, 255, 255, 0.25),
-            rgba(255, 255, 255, 0.25)),
-        /* Background image */
-        url('./template/template-1.jpg');
+    background: linear-gradient(rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.25)),
+                url('./template/template-1.jpg');
     filter: brightness(1.1);
-    /* Mengatur background image */
     background-size: 100% 100%;
-    /* atau  cover jika ingin memaksa penuh */
     background-position: center center;
     background-repeat: no-repeat;
     background-attachment: scroll;
-
-    /* Memastikan background memenuhi area konten */
     background-origin: padding-box;
     background-clip: padding-box;
-
-    /* Font dan typography */
     font-size: 11pt;
     line-height: 1.5;
     color: #333333;
-    /* Warna teks yang kontras */
 }
 
-/* Hapus pseudo-element ::before karena sudah menggunakan gradient overlay */
-.letter-container::before {
-    display: none;
-}
-
-/* Semua konten surat */
-.letter-container>* {
-    position: relative;
-    z-index: 1;
-}
-
-
-/* Hapus letter-header (logo) */
 .letter-header {
     display: none;
 }
 
-/* REVISI: Title dirapatkan dan disesuaikan */
 .letter-title {
     text-align: center;
     font-size: 14pt;
-    /* Ukuran dikurangi sedikit */
     font-weight: bold;
     margin: 0 0 0.1cm 0;
-    /* Margin bawah dikurangi */
     text-transform: uppercase;
     color: #1a237e;
     line-height: 1;
-    /* Line height diperkecil */
 }
 
 .letter-title:nth-of-type(2) {
     font-size: 12pt;
     margin-bottom: 0.1cm;
-    /* Jarak ke nomor surat */
 }
 
 .letter-no {
     text-align: center;
     font-size: 10pt;
-    /* Ukuran dikurangi */
     margin-bottom: 0.8cm;
-    /* Dikurangi dari 1cm */
     color: #333;
     font-weight: bold;
 }
 
-/* Ganti tabel dengan div untuk data - lebih fleksibel */
 .letter-data-section {
     margin-bottom: 0.2cm;
-    /* Dikurangi dari 0.6cm */
 }
 
 .data-row {
     display: flex;
     margin-bottom: 3px;
-    /* Dikurangi dari 5px */
     align-items: flex-start;
     min-height: 22px;
-    /* Tinggi minimum untuk konsistensi */
 }
 
 .data-label {
@@ -519,63 +578,50 @@ Tambahkan di CSS Anda
     padding-right: 10px;
     white-space: nowrap;
     font-size: 11pt;
-    /* Ukuran font diseragamkan */
 }
 
 .data-value {
     width: 65%;
     padding-bottom: 2px;
-    /* Dikurangi dari 3px */
     border-bottom: 1px dotted #777;
     min-height: 1.2em;
     font-size: 11pt;
-    /* Ukuran font diseragamkan */
 }
 
 .letter-statement {
     text-align: justify;
     margin: 0.4cm 0;
-    /* Dikurangi dari 0.6cm */
     text-indent: 40px;
     line-height: 1.5;
-    /* Disesuaikan */
     font-size: 11pt;
-    /* Ukuran font diseragamkan */
 }
 
-.letter-statement-field{
-     margin-top: 1cm;
-     padding-bottom: 2px;
-text-align: center;
+.letter-statement-field {
+    margin-top: 1cm;
+    padding-bottom: 2px;
+    text-align: center;
 }
 
-/* REVISI: Tanggal dan Hormat Kami dirapatkan */
 .letter-date-place {
     margin-top: 1cm;
-    /* Dikurangi dari 2cm */
     text-align: left;
     margin-bottom: 0;
-    /* Dihilangkan margin bawah */
     font-size: 11pt;
 }
 
 .letter-signature {
     text-align: left;
     margin-top: 0.1cm;
-    /* Ditambahkan margin kecil di atas */
     font-size: 12pt;
 }
 
 .letter-signature-name {
     margin-top: 3cm;
-    /* Dikurangi dari 2cm */
     text-decoration: underline;
     font-weight: bold;
     font-size: 12pt;
-    /* Dikurangi dari 12pt */
 }
 
-/* Footer dengan ikon media sosial */
 .letter-footer {
     position: absolute;
     bottom: 1.2cm;
@@ -628,7 +674,7 @@ text-align: center;
     background: white;
     border-radius: 15px;
     width: 90%;
-    max-width: 500px;
+    max-width: 600px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -687,6 +733,17 @@ text-align: center;
     background: #f8f9fa;
 }
 
+/* Extended Edit Modal */
+.extended-edit-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.extended-edit-form .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
     .admin-content {
@@ -701,6 +758,16 @@ text-align: center;
     .letter-container {
         width: 100%;
         padding: 2cm;
+    }
+}
+
+@media (max-width: 992px) {
+    .data-table-container {
+        min-width: 100%;
+    }
+    
+    .data-table {
+        min-width: 1200px;
     }
 }
 
@@ -730,9 +797,15 @@ text-align: center;
         justify-content: center;
     }
 
-    .data-table {
-        display: block;
-        overflow-x: auto;
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .page-numbers {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     .letter-container {
@@ -753,6 +826,10 @@ text-align: center;
     .data-label {
         padding-right: 0;
         margin-bottom: 2px;
+    }
+    
+    .extended-edit-form {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -789,12 +866,10 @@ text-align: center;
         width: 210mm;
         min-height: 297mm;
         background: white !important;
-        /* Pastikan background putih saat print */
     }
 
     .letter-container::before {
         display: none;
-        /* Hilangkan overlay saat print */
     }
 
     .btn {
@@ -1007,6 +1082,94 @@ text-align: center;
 .card-change.negative {
     color: #e74c3c;
 }
+
+/* Storage Info Card */
+.storage-card {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white;
+}
+
+.storage-card .card-icon {
+    color: white;
+}
+
+.storage-card .card-title {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.storage-card .card-value {
+    color: white;
+}
+
+.storage-progress {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    margin-top: 15px;
+    overflow: hidden;
+}
+
+.storage-progress-bar {
+    height: 100%;
+    background: white;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+.storage-details {
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* Activity and Province Stats */
+.activity-item, .province-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.activity-item:last-child, .province-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon, .province-icon {
+    font-size: 20px;
+    width: 40px;
+    text-align: center;
+}
+
+.activity-content, .province-content {
+    flex: 1;
+}
+
+.province-bar {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.province-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+/* Province Colors */
+.province-color-0 { background: #e74c3c; }
+.province-color-1 { background: #3498db; }
+.province-color-2 { background: #2ecc71; }
+.province-color-3 { background: #f39c12; }
+.province-color-4 { background: #9b59b6; }
+.province-color-5 { background: #1abc9c; }
+.province-color-6 { background: #d35400; }
+.province-color-7 { background: #c0392b; }
+.province-color-8 { background: #16a085; }
+.province-color-9 { background: #8e44ad; }
 </style>
 <body>
 
@@ -1026,16 +1189,47 @@ text-align: center;
   <button class="notification-close" onclick="hideNotification()">×</button>
 </div>
 
-<!-- Modal Edit Status -->
+<!-- Modal Edit Data Lengkap -->
 <div class="modal" id="editModal">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>✏️ Ubah Status Surat</h3>
+      <h3>✏️ Edit Data Lengkap</h3>
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <form id="editForm">
+      <form id="editForm" class="extended-edit-form">
+        <!-- Data Pribadi -->
         <div class="form-group">
+          <label>Nama Lengkap</label>
+          <input type="text" id="editNamaLengkap" class="form-control" placeholder="Nama Lengkap">
+        </div>
+        <div class="form-group">
+          <label>NIP</label>
+          <input type="text" id="editNIP" class="form-control" placeholder="NIP">
+        </div>
+        
+        <!-- Data Surat -->
+        <div class="form-group">
+          <label>Nomor Surat</label>
+          <input type="text" id="editNoSurat" class="form-control" placeholder="Nomor Surat">
+        </div>
+        <div class="form-group">
+          <label>Tanggal Surat</label>
+          <input type="date" id="editTanggalSurat" class="form-control">
+        </div>
+        
+        <!-- Data Kontak -->
+        <div class="form-group">
+          <label>WhatsApp</label>
+          <input type="text" id="editWhatsapp" class="form-control" placeholder="WhatsApp">
+        </div>
+        <div class="form-group">
+          <label>Provinsi/Wilayah</label>
+          <input type="text" id="editWilayah" class="form-control" placeholder="Provinsi/Wilayah">
+        </div>
+        
+        <!-- Status -->
+        <div class="form-group full-width">
           <label>Status Surat</label>
           <select id="editStatus" class="form-control">
             <option value="pending">⏳ Pending</option>
@@ -1043,16 +1237,15 @@ text-align: center;
             <option value="completed">✅ Selesai</option>
           </select>
         </div>
-        <div class="form-group">
+        
+        <!-- Catatan -->
+        <div class="form-group full-width">
           <label>Catatan Admin</label>
           <textarea id="editCatatan" class="form-control" rows="4" placeholder="Tambahkan catatan jika perlu..."></textarea>
         </div>
-        <div class="form-group">
-          <label>Tanggal Update</label>
-          <input type="date" id="editTanggal" class="form-control" value="<?php echo date('Y-m-d'); ?>">
-        </div>
+        
         <div style="display: flex; gap: 15px; margin-top: 30px;">
-          <button type="button" class="btn btn-primary" onclick="updateStatus()" style="flex: 1;">
+          <button type="button" class="btn btn-primary" onclick="updateData()" style="flex: 1;">
             💾 Simpan Perubahan
           </button>
           <button type="button" class="btn btn-danger" onclick="closeModal()" style="flex: 1;">
@@ -1199,11 +1392,16 @@ text-align: center;
             <div class="card-change" id="cardCompletedChange">+0%</div>
           </div>
           
-          <div class="card">
-            <div class="card-icon">📈</div>
-            <div class="card-title">Bulan Ini</div>
-            <div class="card-value" id="cardThisMonth">0</div>
-            <div class="card-change" id="cardMonthChange">vs bulan lalu</div>
+          <div class="card storage-card">
+            <div class="card-icon">💾</div>
+            <div class="card-title">Storage Data</div>
+            <div class="card-value" id="storageSize">0 KB</div>
+            <div class="storage-progress">
+              <div class="storage-progress-bar" id="storageProgressBar" style="width: 0%"></div>
+            </div>
+            <div class="storage-details" id="storageDetails">
+              <span id="storageUsed">0</span> dari <span id="storageTotal">0</span> data
+            </div>
           </div>
         </div>
 
@@ -1214,18 +1412,19 @@ text-align: center;
           </div>
         </div>
 
+        <!-- FIXED: Aktivitas Terbaru dan Top Provinsi -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
           <div style="background: white; border-radius: 15px; padding: 25px;">
             <h4 style="margin-bottom: 15px; color: #333;">📋 Aktivitas Terbaru</h4>
             <div id="activityList" style="max-height: 300px; overflow-y: auto;">
-              <!-- Aktivitas akan ditampilkan di sini -->
+              <p style="text-align: center; color: #666; padding: 20px;">Memuat aktivitas...</p>
             </div>
           </div>
           
           <div style="background: white; border-radius: 15px; padding: 25px;">
-            <h4 style="margin-bottom: 15px; color: #333;">🏆 Top Departemen</h4>
-            <div id="departmentStats">
-              <!-- Statistik departemen -->
+            <h4 style="margin-bottom: 15px; color: #333;">🏆 Top Provinsi</h4>
+            <div id="provinceStats" style="max-height: 300px; overflow-y: auto;">
+              <p style="text-align: center; color: #666; padding: 20px;">Memuat data provinsi...</p>
             </div>
           </div>
         </div>
@@ -1249,19 +1448,20 @@ text-align: center;
             </div>
           </div>
           
+          <!-- FIX: Table Container dengan Scroll Horizontal -->
           <div class="data-table-container">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>No</th>
-                  <th>Nama Karyawan</th>
-                  <th>NIP</th>
-                  <th>No. KTP</th>
-                  <th>Provinsi</th>
-                  <th>WhatsApp</th>
-                  <th>No. Surat</th>
-                  <th>Tanggal</th>
-                  <th>Status</th>
+                  <th data-sort="index">No</th>
+                  <th data-sort="namaLengkap">Nama Karyawan</th>
+                  <th data-sort="nip">NIP</th>
+                  <th data-sort="nomorKTP">No. KTP</th>
+                  <th data-sort="wilayahArea">Provinsi</th>
+                  <th data-sort="whatsapp">WhatsApp</th>
+                  <th data-sort="noSurat">No. Surat</th>
+                  <th data-sort="tanggalSurat">Tanggal</th>
+                  <th data-sort="status">Status</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -1269,6 +1469,24 @@ text-align: center;
                 <!-- Data akan diisi dari Firebase -->
               </tbody>
             </table>
+            
+            <!-- Pagination Controls -->
+            <div class="pagination-container" id="paginationControls">
+              <div class="pagination-info" id="paginationInfo">
+                Menampilkan 0-0 dari 0 data
+              </div>
+              <div class="pagination-controls">
+                <button class="pagination-btn" onclick="prevPage()" id="prevBtn" disabled>
+                  ◀ Sebelumnya
+                </button>
+                <div class="page-numbers" id="pageNumbers">
+                  <!-- Page numbers will be generated here -->
+                </div>
+                <button class="pagination-btn" onclick="nextPage()" id="nextBtn" disabled>
+                  Berikutnya ▶
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1340,7 +1558,7 @@ text-align: center;
               </div>
             </div>
 
-            <div class="letter-statement style="margin-top:0.6cm;">
+            <div class="letter-statement" style="margin-top:0.6cm;">
               Adalah benar pernah bekerja di perusahaan kami sejak:<br>
               <em>Was employed at our company starting from:</em>
             </div>
@@ -1363,8 +1581,6 @@ text-align: center;
 
             <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
               Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.
-            
-              <!-- <em>We would like to say thank you for your cooperation during work with us and we wish you success in your career in the future.</em> -->
             </div>
 
             <div class="letter-date-place" id="fieldTempatTanggal">
@@ -1396,7 +1612,7 @@ text-align: center;
               </div>
               <div class="form-group">
                 <label>Notifikasi WhatsApp</label>
-                <input type="text" id="whatsappAdmin" class="form-control" value="081383796300" readonly>
+                <input type="text" id="whatsappAdmin" class="form-control" value="081383796300">
               </div>
               <div class="form-group">
                 <label>Auto Refresh (detik)</label>
@@ -1415,6 +1631,10 @@ text-align: center;
               <div class="form-group">
                 <label>Format Nomor Surat</label>
                 <input type="text" id="formatNoSurat" class="form-control" value="{NO}/SK-HRD/NEXT/{BULAN}/{TAHUN2}">
+              </div>
+              <div class="form-group">
+                <label>Format NIP</label>
+                <input type="text" id="formatNIP" class="form-control" value="NEXT-{TAHUN}-{BULAN}-{NO}">
               </div>
               <div class="form-group">
                 <label>Kota Tanda Tangan</label>
@@ -1436,9 +1656,10 @@ text-align: center;
                 <label>Max Data per Halaman</label>
                 <select id="maxData" class="form-control">
                   <option value="10">10 data</option>
-                  <option value="25" selected>25 data</option>
+                  <option value="20" selected>20 data</option>
                   <option value="50">50 data</option>
                   <option value="100">100 data</option>
+                  <option value="0">Semua Data</option>
                 </select>
               </div>
               <div class="form-group">
@@ -1452,12 +1673,13 @@ text-align: center;
                 </select>
               </div>
               <div class="form-group">
-                <label>Backup Otomatis</label>
-                <select id="autoBackup" class="form-control">
-                  <option value="daily">Setiap hari</option>
-                  <option value="weekly" selected>Setiap minggu</option>
-                  <option value="monthly">Setiap bulan</option>
-                  <option value="never">Tidak pernah</option>
+                <label>Max Data per Hari (Laporan)</label>
+                <select id="maxDataPerHari" class="form-control">
+                  <option value="0">Tidak Ada Batasan</option>
+                  <option value="50">50 data</option>
+                  <option value="100">100 data</option>
+                  <option value="200">200 data</option>
+                  <option value="500">500 data</option>
                 </select>
               </div>
             </div>
@@ -1480,19 +1702,55 @@ text-align: center;
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
               <div>
                 <small style="color: #888;">Versi Sistem</small>
-                <div><strong>v2.0.1</strong></div>
+                <div><strong>v2.3.0</strong></div>
               </div>
               <div>
                 <small style="color: #888;">Terakhir Update</small>
                 <div><strong id="lastUpdate">-</strong></div>
               </div>
               <div>
-                <small style="color: #888;">Database Size</small>
+                <small style="color: #888;">Ukuran Database</small>
                 <div><strong id="dbSize">-</strong></div>
               </div>
               <div>
                 <small style="color: #888;">Status Koneksi</small>
                 <div><strong id="connectionStatus">-</strong></div>
+              </div>
+              <div>
+                <small style="color: #888;">Total Data</small>
+                <div><strong id="totalDataInfo">0</strong></div>
+              </div>
+              <div>
+                <small style="color: #888;">Data Hari Ini</small>
+                <div><strong id="todayDataCount">0</strong></div>
+              </div>
+            </div>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
+              <h5 style="margin-bottom: 10px; color: #555;">💾 Informasi Storage Firebase</h5>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                <div>
+                  <small style="color: #888;">Total Storage</small>
+                  <div><strong id="firebaseTotalStorage">0 GB</strong></div>
+                </div>
+                <div>
+                  <small style="color: #888;">Storage Terpakai</small>
+                  <div><strong id="firebaseUsedStorage">0 GB</strong></div>
+                </div>
+                <div>
+                  <small style="color: #888;">Storage Tersedia</small>
+                  <div><strong id="firebaseAvailableStorage">0 GB</strong></div>
+                </div>
+                <div>
+                  <small style="color: #888;">Persentase</small>
+                  <div><strong id="firebaseStoragePercent">0%</strong></div>
+                </div>
+              </div>
+              <div style="margin-top: 10px;">
+                <div class="storage-progress" style="background: #e0e0e0;">
+                  <div class="storage-progress-bar" id="firebaseStorageProgress" style="background: #3498db; width: 0%"></div>
+                </div>
+                <small style="color: #888; font-size: 12px;" id="firebaseStorageText">0% terpakai</small>
               </div>
             </div>
           </div>
@@ -1502,12 +1760,8 @@ text-align: center;
   </div>
 </div>
 
-<!-- Chart.js untuk grafik -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Firebase Configuration -->
 <script>
-  // Konfigurasi Firebase Anda
+  // Firebase Configuration
   const firebaseConfig = {
     apiKey: "AIzaSyAEvDR-h0hkgs1xAawra7u3jo9Sc3lCbpo",
     authDomain: "next-packlaring.firebaseapp.com",
@@ -1522,6 +1776,7 @@ text-align: center;
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
   const storage = firebase.storage();
+  const analytics = firebase.analytics();
 
   // Global Variables
   let allData = [];
@@ -1530,17 +1785,30 @@ text-align: center;
   let selectedData = null;
   let statsChart = null;
   let autoRefreshInterval = null;
+  
+  // Pagination Variables
+  let currentPage = 1;
+  let itemsPerPage = 20;
+  let totalPages = 1;
+  
+  // Sorting Variables
+  let currentSortColumn = 'createdAt';
+  let currentSortDirection = 'desc';
+  
+  // Settings
   let settings = {
     emailAdmin: "admin@nextlogistik.com",
     whatsappAdmin: "081383796300",
     autoRefresh: 60,
     formatNoSurat: "{NO}/SK-HRD/NEXT/{BULAN}/{TAHUN2}",
+    formatNIP: "NEXT-{TAHUN}-{BULAN}-{NO}",
     kotaTandaTangan: "Bekasi",
     defaultPenandatangan: "M. Fajrian Noor",
     defaultJabatan: "Direktur",
-    maxData: 25,
+    maxData: 20,
     showOldData: 90,
-    autoBackup: "weekly"
+    autoBackup: "weekly",
+    maxDataPerHari: "0"
   };
 
   // Format tanggal Indonesia
@@ -1583,7 +1851,7 @@ text-align: center;
     if (cleanWA.length < 10) return wa;
     
     if (cleanWA.startsWith('62')) {
-      return `+62 ${cleanWA.substring(2, 6)}-${cleanWA.substring(6, 10)}-${cleanWA.substring(10)}`;
+      return `+62 ${cleanWA.substring(2, 5)}-${cleanWA.substring(5, 9)}-${cleanWA.substring(9)}`;
     } else if (cleanWA.startsWith('0')) {
       return `0${cleanWA.substring(1, 5)}-${cleanWA.substring(5, 9)}-${cleanWA.substring(9)}`;
     }
@@ -1615,17 +1883,23 @@ text-align: center;
       renderDataTable();
     } else if (tabName === 'settings') {
       loadSettings();
+      updateFirebaseStorageInfo();
     }
   }
 
   // Show Loading
   function showLoading(show) {
-    document.getElementById('loading').classList.toggle('active', show);
+    const loadingElement = document.getElementById('loading');
+    if (loadingElement) {
+      loadingElement.classList.toggle('active', show);
+    }
   }
 
   // Show Notification
   function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
+    if (!notification) return;
+    
     const icon = notification.querySelector('.notification-icon');
     const content = notification.querySelector('.notification-content');
     const title = content.querySelector('h4');
@@ -1653,7 +1927,10 @@ text-align: center;
   }
 
   function hideNotification() {
-    document.getElementById('notification').classList.remove('show');
+    const notification = document.getElementById('notification');
+    if (notification) {
+      notification.classList.remove('show');
+    }
   }
 
   // Load Data from Firebase
@@ -1681,28 +1958,113 @@ text-align: center;
         allData.push(data);
       });
       
+      // Apply sorting
+      sortData();
+      
       filteredData = [...allData];
       renderDataTable();
       updateStats();
       updateRecentList();
       updateDashboard();
+      updateSystemInfo();
+      updateFirebaseStorageInfo();
       
-      document.getElementById('connectionStatus').textContent = '✅ Terhubung';
-      document.getElementById('dbSize').textContent = `${allData.length} dokumen`;
-      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('id-ID');
+      const connectionStatus = document.getElementById('connectionStatus');
+      if (connectionStatus) connectionStatus.textContent = '✅ Terhubung';
+      
+      const lastUpdate = document.getElementById('lastUpdate');
+      if (lastUpdate) lastUpdate.textContent = new Date().toLocaleTimeString('id-ID');
       
     } catch (error) {
       console.error('Error loading data:', error);
       showNotification('Gagal memuat data: ' + error.message, 'error');
-      document.getElementById('connectionStatus').textContent = '❌ Gagal';
+      const connectionStatus = document.getElementById('connectionStatus');
+      if (connectionStatus) connectionStatus.textContent = '❌ Gagal';
     } finally {
       showLoading(false);
     }
   }
 
-  // Render Data Table
+  // Sort Data
+  function sortData() {
+    allData.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch(currentSortColumn) {
+        case 'namaLengkap':
+          aValue = (a.namaLengkap || '').toLowerCase();
+          bValue = (b.namaLengkap || '').toLowerCase();
+          break;
+        case 'nip':
+          aValue = a.nip || '';
+          bValue = b.nip || '';
+          break;
+        case 'noSurat':
+          aValue = a.noSurat || '';
+          bValue = b.noSurat || '';
+          break;
+        case 'wilayahArea':
+          aValue = (a.wilayahArea || '').toLowerCase();
+          bValue = (b.wilayahArea || '').toLowerCase();
+          break;
+        case 'whatsapp':
+          aValue = a.whatsapp || '';
+          bValue = b.whatsapp || '';
+          break;
+        case 'tanggalSurat':
+          aValue = a.tanggalSurat ? new Date(a.tanggalSurat) : new Date(0);
+          bValue = b.tanggalSurat ? new Date(b.tanggalSurat) : new Date(0);
+          break;
+        case 'status':
+          aValue = a.status || 'pending';
+          bValue = b.status || 'pending';
+          break;
+        case 'createdAt':
+        default:
+          aValue = a.createdAt || new Date(0);
+          bValue = b.createdAt || new Date(0);
+          break;
+      }
+      
+      if (currentSortDirection === 'asc') {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+      }
+    });
+  }
+
+  // Toggle Sort
+  function toggleSort(column) {
+    if (currentSortColumn === column) {
+      currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSortColumn = column;
+      currentSortDirection = 'asc';
+    }
+    
+    // Update sort indicators
+    document.querySelectorAll('.data-table th').forEach(th => {
+      th.classList.remove('sort-asc', 'sort-desc');
+    });
+    
+    const currentTh = document.querySelector(`.data-table th[data-sort="${column}"]`);
+    if (currentTh) {
+      currentTh.classList.add(`sort-${currentSortDirection}`);
+    }
+    
+    // Sort and render
+    sortData();
+    filteredData = [...allData];
+    currentPage = 1;
+    renderDataTable();
+  }
+
+  // Render Data Table with Pagination
   function renderDataTable() {
     const tbody = document.getElementById('dataTableBody');
+    if (!tbody) return;
+    
     tbody.innerHTML = '';
     
     if (filteredData.length === 0) {
@@ -1714,17 +2076,24 @@ text-align: center;
           </td>
         </tr>
       `;
+      updatePaginationInfo();
       return;
     }
     
-    // Apply pagination based on settings
-    const maxData = parseInt(settings.maxData) || 25;
-    const displayData = filteredData.slice(0, maxData);
+    // Calculate pagination
+    totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    if (currentPage > totalPages) currentPage = totalPages;
     
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
+    const displayData = filteredData.slice(startIndex, endIndex);
+    
+    // Render table rows
     displayData.forEach((data, index) => {
+      const globalIndex = startIndex + index + 1;
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${index + 1}</td>
+        <td>${globalIndex}</td>
         <td><strong>${data.namaLengkap || '-'}</strong></td>
         <td>${data.nip || '-'}</td>
         <td>${formatNomorKTPDisplay(data.nomorKTP || '-')}</td>
@@ -1745,7 +2114,7 @@ text-align: center;
             <button class="btn btn-primary btn-small" onclick="viewLetter('${data.id}')">
               👁️ Surat
             </button>
-            <button class="btn btn-success btn-small" onclick="editStatus('${data.id}')">
+            <button class="btn btn-success btn-small" onclick="editData('${data.id}')">
               ✏️ Edit
             </button>
           </div>
@@ -1754,18 +2123,80 @@ text-align: center;
       tbody.appendChild(row);
     });
     
-    // Show more indicator if there are more data
-    if (filteredData.length > maxData) {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td colspan="10" style="text-align: center; padding: 15px; color: #666;">
-          Menampilkan ${maxData} dari ${filteredData.length} data.
-          <button class="btn btn-warning btn-small" onclick="showAllData()" style="margin-left: 10px;">
-            Tampilkan Semua
-          </button>
-        </td>
-      `;
-      tbody.appendChild(row);
+    updatePaginationInfo();
+    updatePaginationControls();
+  }
+
+  // Update Pagination Information
+  function updatePaginationInfo() {
+    const paginationInfo = document.getElementById('paginationInfo');
+    if (!paginationInfo) return;
+    
+    const startIndex = (currentPage - 1) * itemsPerPage + 1;
+    const endIndex = Math.min(currentPage * itemsPerPage, filteredData.length);
+    
+    paginationInfo.innerHTML = 
+      `Menampilkan ${startIndex}-${endIndex} dari ${filteredData.length} data`;
+  }
+
+  // Update Pagination Controls
+  function updatePaginationControls() {
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageNumbers = document.getElementById('pageNumbers');
+    
+    if (!prevBtn || !nextBtn || !pageNumbers) return;
+    
+    // Update buttons state
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+    
+    // Generate page numbers
+    pageNumbers.innerHTML = '';
+    
+    // Calculate page range to display
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, currentPage + 2);
+    
+    // Adjust if at the beginning
+    if (currentPage <= 3) {
+      endPage = Math.min(5, totalPages);
+    }
+    
+    // Adjust if at the end
+    if (currentPage >= totalPages - 2) {
+      startPage = Math.max(1, totalPages - 4);
+    }
+    
+    // Add page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      const pageBtn = document.createElement('button');
+      pageBtn.className = `page-number ${i === currentPage ? 'active' : ''}`;
+      pageBtn.textContent = i;
+      pageBtn.onclick = () => goToPage(i);
+      pageNumbers.appendChild(pageBtn);
+    }
+  }
+
+  // Pagination Functions
+  function nextPage() {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderDataTable();
+    }
+  }
+
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderDataTable();
+    }
+  }
+
+  function goToPage(page) {
+    if (page >= 1 && page <= totalPages) {
+      currentPage = page;
+      renderDataTable();
     }
   }
 
@@ -1785,14 +2216,156 @@ text-align: center;
     const pending = allData.filter(d => d.status === 'pending').length;
     const completed = allData.filter(d => d.status === 'completed').length;
     
-    document.getElementById('totalData').textContent = total;
-    document.getElementById('pendingData').textContent = pending;
-    document.getElementById('completedData').textContent = completed;
+    const totalDataElement = document.getElementById('totalData');
+    const pendingDataElement = document.getElementById('pendingData');
+    const completedDataElement = document.getElementById('completedData');
+    
+    if (totalDataElement) totalDataElement.textContent = total;
+    if (pendingDataElement) pendingDataElement.textContent = pending;
+    if (completedDataElement) completedDataElement.textContent = completed;
+  }
+
+  // Update System Information
+  function updateSystemInfo() {
+    // Calculate storage size
+    const storageSize = calculateStorageSize(allData);
+    
+    const dbSizeElement = document.getElementById('dbSize');
+    const storageSizeElement = document.getElementById('storageSize');
+    const storageUsedInfoElement = document.getElementById('storageUsedInfo');
+    
+    if (dbSizeElement) dbSizeElement.textContent = storageSize;
+    if (storageSizeElement) storageSizeElement.textContent = storageSize;
+    if (storageUsedInfoElement) storageUsedInfoElement.textContent = storageSize;
+    
+    // Calculate average data size
+    const avgSize = allData.length > 0 ? 
+      formatBytes(calculateDataSize(allData) / allData.length) : '0 KB';
+    
+    const avgDataSizeElement = document.getElementById('avgDataSize');
+    if (avgDataSizeElement) avgDataSizeElement.textContent = avgSize;
+    
+    // Calculate storage usage percentage (simulated)
+    const storageUsed = allData.length;
+    const storageLimit = 10000;
+    const percentage = Math.min((storageUsed / storageLimit) * 100, 100);
+    
+    const storageProgressBar = document.getElementById('storageProgressBar');
+    const storageProgressInfo = document.getElementById('storageProgressInfo');
+    const storagePercentage = document.getElementById('storagePercentage');
+    const storageUsedElement = document.getElementById('storageUsed');
+    const storageTotalElement = document.getElementById('storageTotal');
+    const storageDetails = document.getElementById('storageDetails');
+    const storageEstimated = document.getElementById('storageEstimated');
+    const todayDataCount = document.getElementById('todayDataCount');
+    const totalDataInfo = document.getElementById('totalDataInfo');
+    const activeDataCount = document.getElementById('activeDataCount');
+    
+    if (storageProgressBar) storageProgressBar.style.width = `${percentage}%`;
+    if (storageProgressInfo) storageProgressInfo.style.width = `${percentage}%`;
+    if (storagePercentage) storagePercentage.textContent = `${percentage.toFixed(1)}% terpakai`;
+    if (storageUsedElement) storageUsedElement.textContent = storageUsed;
+    if (storageTotalElement) storageTotalElement.textContent = storageLimit;
+    if (storageDetails) storageDetails.innerHTML = 
+      `<span id="storageUsed">${storageUsed}</span> dari <span id="storageTotal">${storageLimit}</span> data`;
+    
+    // Estimate total storage
+    const estimatedTotal = formatBytes(calculateDataSize(allData));
+    if (storageEstimated) storageEstimated.textContent = estimatedTotal;
+    
+    // Count today's data
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayData = allData.filter(d => {
+      const dataDate = d.createdAt ? new Date(d.createdAt) : null;
+      if (!dataDate) return false;
+      dataDate.setHours(0, 0, 0, 0);
+      return dataDate.getTime() === today.getTime();
+    });
+    
+    if (todayDataCount) todayDataCount.textContent = todayData.length;
+    if (totalDataInfo) totalDataInfo.textContent = allData.length;
+    
+    // Count active data (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const activeData = allData.filter(d => {
+      const dataDate = d.createdAt ? new Date(d.createdAt) : null;
+      return dataDate && dataDate > thirtyDaysAgo;
+    });
+    
+    if (activeDataCount) activeDataCount.textContent = activeData.length;
+  }
+
+  // Get Firebase Storage Information
+  async function updateFirebaseStorageInfo() {
+    try {
+      // Get storage usage from Firebase
+      const totalDocs = allData.length;
+      
+      // Estimated storage usage (average 1KB per document)
+      const estimatedUsageKB = totalDocs * 1;
+      const estimatedUsageMB = estimatedUsageKB / 1024;
+      const estimatedUsageGB = estimatedUsageMB / 1024;
+      
+      // Firebase free tier: 1GB storage
+      const freeStorageGB = 1;
+      const usedStorageGB = Math.min(estimatedUsageGB, freeStorageGB);
+      const availableStorageGB = freeStorageGB - usedStorageGB;
+      const percentageUsed = (usedStorageGB / freeStorageGB) * 100;
+      
+      // Update UI
+      const firebaseTotalStorage = document.getElementById('firebaseTotalStorage');
+      const firebaseUsedStorage = document.getElementById('firebaseUsedStorage');
+      const firebaseAvailableStorage = document.getElementById('firebaseAvailableStorage');
+      const firebaseStoragePercent = document.getElementById('firebaseStoragePercent');
+      const firebaseStorageProgress = document.getElementById('firebaseStorageProgress');
+      const firebaseStorageText = document.getElementById('firebaseStorageText');
+      
+      if (firebaseTotalStorage) firebaseTotalStorage.textContent = `${freeStorageGB.toFixed(2)} GB`;
+      if (firebaseUsedStorage) firebaseUsedStorage.textContent = `${usedStorageGB.toFixed(2)} GB`;
+      if (firebaseAvailableStorage) firebaseAvailableStorage.textContent = `${availableStorageGB.toFixed(2)} GB`;
+      if (firebaseStoragePercent) firebaseStoragePercent.textContent = `${percentageUsed.toFixed(1)}%`;
+      if (firebaseStorageProgress) firebaseStorageProgress.style.width = `${percentageUsed}%`;
+      if (firebaseStorageText) firebaseStorageText.textContent = `${percentageUsed.toFixed(1)}% terpakai`;
+      
+    } catch (error) {
+      console.error('Error getting Firebase storage info:', error);
+      showNotification('Tidak dapat memuat informasi storage Firebase', 'warning');
+    }
+  }
+
+  // Calculate storage size
+  function calculateStorageSize(data) {
+    if (!data || data.length === 0) return '0 KB';
+    
+    // Calculate approximate size
+    const totalSize = calculateDataSize(data);
+    return formatBytes(totalSize);
+  }
+
+  // Calculate data size in bytes
+  function calculateDataSize(data) {
+    const jsonString = JSON.stringify(data);
+    return new Blob([jsonString]).size;
+  }
+
+  // Format bytes to human readable
+  function formatBytes(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   // Update Recent List
   function updateRecentList() {
     const recentList = document.getElementById('recentList');
+    if (!recentList) return;
+    
     recentList.innerHTML = '';
     
     const recentData = allData.slice(0, 10);
@@ -1903,12 +2476,129 @@ text-align: center;
       </div>
     `;
     
-    document.getElementById('detailContent').innerHTML = detailHTML;
-    document.getElementById('detailModal').classList.add('active');
+    const detailContent = document.getElementById('detailContent');
+    if (detailContent) detailContent.innerHTML = detailHTML;
+    
+    const detailModal = document.getElementById('detailModal');
+    if (detailModal) detailModal.classList.add('active');
   }
 
   function closeDetailModal() {
-    document.getElementById('detailModal').classList.remove('active');
+    const detailModal = document.getElementById('detailModal');
+    if (detailModal) detailModal.classList.remove('active');
+  }
+
+  // Edit Data
+  function editData(docId) {
+    selectedDocId = docId;
+    const data = allData.find(d => d.id === docId);
+    
+    if (data) {
+      // Populate form with current data
+      const editNamaLengkap = document.getElementById('editNamaLengkap');
+      const editNIP = document.getElementById('editNIP');
+      const editNoSurat = document.getElementById('editNoSurat');
+      const editTanggalSurat = document.getElementById('editTanggalSurat');
+      const editWhatsapp = document.getElementById('editWhatsapp');
+      const editWilayah = document.getElementById('editWilayah');
+      const editStatus = document.getElementById('editStatus');
+      const editCatatan = document.getElementById('editCatatan');
+      
+      if (editNamaLengkap) editNamaLengkap.value = data.namaLengkap || '';
+      if (editNIP) editNIP.value = data.nip || '';
+      if (editNoSurat) editNoSurat.value = data.noSurat || '';
+      if (editTanggalSurat) editTanggalSurat.value = data.tanggalSurat ? 
+        new Date(data.tanggalSurat).toISOString().split('T')[0] : '';
+      if (editWhatsapp) editWhatsapp.value = data.whatsapp || '';
+      if (editWilayah) editWilayah.value = data.wilayahArea || '';
+      if (editStatus) editStatus.value = data.status || 'pending';
+      if (editCatatan) editCatatan.value = data.catatanAdmin || '';
+      
+      const editModal = document.getElementById('editModal');
+      if (editModal) editModal.classList.add('active');
+    }
+  }
+
+  function closeModal() {
+    const editModal = document.getElementById('editModal');
+    if (editModal) editModal.classList.remove('active');
+  }
+
+  // Update Data
+  async function updateData() {
+    showLoading(true);
+    
+    try {
+      const editNamaLengkap = document.getElementById('editNamaLengkap');
+      const editNIP = document.getElementById('editNIP');
+      const editNoSurat = document.getElementById('editNoSurat');
+      const editTanggalSurat = document.getElementById('editTanggalSurat');
+      const editWhatsapp = document.getElementById('editWhatsapp');
+      const editWilayah = document.getElementById('editWilayah');
+      const editStatus = document.getElementById('editStatus');
+      const editCatatan = document.getElementById('editCatatan');
+      
+      if (!editNamaLengkap || !editNIP || !editNoSurat) {
+        throw new Error('Form tidak lengkap');
+      }
+      
+      const namaLengkap = editNamaLengkap.value;
+      const nip = editNIP.value;
+      const noSurat = editNoSurat.value;
+      const tanggalSurat = editTanggalSurat ? editTanggalSurat.value : '';
+      const whatsapp = editWhatsapp ? editWhatsapp.value : '';
+      const wilayah = editWilayah ? editWilayah.value : '';
+      const status = editStatus ? editStatus.value : 'pending';
+      const catatan = editCatatan ? editCatatan.value : '';
+      
+      // Check for duplicate NIP
+      if (nip) {
+        const duplicateNIP = allData.find(d => 
+          d.id !== selectedDocId && d.nip === nip
+        );
+        
+        if (duplicateNIP) {
+          showNotification('NIP sudah digunakan oleh karyawan lain!', 'warning');
+          return;
+        }
+      }
+      
+      // Check for duplicate No Surat
+      if (noSurat) {
+        const duplicateNoSurat = allData.find(d => 
+          d.id !== selectedDocId && d.noSurat === noSurat
+        );
+        
+        if (duplicateNoSurat) {
+          showNotification('Nomor Surat sudah digunakan!', 'warning');
+          return;
+        }
+      }
+      
+      await db.collection('packlaring').doc(selectedDocId).update({
+        namaLengkap: namaLengkap,
+        nip: nip,
+        noSurat: noSurat,
+        tanggalSurat: tanggalSurat ? new Date(tanggalSurat) : null,
+        whatsapp: whatsapp,
+        wilayahArea: wilayah,
+        status: status,
+        catatanAdmin: catatan,
+        updatedAt: new Date(),
+        updatedBy: 'Admin'
+      });
+      
+      closeModal();
+      loadData();
+      
+      showNotification('Data berhasil diperbarui!', 'success');
+      
+    } catch (error) {
+      console.error('Error updating data:', error);
+      showNotification('Gagal update data: ' + error.message, 'error');
+    } finally {
+      showLoading(false);
+    }
   }
 
   // Update Dashboard
@@ -1942,22 +2632,34 @@ text-align: center;
       ((completed / allData.length) * 100).toFixed(1) : 0;
     
     // Update cards
-    document.getElementById('cardTotal').textContent = total;
-    document.getElementById('cardPending').textContent = pending;
-    document.getElementById('cardCompleted').textContent = completed;
-    document.getElementById('cardThisMonth').textContent = thisMonthData.length;
+    const cardTotal = document.getElementById('cardTotal');
+    const cardPending = document.getElementById('cardPending');
+    const cardCompleted = document.getElementById('cardCompleted');
+    const cardThisMonth = document.getElementById('cardThisMonth');
+    const cardChange = document.getElementById('cardChange');
+    const cardCompletedChange = document.getElementById('cardCompletedChange');
+    const cardMonthChange = document.getElementById('cardMonthChange');
     
-    document.getElementById('cardChange').textContent = 
-      `${totalChange >= 0 ? '+' : ''}${totalChange}% dari bulan lalu`;
-    document.getElementById('cardChange').className = 
-      `card-change ${totalChange >= 0 ? '' : 'negative'}`;
+    if (cardTotal) cardTotal.textContent = total;
+    if (cardPending) cardPending.textContent = pending;
+    if (cardCompleted) cardCompleted.textContent = completed;
+    if (cardThisMonth) cardThisMonth.textContent = thisMonthData.length;
     
-    document.getElementById('cardCompletedChange').textContent = `${completedChange}% selesai`;
+    if (cardChange) {
+      cardChange.textContent = 
+        `${totalChange >= 0 ? '+' : ''}${totalChange}% dari bulan lalu`;
+      cardChange.className = 
+        `card-change ${totalChange >= 0 ? '' : 'negative'}`;
+    }
     
-    document.getElementById('cardMonthChange').textContent = 
-      lastMonthData.length > 0 ? 
-      `+${(thisMonthData.length - lastMonthData.length)} dari bulan lalu` : 
-      'Data bulan lalu tidak tersedia';
+    if (cardCompletedChange) cardCompletedChange.textContent = `${completedChange}% selesai`;
+    
+    if (cardMonthChange) {
+      cardMonthChange.textContent = 
+        lastMonthData.length > 0 ? 
+        `+${(thisMonthData.length - lastMonthData.length)} dari bulan lalu` : 
+        'Data bulan lalu tidak tersedia';
+    }
     
     // Update chart
     updateChart();
@@ -1965,13 +2667,14 @@ text-align: center;
     // Update activity list
     updateActivityList();
     
-    // Update department stats
-    updateDepartmentStats();
+    // Update province stats
+    updateProvinceStats();
   }
 
   // Update Chart
   function updateChart() {
     const ctx = document.getElementById('statsChart');
+    if (!ctx) return;
     
     // Destroy existing chart
     if (statsChart) {
@@ -2056,7 +2759,7 @@ text-align: center;
   // Update Activity List
   function updateActivityList() {
     const activityList = document.getElementById('activityList');
-    activityList.innerHTML = '';
+    if (!activityList) return;
     
     // Sort by date (newest first) and take 10
     const sortedData = [...allData].sort((a, b) => {
@@ -2065,31 +2768,29 @@ text-align: center;
       return dateB - dateA;
     }).slice(0, 10);
     
+    if (sortedData.length === 0) {
+      activityList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Belum ada aktivitas</p>';
+      return;
+    }
+    
+    let activityHTML = '';
     sortedData.forEach(data => {
-      const activity = document.createElement('div');
-      activity.style.padding = '10px 0';
-      activity.style.borderBottom = '1px solid #eee';
-      
       const timeAgo = getTimeAgo(data.updatedAt || data.createdAt);
       const statusIcon = data.status === 'completed' ? '✅' : 
                         data.status === 'processed' ? '🔄' : '⏳';
       
-      activity.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="font-size: 20px;">${statusIcon}</div>
-          <div style="flex: 1;">
+      activityHTML += `
+        <div class="activity-item">
+          <div class="activity-icon">${statusIcon}</div>
+          <div class="activity-content">
             <strong>${data.namaLengkap || 'Tanpa Nama'}</strong><br>
-            <small style="color: #666;">${data.noSurat || 'No Surat'} • ${timeAgo}</small>
+            <small style="color: #666;">${data.wilayahArea || 'Tidak ada wilayah'} • ${timeAgo}</small>
           </div>
         </div>
       `;
-      
-      activityList.appendChild(activity);
     });
     
-    if (sortedData.length === 0) {
-      activityList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Belum ada aktivitas</p>';
-    }
+    activityList.innerHTML = activityHTML;
   }
 
   // Get Time Ago
@@ -2113,61 +2814,70 @@ text-align: center;
     }
   }
 
-  // Update Department Stats
-  function updateDepartmentStats() {
-    const departmentStats = document.getElementById('departmentStats');
+  // Update Province Stats
+  function updateProvinceStats() {
+    const provinceStats = document.getElementById('provinceStats');
+    if (!provinceStats) return;
     
-    // Count by department
-    const deptCount = {};
+    // Count by province
+    const provinceCount = {};
     allData.forEach(data => {
-      const dept = data.deptKaryawan || 'Tidak Diketahui';
-      deptCount[dept] = (deptCount[dept] || 0) + 1;
+      const province = data.wilayahArea || 'Tidak Diketahui';
+      provinceCount[province] = (provinceCount[province] || 0) + 1;
     });
     
     // Sort by count
-    const sortedDepts = Object.entries(deptCount)
+    const sortedProvinces = Object.entries(provinceCount)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
+      .slice(0, 10); // Show top 10 provinces
     
-    departmentStats.innerHTML = '';
+    if (sortedProvinces.length === 0) {
+      provinceStats.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Belum ada data provinsi</p>';
+      return;
+    }
     
-    sortedDepts.forEach(([dept, count], index) => {
-      const percentage = ((count / allData.length) * 100).toFixed(1);
-      const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '📊';
+    const totalData = allData.length;
+    let provinceHTML = '';
+    
+    sortedProvinces.forEach(([province, count], index) => {
+      const percentage = ((count / totalData) * 100).toFixed(1);
+      const colorClass = `province-color-${index % 10}`;
+      const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
       
-      const stat = document.createElement('div');
-      stat.style.marginBottom = '15px';
-      stat.innerHTML = `
-        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-          <span>${medal} ${dept}</span>
-          <span><strong>${count}</strong> (${percentage}%)</span>
-        </div>
-        <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
-          <div style="height: 100%; width: ${percentage}%; background: ${getDeptColor(index)};"></div>
+      provinceHTML += `
+        <div class="province-item">
+          <div class="province-icon">${medal}</div>
+          <div class="province-content">
+            <div style="display: flex; justify-content: space-between;">
+              <span>${province}</span>
+              <span><strong>${count}</strong> (${percentage}%)</span>
+            </div>
+            <div class="province-bar">
+              <div class="province-bar-fill ${colorClass}" style="width: ${percentage}%"></div>
+            </div>
+          </div>
         </div>
       `;
-      
-      departmentStats.appendChild(stat);
     });
     
-    if (sortedDepts.length === 0) {
-      departmentStats.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Belum ada data departemen</p>';
-    }
-  }
-
-  // Get Department Color
-  function getDeptColor(index) {
-    const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6'];
-    return colors[index % colors.length];
+    provinceStats.innerHTML = provinceHTML;
   }
 
   // Filter Data
   function filterData() {
-    const statusFilter = document.getElementById('filterStatus').value;
-    const bulanFilter = document.getElementById('filterBulan').value;
-    const dariFilter = document.getElementById('filterDari').value;
-    const sampaiFilter = document.getElementById('filterSampai').value;
-    const searchFilter = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilterElement = document.getElementById('filterStatus');
+    const bulanFilterElement = document.getElementById('filterBulan');
+    const dariFilterElement = document.getElementById('filterDari');
+    const sampaiFilterElement = document.getElementById('filterSampai');
+    const searchFilterElement = document.getElementById('searchInput');
+    
+    if (!statusFilterElement || !bulanFilterElement || !searchFilterElement) return;
+    
+    const statusFilter = statusFilterElement.value;
+    const bulanFilter = bulanFilterElement.value;
+    const dariFilter = dariFilterElement ? dariFilterElement.value : '';
+    const sampaiFilter = sampaiFilterElement ? sampaiFilterElement.value : '';
+    const searchFilter = searchFilterElement.value.toLowerCase();
     
     filteredData = allData.filter(data => {
       // Filter by status
@@ -2201,7 +2911,7 @@ text-align: center;
         }
       }
       
-      // Filter by search - TAMBAHKAN KOLOM BARU
+      // Filter by search
       if (searchFilter) {
         const searchStr = `
           ${data.namaLengkap || ''} 
@@ -2221,13 +2931,10 @@ text-align: center;
       return true;
     });
     
+    // Reset to first page when filtering
+    currentPage = 1;
     renderDataTable();
   }
-
-  // Search Function
-  document.getElementById('searchInput').addEventListener('input', function() {
-    filterData();
-  });
 
   // View Letter
   async function viewLetter(docId) {
@@ -2248,17 +2955,28 @@ text-align: center;
       }
       
       // Update preview title
-      document.getElementById('previewTitle').textContent = 
-        `Surat Packlaring - ${selectedData.namaLengkap || 'Tidak Ada Nama'}`;
-      document.getElementById('previewSubtitle').textContent = 
-        `NIP: ${selectedData.nip || '-'} • ${formatDate(selectedData.tanggalSurat)}`;
+      const previewTitle = document.getElementById('previewTitle');
+      const previewSubtitle = document.getElementById('previewSubtitle');
+      
+      if (previewTitle) {
+        previewTitle.textContent = 
+          `Surat Packlaring - ${selectedData.namaLengkap || 'Tidak Ada Nama'}`;
+      }
+      
+      if (previewSubtitle) {
+        previewSubtitle.textContent = 
+          `NIP: ${selectedData.nip || '-'} • ${formatDate(selectedData.tanggalSurat)}`;
+      }
       
       // Populate letter template
       populateLetterTemplate(selectedData);
       
       // Show preview container
-      document.getElementById('dataListContainer').classList.remove('active');
-      document.getElementById('previewContainer').classList.add('active');
+      const dataListContainer = document.getElementById('dataListContainer');
+      const previewContainer = document.getElementById('previewContainer');
+      
+      if (dataListContainer) dataListContainer.classList.remove('active');
+      if (previewContainer) previewContainer.classList.add('active');
       
     } catch (error) {
       console.error('Error viewing letter:', error);
@@ -2297,26 +3015,44 @@ text-align: center;
                             en: data.alasanBerhenti || 'End of contract' };
     
     // Set values
-    document.getElementById('letterNo').textContent = `NO : ${data.noSurat || '02/SK-HRD/NEXT/I/25'}`;
-    document.getElementById('fieldPenandatangan').textContent = data.namaPenandatangan || settings.defaultPenandatangan;
-    document.getElementById('fieldJabatanPenandatangan').textContent = data.jabatanPenandatangan || settings.defaultJabatan;
-    document.getElementById('fieldNamaLengkap').textContent = data.namaLengkap || '.................................................';
-    document.getElementById('fieldTTL').textContent = `${tempatLahir}, ${tglLahir}`;
-    document.getElementById('fieldJabatan').textContent = data.jabatan || '.................................................';
-    document.getElementById('fieldNIP').textContent = data.nip || '.................................................';
-    document.getElementById('fieldTanggalMasuk').textContent = data.tanggalMulai ? formatLetterDate(data.tanggalMulai) : '.................................................';
-    document.getElementById('fieldTanggalKeluar').textContent = data.tanggalBerakhir ? formatLetterDate(data.tanggalBerakhir) : '.................................................';
-    document.getElementById('fieldAlasanBerhenti').textContent = alasanBerhenti.id;
-    document.getElementById('fieldAlasanBerhentiEn').textContent = alasanBerhenti.en;
-    document.getElementById('fieldTempatTanggal').textContent = `${settings.kotaTandaTangan}, ${formatLetterDate(data.tanggalSurat || new Date())}`;
-    document.getElementById('fieldTandaTangan').textContent = data.namaPenandatangan || settings.defaultPenandatangan;
-    document.getElementById('fieldJabatanTTD').textContent = data.jabatanPenandatangan || settings.defaultJabatan;
+    const letterNo = document.getElementById('letterNo');
+    const fieldPenandatangan = document.getElementById('fieldPenandatangan');
+    const fieldJabatanPenandatangan = document.getElementById('fieldJabatanPenandatangan');
+    const fieldNamaLengkap = document.getElementById('fieldNamaLengkap');
+    const fieldTTL = document.getElementById('fieldTTL');
+    const fieldJabatan = document.getElementById('fieldJabatan');
+    const fieldNIP = document.getElementById('fieldNIP');
+    const fieldTanggalMasuk = document.getElementById('fieldTanggalMasuk');
+    const fieldTanggalKeluar = document.getElementById('fieldTanggalKeluar');
+    const fieldAlasanBerhenti = document.getElementById('fieldAlasanBerhenti');
+    const fieldAlasanBerhentiEn = document.getElementById('fieldAlasanBerhentiEn');
+    const fieldTempatTanggal = document.getElementById('fieldTempatTanggal');
+    const fieldTandaTangan = document.getElementById('fieldTandaTangan');
+    const fieldJabatanTTD = document.getElementById('fieldJabatanTTD');
+    
+    if (letterNo) letterNo.textContent = `NO : ${data.noSurat || '02/SK-HRD/NEXT/I/25'}`;
+    if (fieldPenandatangan) fieldPenandatangan.textContent = data.namaPenandatangan || settings.defaultPenandatangan;
+    if (fieldJabatanPenandatangan) fieldJabatanPenandatangan.textContent = data.jabatanPenandatangan || settings.defaultJabatan;
+    if (fieldNamaLengkap) fieldNamaLengkap.textContent = data.namaLengkap || '.................................................';
+    if (fieldTTL) fieldTTL.textContent = `${tempatLahir}, ${tglLahir}`;
+    if (fieldJabatan) fieldJabatan.textContent = data.jabatan || '.................................................';
+    if (fieldNIP) fieldNIP.textContent = data.nip || '.................................................';
+    if (fieldTanggalMasuk) fieldTanggalMasuk.textContent = data.tanggalMulai ? formatLetterDate(data.tanggalMulai) : '.................................................';
+    if (fieldTanggalKeluar) fieldTanggalKeluar.textContent = data.tanggalBerakhir ? formatLetterDate(data.tanggalBerakhir) : '.................................................';
+    if (fieldAlasanBerhenti) fieldAlasanBerhenti.textContent = alasanBerhenti.id;
+    if (fieldAlasanBerhentiEn) fieldAlasanBerhentiEn.textContent = alasanBerhenti.en;
+    if (fieldTempatTanggal) fieldTempatTanggal.textContent = `${settings.kotaTandaTangan}, ${formatLetterDate(data.tanggalSurat || new Date())}`;
+    if (fieldTandaTangan) fieldTandaTangan.textContent = data.namaPenandatangan || settings.defaultPenandatangan;
+    if (fieldJabatanTTD) fieldJabatanTTD.textContent = data.jabatanPenandatangan || settings.defaultJabatan;
   }
 
   // Close Preview
   function closePreview() {
-    document.getElementById('previewContainer').classList.remove('active');
-    document.getElementById('dataListContainer').classList.add('active');
+    const previewContainer = document.getElementById('previewContainer');
+    const dataListContainer = document.getElementById('dataListContainer');
+    
+    if (previewContainer) previewContainer.classList.remove('active');
+    if (dataListContainer) dataListContainer.classList.add('active');
   }
 
   // Download PDF
@@ -2344,7 +3080,7 @@ text-align: center;
       // Calculate dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pdfWidth - 20; // 10mm margin each side
+      const imgWidth = pdfWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
       // Add image to PDF
@@ -2388,61 +3124,16 @@ text-align: center;
     document.body.innerHTML = originalContent;
     
     // Restore preview
-    document.getElementById('previewContainer').classList.add('active');
-    document.getElementById('dataListContainer').classList.remove('active');
-  }
-
-  // Edit Status Modal
-  function editStatus(docId) {
-    selectedDocId = docId;
-    const data = allData.find(d => d.id === docId);
+    const previewContainer = document.getElementById('previewContainer');
+    const dataListContainer = document.getElementById('dataListContainer');
     
-    if (data) {
-      document.getElementById('editStatus').value = data.status || 'pending';
-      document.getElementById('editCatatan').value = data.catatanAdmin || '';
-      document.getElementById('editTanggal').value = new Date().toISOString().split('T')[0];
-      
-      document.getElementById('editModal').classList.add('active');
-    }
-  }
-
-  function closeModal() {
-    document.getElementById('editModal').classList.remove('active');
-  }
-
-  // Update Status
-  async function updateStatus() {
-    showLoading(true);
-    
-    try {
-      const newStatus = document.getElementById('editStatus').value;
-      const catatan = document.getElementById('editCatatan').value;
-      const tanggal = document.getElementById('editTanggal').value;
-      
-      await db.collection('packlaring').doc(selectedDocId).update({
-        status: newStatus,
-        catatanAdmin: catatan,
-        updatedAt: new Date(),
-        updatedBy: 'Admin',
-        tanggalUpdate: tanggal
-      });
-      
-      closeModal();
-      loadData();
-      
-      showNotification('Status berhasil diperbarui!', 'success');
-      
-    } catch (error) {
-      console.error('Error updating status:', error);
-      showNotification('Gagal update status: ' + error.message, 'error');
-    } finally {
-      showLoading(false);
-    }
+    if (previewContainer) previewContainer.classList.add('active');
+    if (dataListContainer) dataListContainer.classList.remove('active');
   }
 
   // Export to Excel
   function exportExcel() {
-    // Prepare data - TAMBAHKAN KOLOM BARU
+    // Prepare data
     const exportData = filteredData.map(data => ({
       'No Surat': data.noSurat || '',
       'Nama Karyawan': data.namaLengkap || '',
@@ -2471,26 +3162,10 @@ text-align: center;
     
     // Set column widths
     const wscols = [
-      {wch: 20}, // No Surat
-      {wch: 25}, // Nama Karyawan
-      {wch: 15}, // NIP
-      {wch: 20}, // Nomor KTP
-      {wch: 20}, // Wilayah Area
-      {wch: 15}, // WhatsApp
-      {wch: 20}, // Jabatan
-      {wch: 15}, // Departemen
-      {wch: 15}, // Tempat Lahir
-      {wch: 15}, // Tanggal Lahir
-      {wch: 15}, // Tanggal Mulai
-      {wch: 15}, // Tanggal Berakhir
-      {wch: 20}, // Alasan Berhenti
-      {wch: 15}, // Status
-      {wch: 15}, // Tanggal Surat
-      {wch: 15}, // Tujuan Surat
-      {wch: 30}, // Keterangan
-      {wch: 25}, // Email
-      {wch: 15}, // Tanggal Input
-      {wch: 15}  // Terakhir Update
+      {wch: 20}, {wch: 25}, {wch: 15}, {wch: 20}, {wch: 20},
+      {wch: 15}, {wch: 20}, {wch: 15}, {wch: 15}, {wch: 15},
+      {wch: 15}, {wch: 15}, {wch: 20}, {wch: 15}, {wch: 15},
+      {wch: 15}, {wch: 30}, {wch: 25}, {wch: 15}, {wch: 15}
     ];
     ws['!cols'] = wscols;
     
@@ -2507,44 +3182,13 @@ text-align: center;
     showNotification('Data berhasil diexport ke Excel!', 'success');
   }
 
-  // Show All Data
+  // Show All Data (without pagination)
   function showAllData() {
-    // Show all data without pagination
-    const tbody = document.getElementById('dataTableBody');
-    tbody.innerHTML = '';
-    
-    filteredData.forEach((data, index) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${index + 1}</td>
-        <td><strong>${data.namaLengkap || '-'}</strong></td>
-        <td>${data.nip || '-'}</td>
-        <td>${formatNomorKTPDisplay(data.nomorKTP || '-')}</td>
-        <td>${data.wilayahArea || '-'}</td>
-        <td>${formatWhatsAppDisplay(data.whatsapp || '-')}</td>
-        <td>${data.noSurat || '-'}</td>
-        <td>${formatShortDate(data.tanggalSurat || data.createdAt)}</td>
-        <td>
-          <span class="status-badge status-${data.status || 'pending'}">
-            ${getStatusText(data.status)}
-          </span>
-        </td>
-        <td>
-          <div class="action-buttons">
-            <button class="btn btn-info btn-small" onclick="showDetail('${data.id}')">
-              📋 Detail
-            </button>
-            <button class="btn btn-primary btn-small" onclick="viewLetter('${data.id}')">
-              👁️ Surat
-            </button>
-            <button class="btn btn-success btn-small" onclick="editStatus('${data.id}')">
-              ✏️ Edit
-            </button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(row);
-    });
+    // Show all filtered data in one page
+    const oldItemsPerPage = itemsPerPage;
+    itemsPerPage = filteredData.length;
+    renderDataTable();
+    itemsPerPage = oldItemsPerPage;
     
     showNotification(`Menampilkan semua ${filteredData.length} data`, 'success');
   }
@@ -2563,16 +3207,35 @@ text-align: center;
     }
     
     // Apply to form
-    document.getElementById('emailAdmin').value = settings.emailAdmin;
-    document.getElementById('whatsappAdmin').value = settings.whatsappAdmin;
-    document.getElementById('autoRefresh').value = settings.autoRefresh;
-    document.getElementById('formatNoSurat').value = settings.formatNoSurat;
-    document.getElementById('kotaTandaTangan').value = settings.kotaTandaTangan;
-    document.getElementById('defaultPenandatangan').value = settings.defaultPenandatangan;
-    document.getElementById('defaultJabatan').value = settings.defaultJabatan;
-    document.getElementById('maxData').value = settings.maxData;
-    document.getElementById('showOldData').value = settings.showOldData;
-    document.getElementById('autoBackup').value = settings.autoBackup;
+    const emailAdmin = document.getElementById('emailAdmin');
+    const whatsappAdmin = document.getElementById('whatsappAdmin');
+    const autoRefresh = document.getElementById('autoRefresh');
+    const formatNoSurat = document.getElementById('formatNoSurat');
+    const formatNIP = document.getElementById('formatNIP');
+    const kotaTandaTangan = document.getElementById('kotaTandaTangan');
+    const defaultPenandatangan = document.getElementById('defaultPenandatangan');
+    const defaultJabatan = document.getElementById('defaultJabatan');
+    const maxData = document.getElementById('maxData');
+    const showOldData = document.getElementById('showOldData');
+    const autoBackup = document.getElementById('autoBackup');
+    const maxDataPerHari = document.getElementById('maxDataPerHari');
+    
+    if (emailAdmin) emailAdmin.value = settings.emailAdmin;
+    if (whatsappAdmin) whatsappAdmin.value = settings.whatsappAdmin;
+    if (autoRefresh) autoRefresh.value = settings.autoRefresh;
+    if (formatNoSurat) formatNoSurat.value = settings.formatNoSurat;
+    if (formatNIP) formatNIP.value = settings.formatNIP;
+    if (kotaTandaTangan) kotaTandaTangan.value = settings.kotaTandaTangan;
+    if (defaultPenandatangan) defaultPenandatangan.value = settings.defaultPenandatangan;
+    if (defaultJabatan) defaultJabatan.value = settings.defaultJabatan;
+    if (maxData) maxData.value = settings.maxData;
+    if (showOldData) showOldData.value = settings.showOldData;
+    if (autoBackup) autoBackup.value = settings.autoBackup;
+    if (maxDataPerHari) maxDataPerHari.value = settings.maxDataPerHari;
+    
+    // Update items per page
+    itemsPerPage = parseInt(settings.maxData) || 20;
+    currentPage = 1;
     
     // Setup auto refresh
     setupAutoRefresh();
@@ -2580,18 +3243,46 @@ text-align: center;
 
   // Save Settings
   function saveSettings() {
-    settings.emailAdmin = document.getElementById('emailAdmin').value;
-    settings.whatsappAdmin = document.getElementById('whatsappAdmin').value;
-    settings.autoRefresh = document.getElementById('autoRefresh').value;
-    settings.formatNoSurat = document.getElementById('formatNoSurat').value;
-    settings.kotaTandaTangan = document.getElementById('kotaTandaTangan').value;
-    settings.defaultPenandatangan = document.getElementById('defaultPenandatangan').value;
-    settings.defaultJabatan = document.getElementById('defaultJabatan').value;
-    settings.maxData = document.getElementById('maxData').value;
-    settings.showOldData = document.getElementById('showOldData').value;
-    settings.autoBackup = document.getElementById('autoBackup').value;
+    const emailAdmin = document.getElementById('emailAdmin');
+    const whatsappAdmin = document.getElementById('whatsappAdmin');
+    const autoRefresh = document.getElementById('autoRefresh');
+    const formatNoSurat = document.getElementById('formatNoSurat');
+    const formatNIP = document.getElementById('formatNIP');
+    const kotaTandaTangan = document.getElementById('kotaTandaTangan');
+    const defaultPenandatangan = document.getElementById('defaultPenandatangan');
+    const defaultJabatan = document.getElementById('defaultJabatan');
+    const maxData = document.getElementById('maxData');
+    const showOldData = document.getElementById('showOldData');
+    const autoBackup = document.getElementById('autoBackup');
+    const maxDataPerHari = document.getElementById('maxDataPerHari');
+    
+    if (!emailAdmin || !whatsappAdmin || !autoRefresh) {
+      showNotification('Form pengaturan tidak lengkap', 'error');
+      return;
+    }
+    
+    settings.emailAdmin = emailAdmin.value;
+    settings.whatsappAdmin = whatsappAdmin.value;
+    settings.autoRefresh = autoRefresh.value;
+    settings.formatNoSurat = formatNoSurat ? formatNoSurat.value : settings.formatNoSurat;
+    settings.formatNIP = formatNIP ? formatNIP.value : settings.formatNIP;
+    settings.kotaTandaTangan = kotaTandaTangan ? kotaTandaTangan.value : settings.kotaTandaTangan;
+    settings.defaultPenandatangan = defaultPenandatangan ? defaultPenandatangan.value : settings.defaultPenandatangan;
+    settings.defaultJabatan = defaultJabatan ? defaultJabatan.value : settings.defaultJabatan;
+    settings.maxData = maxData ? maxData.value : settings.maxData;
+    settings.showOldData = showOldData ? showOldData.value : settings.showOldData;
+    settings.autoBackup = autoBackup ? autoBackup.value : settings.autoBackup;
+    settings.maxDataPerHari = maxDataPerHari ? maxDataPerHari.value : settings.maxDataPerHari;
     
     localStorage.setItem('packlaringAdminSettings', JSON.stringify(settings));
+    
+    // Update items per page
+    itemsPerPage = parseInt(settings.maxData) || 20;
+    currentPage = 1;
+    
+    if (document.getElementById('tab-data') && document.getElementById('tab-data').classList.contains('active')) {
+      renderDataTable();
+    }
     
     setupAutoRefresh();
     
@@ -2606,12 +3297,14 @@ text-align: center;
         whatsappAdmin: "081383796300",
         autoRefresh: 60,
         formatNoSurat: "{NO}/SK-HRD/NEXT/{BULAN}/{TAHUN2}",
+        formatNIP: "NEXT-{TAHUN}-{BULAN}-{NO}",
         kotaTandaTangan: "Bekasi",
         defaultPenandatangan: "M. Fajrian Noor",
         defaultJabatan: "Direktur",
-        maxData: 25,
+        maxData: 20,
         showOldData: 90,
-        autoBackup: "weekly"
+        autoBackup: "weekly",
+        maxDataPerHari: "0"
       };
       
       localStorage.setItem('packlaringAdminSettings', JSON.stringify(settings));
@@ -2646,8 +3339,25 @@ text-align: center;
     const lastMonth = new Date();
     lastMonth.setMonth(today.getMonth() - 1);
     
-    document.getElementById('filterDari').value = lastMonth.toISOString().split('T')[0];
-    document.getElementById('filterSampai').value = today.toISOString().split('T')[0];
+    const filterDari = document.getElementById('filterDari');
+    const filterSampai = document.getElementById('filterSampai');
+    
+    if (filterDari) filterDari.value = lastMonth.toISOString().split('T')[0];
+    if (filterSampai) filterSampai.value = today.toISOString().split('T')[0];
+    
+    // Add sort event listeners to table headers
+    document.querySelectorAll('.data-table th[data-sort]').forEach(th => {
+      th.addEventListener('click', function() {
+        const sortColumn = this.getAttribute('data-sort');
+        toggleSort(sortColumn);
+      });
+    });
+    
+    // Set initial sort indicator
+    const initialTh = document.querySelector(`.data-table th[data-sort="${currentSortColumn}"]`);
+    if (initialTh) {
+      initialTh.classList.add(`sort-${currentSortDirection}`);
+    }
     
     // Load initial data
     loadData();
@@ -2667,7 +3377,8 @@ text-align: center;
       // Ctrl + F untuk focus search
       if (e.ctrlKey && e.key === 'f') {
         e.preventDefault();
-        document.getElementById('searchInput').focus();
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) searchInput.focus();
       }
       
       // Escape untuk close modal
