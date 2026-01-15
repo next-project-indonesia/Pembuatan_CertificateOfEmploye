@@ -320,7 +320,7 @@ body {
     background: white;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
     width: 100%;
-    min-width: 1200px;
+    min-width: 1400px;
 }
 
 .data-table {
@@ -674,7 +674,7 @@ body {
     background: white;
     border-radius: 15px;
     width: 90%;
-    max-width: 600px;
+    max-width: 700px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -767,7 +767,7 @@ body {
     }
     
     .data-table {
-        min-width: 1200px;
+        min-width: 1400px;
     }
 }
 
@@ -1228,6 +1228,22 @@ body {
           <input type="text" id="editWilayah" class="form-control" placeholder="Provinsi/Wilayah">
         </div>
         
+        <!-- Data Teknisi -->
+        <div class="form-group">
+          <label>Kabupaten (Khusus Teknisi)</label>
+          <input type="text" id="editKabupaten" class="form-control" placeholder="Nama Kabupaten">
+        </div>
+        <div class="form-group">
+          <label>Koordinator (Khusus Teknisi)</label>
+          <input type="text" id="editKoordinator" class="form-control" placeholder="Nama Koordinator">
+        </div>
+        
+        <!-- Keterangan -->
+        <div class="form-group full-width">
+          <label>Keterangan User</label>
+          <textarea id="editKeterangan" class="form-control" rows="3" placeholder="Keterangan yang diinputkan user..."></textarea>
+        </div>
+        
         <!-- Status -->
         <div class="form-group full-width">
           <label>Status Surat</label>
@@ -1531,6 +1547,9 @@ body {
                   <th data-sort="nip">NIP</th>
                   <th data-sort="nomorKTP">No. KTP</th>
                   <th data-sort="wilayahArea">Provinsi</th>
+                  <th data-sort="kabupaten">Kabupaten</th>
+                  <th data-sort="koordinator">Koordinator</th>
+                  <th data-sort="keterangan">Keterangan</th>
                   <th data-sort="whatsapp">WhatsApp</th>
                   <th data-sort="noSurat">No. Surat</th>
                   <th data-sort="tanggalSurat">Tanggal</th>
@@ -1568,7 +1587,11 @@ body {
           <div class="preview-header">
             <div class="preview-info">
               <h3 id="previewTitle">Surat Packlaring</h3>
-              <p id="previewSubtitle">Detail surat packlaring karyawan</p>
+              <p id="previewSubtitle">
+                <span id="previewNIP">NIP: -</span> • 
+                <span id="previewWhatsapp">WhatsApp: -</span> • 
+                <span id="previewDate">Tanggal: -</span>
+              </p>
             </div>
             <div class="data-actions">
               <button class="btn btn-primary" onclick="downloadPDF()">
@@ -1666,6 +1689,11 @@ body {
 
               <div class="letter-signature-name" id="fieldTandaTangan">M. Fajrian Noor</div>
               <span id="fieldJabatanTTD">Direktur</span>
+            </div>
+
+            <!-- Informasi WhatsApp di footer -->
+            <div class="letter-footer" style="text-align: center; font-size: 10pt; margin-top: 2cm;">
+              <p>Untuk informasi lebih lanjut, hubungi WhatsApp: <span id="fieldWhatsappFooter">081383796300</span></p>
             </div>
           </div>
         </div>
@@ -1775,7 +1803,7 @@ body {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
               <div>
                 <small style="color: #888;">Versi Sistem</small>
-                <div><strong>v2.3.0</strong></div>
+                <div><strong>v2.4.0</strong></div>
               </div>
               <div>
                 <small style="color: #888;">Terakhir Update</small>
@@ -2084,6 +2112,18 @@ body {
           aValue = (a.wilayahArea || '').toLowerCase();
           bValue = (b.wilayahArea || '').toLowerCase();
           break;
+        case 'kabupaten':
+          aValue = (a.kabupaten || '').toLowerCase();
+          bValue = (b.kabupaten || '').toLowerCase();
+          break;
+        case 'koordinator':
+          aValue = (a.koordinator || '').toLowerCase();
+          bValue = (b.koordinator || '').toLowerCase();
+          break;
+        case 'keterangan':
+          aValue = (a.keterangan || '').toLowerCase();
+          bValue = (b.keterangan || '').toLowerCase();
+          break;
         case 'whatsapp':
           aValue = a.whatsapp || '';
           bValue = b.whatsapp || '';
@@ -2147,7 +2187,7 @@ body {
     if (filteredData.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="11" style="text-align: center; padding: 40px; color: #666;">
+          <td colspan="14" style="text-align: center; padding: 40px; color: #666;">
             <h3>📭 Tidak Ada Data</h3>
             <p>Tidak ada data packlaring yang ditemukan.</p>
           </td>
@@ -2171,6 +2211,10 @@ body {
       const globalIndex = startIndex + index + 1;
       const isSelected = selectedIds.has(data.id);
       const row = document.createElement('tr');
+      
+      // Cek jika jabatan adalah teknisi untuk menampilkan data khusus
+      const isTeknisi = data.jabatan && data.jabatan.toLowerCase().includes('teknisi');
+      
       row.innerHTML = `
         <td>
           <input type="checkbox" class="data-checkbox" data-id="${data.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelect('${data.id}')" style="width: 18px; height: 18px;">
@@ -2180,6 +2224,9 @@ body {
         <td>${data.nip || '-'}</td>
         <td>${formatNomorKTPDisplay(data.nomorKTP || '-')}</td>
         <td>${data.wilayahArea || '-'}</td>
+        <td>${data.kabupaten || '-'}</td>
+        <td>${data.koordinator || '-'}</td>
+        <td>${data.keterangan || '-'}</td>
         <td>${formatWhatsAppDisplay(data.whatsapp || '-')}</td>
         <td>${data.noSurat || '-'}</td>
         <td>${formatShortDate(data.tanggalSurat || data.createdAt)}</td>
@@ -2205,6 +2252,12 @@ body {
           </div>
         </td>
       `;
+      
+      // Tambahkan warna latar untuk data teknisi
+      if (isTeknisi) {
+        row.style.backgroundColor = '#f0f8ff';
+      }
+      
       tbody.appendChild(row);
     });
     
@@ -2471,7 +2524,13 @@ body {
             <strong>Wilayah Area:</strong> ${data.wilayahArea || '-'}
           </div>
           <div class="detail-item">
-            <strong>Tempat/Tgl Lahir:</strong> ${data.tempatLahir || '-'}, ${formatDate(data.tanggalLahir)}
+            <strong>Kabupaten:</strong> ${data.kabupaten || '-'}
+          </div>
+          <div class="detail-item">
+            <strong>Koordinator:</strong> ${data.koordinator || '-'}
+          </div>
+          <div class="detail-item">
+            <strong>Keterangan:</strong> ${data.keterangan || '-'}
           </div>
         </div>
         
@@ -2504,9 +2563,6 @@ body {
           </div>
           <div class="detail-item">
             <strong>Alasan Berhenti:</strong> ${data.alasanBerhenti || '-'}
-          </div>
-          <div class="detail-item">
-            <strong>Keterangan:</strong> ${data.keterangan || '-'}
           </div>
         </div>
         
@@ -2572,6 +2628,9 @@ body {
       const editTanggalSurat = document.getElementById('editTanggalSurat');
       const editWhatsapp = document.getElementById('editWhatsapp');
       const editWilayah = document.getElementById('editWilayah');
+      const editKabupaten = document.getElementById('editKabupaten');
+      const editKoordinator = document.getElementById('editKoordinator');
+      const editKeterangan = document.getElementById('editKeterangan');
       const editStatus = document.getElementById('editStatus');
       const editCatatan = document.getElementById('editCatatan');
       
@@ -2582,6 +2641,9 @@ body {
         new Date(data.tanggalSurat).toISOString().split('T')[0] : '';
       if (editWhatsapp) editWhatsapp.value = data.whatsapp || '';
       if (editWilayah) editWilayah.value = data.wilayahArea || '';
+      if (editKabupaten) editKabupaten.value = data.kabupaten || '';
+      if (editKoordinator) editKoordinator.value = data.koordinator || '';
+      if (editKeterangan) editKeterangan.value = data.keterangan || '';
       if (editStatus) editStatus.value = data.status || 'pending';
       if (editCatatan) editCatatan.value = data.catatanAdmin || '';
       
@@ -2606,6 +2668,9 @@ body {
       const editTanggalSurat = document.getElementById('editTanggalSurat');
       const editWhatsapp = document.getElementById('editWhatsapp');
       const editWilayah = document.getElementById('editWilayah');
+      const editKabupaten = document.getElementById('editKabupaten');
+      const editKoordinator = document.getElementById('editKoordinator');
+      const editKeterangan = document.getElementById('editKeterangan');
       const editStatus = document.getElementById('editStatus');
       const editCatatan = document.getElementById('editCatatan');
       
@@ -2619,6 +2684,9 @@ body {
       const tanggalSurat = editTanggalSurat ? editTanggalSurat.value : '';
       const whatsapp = editWhatsapp ? editWhatsapp.value : '';
       const wilayah = editWilayah ? editWilayah.value : '';
+      const kabupaten = editKabupaten ? editKabupaten.value : '';
+      const koordinator = editKoordinator ? editKoordinator.value : '';
+      const keterangan = editKeterangan ? editKeterangan.value : '';
       const status = editStatus ? editStatus.value : 'pending';
       const catatan = editCatatan ? editCatatan.value : '';
       
@@ -2653,6 +2721,9 @@ body {
         tanggalSurat: tanggalSurat ? new Date(tanggalSurat) : null,
         whatsapp: whatsapp,
         wilayahArea: wilayah,
+        kabupaten: kabupaten,
+        koordinator: koordinator,
+        keterangan: keterangan,
         status: status,
         catatanAdmin: catatan,
         updatedAt: new Date(),
@@ -3146,6 +3217,9 @@ body {
           ${data.jabatan || ''}
           ${data.nomorKTP || ''}
           ${data.wilayahArea || ''}
+          ${data.kabupaten || ''}
+          ${data.koordinator || ''}
+          ${data.keterangan || ''}
           ${data.whatsapp || ''}
         `.toLowerCase();
         
@@ -3183,15 +3257,25 @@ body {
       // Update preview title
       const previewTitle = document.getElementById('previewTitle');
       const previewSubtitle = document.getElementById('previewSubtitle');
+      const previewNIP = document.getElementById('previewNIP');
+      const previewWhatsapp = document.getElementById('previewWhatsapp');
+      const previewDate = document.getElementById('previewDate');
       
       if (previewTitle) {
         previewTitle.textContent = 
           `Surat Packlaring - ${selectedData.namaLengkap || 'Tidak Ada Nama'}`;
       }
       
-      if (previewSubtitle) {
-        previewSubtitle.textContent = 
-          `NIP: ${selectedData.nip || '-'} • ${formatDate(selectedData.tanggalSurat)}`;
+      if (previewNIP) {
+        previewNIP.textContent = `NIP: ${selectedData.nip || '-'}`;
+      }
+      
+      if (previewWhatsapp) {
+        previewWhatsapp.textContent = `WhatsApp: ${formatWhatsAppDisplay(selectedData.whatsapp || '-')}`;
+      }
+      
+      if (previewDate) {
+        previewDate.textContent = `Tanggal: ${formatDate(selectedData.tanggalSurat)}`;
       }
       
       // Populate letter template
@@ -3255,6 +3339,7 @@ body {
     const fieldTempatTanggal = document.getElementById('fieldTempatTanggal');
     const fieldTandaTangan = document.getElementById('fieldTandaTangan');
     const fieldJabatanTTD = document.getElementById('fieldJabatanTTD');
+    const fieldWhatsappFooter = document.getElementById('fieldWhatsappFooter');
     
     if (letterNo) letterNo.textContent = `NO : ${data.noSurat || '02/SK-HRD/NEXT/I/25'}`;
     if (fieldPenandatangan) fieldPenandatangan.textContent = data.namaPenandatangan || settings.defaultPenandatangan;
@@ -3270,6 +3355,7 @@ body {
     if (fieldTempatTanggal) fieldTempatTanggal.textContent = `${settings.kotaTandaTangan}, ${formatLetterDate(data.tanggalSurat || new Date())}`;
     if (fieldTandaTangan) fieldTandaTangan.textContent = data.namaPenandatangan || settings.defaultPenandatangan;
     if (fieldJabatanTTD) fieldJabatanTTD.textContent = data.jabatanPenandatangan || settings.defaultJabatan;
+    if (fieldWhatsappFooter) fieldWhatsappFooter.textContent = data.whatsapp || '081383796300';
   }
 
   // Close Preview
@@ -3366,6 +3452,9 @@ body {
       'NIP': data.nip || '',
       'Nomor KTP': data.nomorKTP || '',
       'Wilayah Area': data.wilayahArea || '',
+      'Kabupaten': data.kabupaten || '',
+      'Koordinator': data.koordinator || '',
+      'Keterangan': data.keterangan || '',
       'WhatsApp': data.whatsapp || '',
       'Jabatan': data.jabatan || '',
       'Departemen': data.deptKaryawan || '',
@@ -3377,7 +3466,6 @@ body {
       'Status': getStatusText(data.status),
       'Tanggal Surat': formatShortDate(data.tanggalSurat),
       'Tujuan Surat': data.tujuanSurat || '',
-      'Keterangan': data.keterangan || '',
       'Email': data.email || '',
       'Tanggal Input': formatShortDate(data.createdAt),
       'Terakhir Update': formatShortDate(data.updatedAt || data.createdAt)
@@ -3389,9 +3477,10 @@ body {
     // Set column widths
     const wscols = [
       {wch: 20}, {wch: 25}, {wch: 15}, {wch: 20}, {wch: 20},
-      {wch: 15}, {wch: 20}, {wch: 15}, {wch: 15}, {wch: 15},
-      {wch: 15}, {wch: 15}, {wch: 20}, {wch: 15}, {wch: 15},
-      {wch: 15}, {wch: 30}, {wch: 25}, {wch: 15}, {wch: 15}
+      {wch: 15}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 15},
+      {wch: 20}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15},
+      {wch: 15}, {wch: 20}, {wch: 15}, {wch: 15}, {wch: 25},
+      {wch: 25}, {wch: 15}, {wch: 15}
     ];
     ws['!cols'] = wscols;
     
