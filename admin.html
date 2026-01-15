@@ -1272,6 +1272,63 @@ body {
   </div>
 </div>
 
+<!-- Modal Hapus Data -->
+<div class="modal" id="deleteModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>🗑️ Hapus Data</h3>
+      <button class="modal-close" onclick="closeDeleteModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="deleteContent">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <div style="font-size: 60px; color: #e74c3c; margin-bottom: 20px;">⚠️</div>
+          <h3 style="color: #333; margin-bottom: 10px;" id="deleteTitle">Konfirmasi Hapus Data</h3>
+          <p style="color: #666;" id="deleteMessage">Apakah Anda yakin ingin menghapus data ini?</p>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+          <h4 style="margin-bottom: 15px; color: #333;">📋 Detail Data yang Akan Dihapus</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <div>
+              <small style="color: #888;">Nama</small>
+              <div><strong id="deleteNama">-</strong></div>
+            </div>
+            <div>
+              <small style="color: #888;">NIP</small>
+              <div><strong id="deleteNIP">-</strong></div>
+            </div>
+            <div>
+              <small style="color: #888;">Nomor Surat</small>
+              <div><strong id="deleteNoSurat">-</strong></div>
+            </div>
+            <div>
+              <small style="color: #888;">Tanggal Input</small>
+              <div><strong id="deleteTanggal">-</strong></div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid #ffc107;">
+          <h5 style="color: #856404; margin-bottom: 10px;">⚠️ PERINGATAN</h5>
+          <p style="color: #856404; font-size: 14px; margin: 0;">
+            Data yang sudah dihapus <strong>TIDAK DAPAT</strong> dikembalikan. Pastikan Anda sudah mencetak atau mendownload data sebelum menghapus.
+          </p>
+        </div>
+        
+        <div style="display: flex; gap: 15px; margin-top: 30px;">
+          <button type="button" class="btn btn-danger" onclick="confirmDelete()" style="flex: 1;">
+            🗑️ Ya, Hapus Data
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()" style="flex: 1;">
+            ❌ Batalkan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Main Admin Container -->
 <div class="admin-container">
   <!-- Header -->
@@ -1445,6 +1502,21 @@ body {
               <button class="btn btn-warning" onclick="showAllData()">
                 👁️ Tampilkan Semua
               </button>
+              <button class="btn btn-danger" onclick="deleteMultiple()">
+                🗑️ Hapus Multiple
+              </button>
+            </div>
+          </div>
+          
+          <!-- Checkbox untuk seleksi massal -->
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;">
+            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" style="width: 18px; height: 18px;">
+            <label for="selectAll" style="font-weight: 500; color: #333;">Pilih Semua</label>
+            <div style="margin-left: auto; display: flex; gap: 10px;">
+              <span id="selectedCount" style="color: #666;">0 data terpilih</span>
+              <button class="btn btn-danger btn-small" onclick="deleteSelected()" id="deleteSelectedBtn" disabled>
+                🗑️ Hapus Terpilih
+              </button>
             </div>
           </div>
           
@@ -1453,6 +1525,7 @@ body {
             <table class="data-table">
               <thead>
                 <tr>
+                  <th width="50">Pilih</th>
                   <th data-sort="index">No</th>
                   <th data-sort="namaLengkap">Nama Karyawan</th>
                   <th data-sort="nip">NIP</th>
@@ -1811,6 +1884,10 @@ body {
     maxDataPerHari: "0"
   };
 
+  // Variables for multi-select
+  let selectedIds = new Set();
+  let deleteDataToDelete = null;
+
   // Format tanggal Indonesia
   function formatDate(dateString) {
     if (!dateString) return '-';
@@ -2070,13 +2147,14 @@ body {
     if (filteredData.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="10" style="text-align: center; padding: 40px; color: #666;">
+          <td colspan="11" style="text-align: center; padding: 40px; color: #666;">
             <h3>📭 Tidak Ada Data</h3>
             <p>Tidak ada data packlaring yang ditemukan.</p>
           </td>
         </tr>
       `;
       updatePaginationInfo();
+      updateSelectedCount();
       return;
     }
     
@@ -2091,8 +2169,12 @@ body {
     // Render table rows
     displayData.forEach((data, index) => {
       const globalIndex = startIndex + index + 1;
+      const isSelected = selectedIds.has(data.id);
       const row = document.createElement('tr');
       row.innerHTML = `
+        <td>
+          <input type="checkbox" class="data-checkbox" data-id="${data.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelect('${data.id}')" style="width: 18px; height: 18px;">
+        </td>
         <td>${globalIndex}</td>
         <td><strong>${data.namaLengkap || '-'}</strong></td>
         <td>${data.nip || '-'}</td>
@@ -2117,6 +2199,9 @@ body {
             <button class="btn btn-success btn-small" onclick="editData('${data.id}')">
               ✏️ Edit
             </button>
+            <button class="btn btn-danger btn-small" onclick="confirmDeleteData('${data.id}')">
+              🗑️ Hapus
+            </button>
           </div>
         </td>
       `;
@@ -2125,6 +2210,7 @@ body {
     
     updatePaginationInfo();
     updatePaginationControls();
+    updateSelectedCount();
   }
 
   // Update Pagination Information
@@ -2232,18 +2318,9 @@ body {
     
     const dbSizeElement = document.getElementById('dbSize');
     const storageSizeElement = document.getElementById('storageSize');
-    const storageUsedInfoElement = document.getElementById('storageUsedInfo');
     
     if (dbSizeElement) dbSizeElement.textContent = storageSize;
     if (storageSizeElement) storageSizeElement.textContent = storageSize;
-    if (storageUsedInfoElement) storageUsedInfoElement.textContent = storageSize;
-    
-    // Calculate average data size
-    const avgSize = allData.length > 0 ? 
-      formatBytes(calculateDataSize(allData) / allData.length) : '0 KB';
-    
-    const avgDataSizeElement = document.getElementById('avgDataSize');
-    if (avgDataSizeElement) avgDataSizeElement.textContent = avgSize;
     
     // Calculate storage usage percentage (simulated)
     const storageUsed = allData.length;
@@ -2251,27 +2328,17 @@ body {
     const percentage = Math.min((storageUsed / storageLimit) * 100, 100);
     
     const storageProgressBar = document.getElementById('storageProgressBar');
-    const storageProgressInfo = document.getElementById('storageProgressInfo');
-    const storagePercentage = document.getElementById('storagePercentage');
     const storageUsedElement = document.getElementById('storageUsed');
     const storageTotalElement = document.getElementById('storageTotal');
     const storageDetails = document.getElementById('storageDetails');
-    const storageEstimated = document.getElementById('storageEstimated');
     const todayDataCount = document.getElementById('todayDataCount');
     const totalDataInfo = document.getElementById('totalDataInfo');
-    const activeDataCount = document.getElementById('activeDataCount');
     
     if (storageProgressBar) storageProgressBar.style.width = `${percentage}%`;
-    if (storageProgressInfo) storageProgressInfo.style.width = `${percentage}%`;
-    if (storagePercentage) storagePercentage.textContent = `${percentage.toFixed(1)}% terpakai`;
     if (storageUsedElement) storageUsedElement.textContent = storageUsed;
     if (storageTotalElement) storageTotalElement.textContent = storageLimit;
     if (storageDetails) storageDetails.innerHTML = 
       `<span id="storageUsed">${storageUsed}</span> dari <span id="storageTotal">${storageLimit}</span> data`;
-    
-    // Estimate total storage
-    const estimatedTotal = formatBytes(calculateDataSize(allData));
-    if (storageEstimated) storageEstimated.textContent = estimatedTotal;
     
     // Count today's data
     const today = new Date();
@@ -2285,16 +2352,6 @@ body {
     
     if (todayDataCount) todayDataCount.textContent = todayData.length;
     if (totalDataInfo) totalDataInfo.textContent = allData.length;
-    
-    // Count active data (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const activeData = allData.filter(d => {
-      const dataDate = d.createdAt ? new Date(d.createdAt) : null;
-      return dataDate && dataDate > thirtyDaysAgo;
-    });
-    
-    if (activeDataCount) activeDataCount.textContent = activeData.length;
   }
 
   // Get Firebase Storage Information
@@ -2474,6 +2531,20 @@ body {
           </div>
         </div>
       </div>
+      
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+        <div style="display: flex; gap: 15px; justify-content: flex-end;">
+          <button class="btn btn-primary" onclick="viewLetter('${data.id}')">
+            👁️ Lihat Surat
+          </button>
+          <button class="btn btn-success" onclick="editData('${data.id}')">
+            ✏️ Edit Data
+          </button>
+          <button class="btn btn-danger" onclick="confirmDeleteData('${data.id}')">
+            🗑️ Hapus Data
+          </button>
+        </div>
+      </div>
     `;
     
     const detailContent = document.getElementById('detailContent');
@@ -2599,6 +2670,161 @@ body {
     } finally {
       showLoading(false);
     }
+  }
+
+  // Confirm Delete Data
+  function confirmDeleteData(docId) {
+    const data = allData.find(d => d.id === docId);
+    if (!data) return;
+    
+    deleteDataToDelete = {
+      id: docId,
+      data: data
+    };
+    
+    // Update modal content
+    document.getElementById('deleteNama').textContent = data.namaLengkap || '-';
+    document.getElementById('deleteNIP').textContent = data.nip || '-';
+    document.getElementById('deleteNoSurat').textContent = data.noSurat || '-';
+    document.getElementById('deleteTanggal').textContent = formatDate(data.createdAt);
+    
+    document.getElementById('deleteTitle').textContent = `Hapus Data: ${data.namaLengkap || 'Tanpa Nama'}`;
+    document.getElementById('deleteMessage').textContent = 
+      `Apakah Anda yakin ingin menghapus data "${data.namaLengkap || 'Data'}"?`;
+    
+    // Show delete modal
+    const deleteModal = document.getElementById('deleteModal');
+    if (deleteModal) deleteModal.classList.add('active');
+  }
+
+  // Close Delete Modal
+  function closeDeleteModal() {
+    deleteDataToDelete = null;
+    const deleteModal = document.getElementById('deleteModal');
+    if (deleteModal) deleteModal.classList.remove('active');
+  }
+
+  // Confirm Delete (after confirmation)
+  async function confirmDelete() {
+    if (!deleteDataToDelete) return;
+    
+    showLoading(true);
+    
+    try {
+      await db.collection('packlaring').doc(deleteDataToDelete.id).delete();
+      
+      showNotification(
+        `Data "${deleteDataToDelete.data.namaLengkap || 'Data'}" berhasil dihapus!`, 
+        'success'
+      );
+      
+      // Remove from selected IDs if exists
+      selectedIds.delete(deleteDataToDelete.id);
+      
+      // Close modal and reload data
+      closeDeleteModal();
+      loadData();
+      
+    } catch (error) {
+      console.error('Error deleting data:', error);
+      showNotification('Gagal menghapus data: ' + error.message, 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  // Multi-select functions
+  function toggleSelect(id) {
+    if (selectedIds.has(id)) {
+      selectedIds.delete(id);
+    } else {
+      selectedIds.add(id);
+    }
+    updateSelectedCount();
+  }
+
+  function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    if (!selectAll) return;
+    
+    if (selectAll.checked) {
+      // Select all filtered data
+      filteredData.forEach(item => {
+        selectedIds.add(item.id);
+      });
+    } else {
+      // Deselect all
+      selectedIds.clear();
+    }
+    
+    // Update checkboxes
+    document.querySelectorAll('.data-checkbox').forEach(checkbox => {
+      checkbox.checked = selectAll.checked;
+    });
+    
+    updateSelectedCount();
+  }
+
+  function updateSelectedCount() {
+    const selectedCount = document.getElementById('selectedCount');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    
+    if (selectedCount) {
+      selectedCount.textContent = `${selectedIds.size} data terpilih`;
+    }
+    
+    if (deleteSelectedBtn) {
+      deleteSelectedBtn.disabled = selectedIds.size === 0;
+    }
+    
+    // Update "Select All" checkbox state
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll && filteredData.length > 0) {
+      const allChecked = filteredData.every(item => selectedIds.has(item.id));
+      selectAll.checked = allChecked;
+      selectAll.indeterminate = !allChecked && selectedIds.size > 0;
+    }
+  }
+
+  // Delete selected data
+  async function deleteSelected() {
+    if (selectedIds.size === 0) return;
+    
+    const count = selectedIds.size;
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${count} data yang dipilih?`)) {
+      return;
+    }
+    
+    showLoading(true);
+    
+    try {
+      // Delete each selected document
+      const deletePromises = Array.from(selectedIds).map(id => 
+        db.collection('packlaring').doc(id).delete()
+      );
+      
+      await Promise.all(deletePromises);
+      
+      showNotification(`${count} data berhasil dihapus!`, 'success');
+      
+      // Clear selection and reload data
+      selectedIds.clear();
+      loadData();
+      
+    } catch (error) {
+      console.error('Error deleting selected data:', error);
+      showNotification('Gagal menghapus data: ' + error.message, 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  // Show multiple delete instructions
+  function deleteMultiple() {
+    showNotification(
+      'Pilih data yang ingin dihapus dengan mencentang kotak di kolom "Pilih", lalu klik "Hapus Terpilih"',
+      'info'
+    );
   }
 
   // Update Dashboard
@@ -3385,7 +3611,24 @@ body {
       if (e.key === 'Escape') {
         closeModal();
         closeDetailModal();
+        closeDeleteModal();
         closePreview();
+      }
+      
+      // Ctrl + A untuk select all pada tabel
+      if (e.ctrlKey && e.key === 'a' && document.getElementById('tab-data').classList.contains('active')) {
+        e.preventDefault();
+        const selectAll = document.getElementById('selectAll');
+        if (selectAll) {
+          selectAll.checked = !selectAll.checked;
+          toggleSelectAll();
+        }
+      }
+      
+      // Delete key untuk hapus data terpilih
+      if (e.key === 'Delete' && selectedIds.size > 0) {
+        e.preventDefault();
+        deleteSelected();
       }
     });
   });
