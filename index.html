@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Formulir Packlaring - NEXT Logistics</title>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .title h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .title p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+
+    /* Form Container */
+    .form-container {
+      padding: 30px;
+    }
+
+    /* Progress Steps */
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #e0e0e0;
+      z-index: 1;
+    }
+
+    .step {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      width: 80px;
+    }
+
+    .step-number {
+      width: 30px;
+      height: 30px;
+      background: #e0e0e0;
+      color: #666;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-weight: bold;
+      transition: all 0.3s;
+    }
+
+    .step.active .step-number {
+      background: #3498db;
+      color: white;
+    }
+
+    .step.completed .step-number {
+      background: #27ae60;
+      color: white;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .step.active .step-label {
+      color: #3498db;
+      font-weight: bold;
+    }
+
+    /* Form Steps */
+    .form-step {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .form-step.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-title {
+      font-size: 20px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    /* Form Groups */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #444;
+    }
+
+    label.required::after {
+      content: " *";
+      color: #e74c3c;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s;
+      background: #f8f9fa;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+      background: white;
+    }
+
+    .form-control:read-only {
+      background: #f5f5f5;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .help-text {
+      display: block;
+      margin-top: 5px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* Button Groups */
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 40px;
+      gap: 15px;
+    }
+
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-primary {
+      background: #3498db;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(52, 152, 219, 0.2);
+    }
+
+    .btn-success {
+      background: #27ae60;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #219653;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(39, 174, 96, 0.2);
+    }
+
+    .btn-secondary {
+      background: #95a5a6;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #7f8c8d;
+      transform: translateY(-2px);
+    }
+
+    .btn-warning {
+      background: #f39c12;
+      color: white;
+    }
+
+    .btn-warning:hover {
+      background: #e67e22;
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* Preview Section */
+    .preview-section {
+      background: #f8f9fa;
+      border-radius: 15px;
+      padding: 25px;
+      margin-top: 30px;
+      border: 2px dashed #ddd;
+    }
+
+    .preview-title {
+      font-size: 18px;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .preview-item {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #3498db;
+    }
+
+    .preview-label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .preview-value {
+      font-size: 16px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    /* Success Message */
+    .success-message {
+      display: none;
+      text-align: center;
+      padding: 50px 30px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .success-message.active {
+      display: block;
+    }
+
+    .success-icon {
+      font-size: 80px;
+      color: #27ae60;
+      margin-bottom: 20px;
+    }
+
+    .success-message h2 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+
+    .success-message p {
+      color: #666;
+      margin-bottom: 30px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .whatsapp-btn {
+      background: #25d366;
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s;
+      margin-top: 20px;
+    }
+
+    .whatsapp-btn:hover {
+      background: #128c7e;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);
+    }
+
+    /* Loading Overlay */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      flex-direction: column;
+    }
+
+    .loading.active {
+      display: flex;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #f3f3f3;
+      border-top: 5px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Alert Messages */
+    .alert {
+      padding: 15px 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .alert.active {
+      display: block;
+    }
+
+    .alert-success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+
+    .alert-error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+
+    .alert-info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+        border-radius: 15px;
+      }
+      
+      .header {
+        padding: 20px;
+      }
+      
+      .form-container {
+        padding: 20px;
+      }
+      
+      .steps {
+        margin-bottom: 30px;
+      }
+      
+      .step {
+        width: 60px;
+      }
+      
+      .step-label {
+        font-size: 10px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .preview-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .step-number {
+        width: 25px;
+        height: 25px;
+        font-size: 14px;
+      }
+      
+      .step-title {
+        font-size: 18px;
+      }
+      
+      .form-control {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+    }
+
+    /* Utility Classes */
+    .text-center {
+      text-align: center;
+    }
+
+    .mb-20 {
+      margin-bottom: 20px;
+    }
+
+    .mt-20 {
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Print Styles */
+    @media print {
+      .header,
+      .steps,
+      .button-group,
+      .alert {
+        display: none !important;
+      }
+      
+      .form-step {
+        display: block !important;
+      }
+      
+      .container {
+        box-shadow: none;
+        border: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <p style="color: #3498db; font-weight: 600; margin-top: 10px;">Menyimpan data...</p>
+</div>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">NEXT-PROJECT-IFP</div>
+    <div class="title">
+      <h1>FORMULIR PACKLARING</h1>
+      <p>NEXT Cargo Logistics - Surat Keterangan Kerja</p>
+      <div class="badge">Hubungi HRD: 081383796300</div>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  <div class="alert" id="alert"></div>
+
+  <!-- Progress Steps -->
+  <div class="steps">
+    <div class="step active" id="step1">
+      <div class="step-number">1</div>
+      <div class="step-label">Data Surat</div>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-number">2</div>
+      <div class="step-label">Data Pribadi</div>
+    </div>
+    <div class="step" id="step3">
+      <div class="step-number">3</div>
+      <div class="step-label">Masa Kerja</div>
+    </div>
+    <div class="step" id="step4">
+      <div class="step-number">4</div>
+      <div class="step-label">Konfirmasi</div>
+    </div>
+  </div>
+
+  <!-- Form Steps -->
+  <div class="form-container">
+    <!-- Step 1: Data Surat -->
+    <div class="form-step active" id="formStep1">
+      <h2 class="step-title">📄 Data Surat</h2>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Kode Surat</label>
+          <input type="text" id="kodeSurat" class="form-control" value="SK" readonly>
+          <span class="help-text">Kode tetap untuk Surat Keterangan</span>
+        </div>
+        
+        <div class="form-group">
+          <label class="required">Departemen</label>
+          <input type="text" id="departemen" class="form-control" value="HRD" readonly>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Nomor Surat</label>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="noSurat" class="form-control" placeholder="Auto Generate" readonly>
+            <button type="button" class="btn btn-warning" onclick="generateNomorSurat()" style="white-space: nowrap;">
+              Generate
+            </button>
+          </div>
+          <span class="help-text">Generate otomatis dari sistem</span>
+        </div>
+        
+        <div class="form-group">
+          <label class="required">Tanggal Surat</label>
+          <input type="date" id="tanggalSurat" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Tujuan Surat</label>
+        <select id="tujuanSurat" class="form-control">
+          <option value="Packlaring" selected>Paklaring</option>
+          <option value="Pengunduran Diri">Pengunduran Diri</option>
+          <option value="PHK">Pemutusan Hubungan Kerja</option>
+          <option value="Mutasi">Mutasi</option>
+          <option value="Promosi">Promosi</option>
+        </select>
+      </div>
+
+      <div class="button-group">
+        <div></div> <!-- Empty div untuk alignment -->
+        <button class="btn btn-primary" onclick="nextStep()">
+          Selanjutnya <span style="font-size: 18px;">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Data Pribadi -->
+    <div class="form-step" id="formStep2">
+      <h2 class="step-title">👤 Data Pribadi</h2>
+      
+      <div class="form-group">
+        <label class="required">Nama Lengkap</label>
+        <input type="text" id="namaLengkap" class="form-control" placeholder="Masukkan nama lengkap sesuai KTP">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Tempat Lahir</label>
+          <input type="text" id="tempatLahir" class="form-control" placeholder="Kota kelahiran">
+        </div>
+        
+        <div class="form-group">
+          <label class="required">Tanggal Lahir</label>
+          <input type="date" id="tanggalLahir" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">NIP / ID Karyawan</label>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="nip" class="form-control" placeholder="NEXT0001" readonly>
+            <button type="button" class="btn btn-warning" onclick="generateNIP()" style="white-space: nowrap;">
+              Generate NIP
+            </button>
+          </div>
+          <span class="help-text">ID unik karyawan</span>
+        </div>
+        
+        <div class="form-group">
+          <label class="required">Jabatan Terakhir</label>
+        <select id="jabatan" class="form-control">
+          <option value="">Pilih Jabatan</option>
+          <option value="TEKNISI">TEKNISI</option>
+          <option value="Staff Admin">Staff Admin</option>
+          <option value="Coordinator Area">Coordinator Area</option>
+          <option value="Customer Service">Customer Service</option>
+          <option value="Staff Monitoring">Staff Monitoring</option>
+          <option value="Manager Area">Manager Area</option>
+          <!--<option value="Lainnya">Lainnya</option>-->
+        </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Departemen</label>
+        <select id="deptKaryawan" class="form-control">
+          <option value="">Pilih Departemen</option>
+          <option value="HRD">HRD</option>
+        </select>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="prevStep()">
+          <span style="font-size: 18px;">←</span> Sebelumnya
+        </button>
+        <button class="btn btn-primary" onclick="nextStep()">
+          Selanjutnya <span style="font-size: 18px;">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 3: Masa Kerja -->
+    <div class="form-step" id="formStep3">
+      <h2 class="step-title">📅 Masa Kerja</h2>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="required">Tanggal Mulai Kerja</label>
+          <input type="date" id="tanggalMulai" class="form-control">
+          <span class="help-text">Tanggal mulai bekerja di perusahaan</span>
+        </div>
+        
+        <div class="form-group">
+          <label class="required">Tanggal Berakhir</label>
+          <input type="date" id="tanggalBerakhir" class="form-control">
+          <span class="help-text">Tanggal terakhir bekerja</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="required">Alasan Berhenti</label>
+        <select id="alasanBerhenti" class="form-control">
+          <option value="Kontrak Berakhir" selected>Kontrak Berakhir</option>
+          <option value="Pengunduran Diri">Pengunduran Diri</option>
+          <option value="PHK">Pemutusan Hubungan Kerja</option>
+          <option value="Pensiun">Pensiun</option>
+          <option value="Meninggal Dunia">Meninggal Dunia</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Keterangan Tambahan</label>
+        <textarea id="keterangan" class="form-control" rows="4" placeholder="Tambahkan keterangan jika diperlukan..."></textarea>
+      </div>
+
+      <div class="preview-section" id="previewMasaKerja">
+        <div class="preview-title">
+          <span>📋 Preview Data</span>
+          <button type="button" class="btn btn-secondary" onclick="updatePreview()" style="padding: 5px 10px; font-size: 12px;">
+            Refresh Preview
+          </button>
+        </div>
+        <div class="preview-grid" id="previewContent">
+          <!-- Preview akan diisi oleh JavaScript -->
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="prevStep()">
+          <span style="font-size: 18px;">←</span> Sebelumnya
+        </button>
+        <button class="btn btn-primary" onclick="nextStep()">
+          Selanjutnya <span style="font-size: 18px;">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 4: Konfirmasi -->
+    <div class="form-step" id="formStep4">
+      <h2 class="step-title">✅ Konfirmasi Data</h2>
+      
+      <div class="preview-section">
+        <div class="preview-title">
+          <span>📄 Ringkasan Data Packlaring</span>
+        </div>
+        <div class="preview-grid" id="finalPreview">
+          <!-- Final preview akan diisi oleh JavaScript -->
+        </div>
+      </div>
+
+      <div class="form-group mt-20">
+        <label>Email untuk Notifikasi (opsional)</label>
+        <input type="email" id="email" class="form-control" placeholder="email@contoh.com">
+        <span class="help-text">Kirim salinan konfirmasi ke email</span>
+      </div>
+
+      <div class="form-group">
+        <label>No. WhatsApp untuk Konfirmasi</label>
+        <input type="tel" id="whatsapp" class="form-control" placeholder="081234567890">
+        <span class="help-text">Admin akan menghubungi via WhatsApp</span>
+      </div>
+
+      <div class="alert alert-info" style="display: block;">
+        <strong>📢 Informasi Penting:</strong>
+        <p style="margin-top: 5px; font-size: 14px;">
+          • Data yang sudah dikirim akan diproses oleh HRD dalam 1-3 hari kerja<br>
+          • Pastikan semua data sudah benar sebelum mengirim<br>
+          • Admin akan menghubungi via WhatsApp untuk konfirmasi
+        </p>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-secondary" onclick="prevStep()">
+          <span style="font-size: 18px;">←</span> Periksa Kembali
+        </button>
+        <button class="btn btn-success" onclick="submitForm()">
+          <span style="font-size: 20px;">✓</span> Kirim Permintaan
+        </button>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+      <div class="success-icon">✅</div>
+      <h2>Permintaan Berhasil Dikirim!</h2>
+      <p>
+        Data packlaring Anda telah berhasil disimpan. <br>
+        Tim HRD akan memproses permintaan Anda dan akan menghubungi via WhatsApp dalam 1-3 hari kerja.
+      </p>
+      
+      <div class="preview-section" style="max-width: 500px; margin: 30px auto;">
+        <div class="preview-item">
+          <div class="preview-label">Nomor Surat</div>
+          <div class="preview-value" id="successNoSurat">-</div>
+        </div>
+        <div class="preview-item">
+          <div class="preview-label">Nama</div>
+          <div class="preview-value" id="successNama">-</div>
+        </div>
+        <div class="preview-item">
+          <div class="preview-label">NIP</div>
+          <div class="preview-value" id="successNIP">-</div>
+        </div>
+        <div class="preview-item">
+          <div class="preview-label">Status</div>
+          <div class="preview-value" style="color: #f39c12;">⏳ Menunggu Proses</div>
+        </div>
+      </div>
+
+      <p style="margin-top: 30px; font-size: 14px; color: #666;">
+        <strong>📱 Hubungi Admin:</strong><br>
+        Jika ada pertanyaan, hubungi admin via WhatsApp:
+      </p>
+      
+      <a href="https://wa.me/6281383796300?text=Halo%20Admin,%20saya%20sudah%20mengirim%20permintaan%20packlaring." 
+         class="whatsapp-btn" target="_blank">
+        <span style="font-size: 20px;">💬</span> Chat Admin via WhatsApp
+      </a>
+      
+      <div style="margin-top: 40px;">
+        <button class="btn btn-primary" onclick="resetForm()">
+          <span style="font-size: 18px;">🔄</span> Buat Permintaan Baru
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase Configuration -->
+<script>
+  // Konfigurasi Firebase Anda
+  const firebaseConfig = {
+    apiKey: "AIzaSyAEvDR-h0hkgs1xAawra7u3jo9Sc3lCbpo",
+    authDomain: "next-packlaring.firebaseapp.com",
+    projectId: "next-packlaring",
+    storageBucket: "next-packlaring.firebasestorage.app",
+    messagingSenderId: "400584486436",
+    appId: "1:400584486436:web:99067d2c6dc6d87ef7b2b1",
+    measurementId: "G-KRFXBYN663"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  // Global Variables
+  let currentStep = 1;
+  let lastSuratNumber = 0;
+  let lastNIPNumber = 0;
+  let generatedData = {
+    noSurat: '',
+    nip: '',
+    nomorUrut: 0,
+    nipNumber: 0
+  };
+
+  // Format tanggal Indonesia
+  function formatDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString('id-ID', options);
+  }
+
+  function formatShortDate(dateString) {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString().slice(-2);
+    return `${day}/${month}/${year}`;
+  }
+
+  // Show Loading
+  function showLoading(show) {
+    document.getElementById('loading').classList.toggle('active', show);
+  }
+
+  // Show Alert
+  function showAlert(message, type = 'success') {
+    const alert = document.getElementById('alert');
+    alert.textContent = message;
+    alert.className = `alert alert-${type} active`;
+    
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+      alert.classList.remove('active');
+    }, 5000);
+  }
+
+  // Navigasi Step
+  function nextStep() {
+    // Validasi step saat ini sebelum lanjut
+    if (!validateCurrentStep()) {
+      return;
+    }
+    
+    // Update preview jika di step 3
+    if (currentStep === 3) {
+      updatePreview();
+    }
+    
+    // Update final preview jika di step 4
+    if (currentStep === 4) {
+      updateFinalPreview();
+    }
+    
+    // Hide current step
+    document.getElementById(`formStep${currentStep}`).classList.remove('active');
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    
+    // Update current step
+    currentStep++;
+    
+    // Show next step
+    document.getElementById(`formStep${currentStep}`).classList.add('active');
+    document.getElementById(`step${currentStep}`).classList.add('active');
+    
+    // Scroll to top of form
+    document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function prevStep() {
+    // Hide current step
+    document.getElementById(`formStep${currentStep}`).classList.remove('active');
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    
+    // Update current step
+    currentStep--;
+    
+    // Show previous step
+    document.getElementById(`formStep${currentStep}`).classList.add('active');
+    document.getElementById(`step${currentStep}`).classList.add('active');
+    
+    // Scroll to top of form
+    document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function goToStep(step) {
+    // Hide current step
+    document.getElementById(`formStep${currentStep}`).classList.remove('active');
+    document.getElementById(`step${currentStep}`).classList.remove('active');
+    
+    // Update current step
+    currentStep = step;
+    
+    // Show selected step
+    document.getElementById(`formStep${currentStep}`).classList.add('active');
+    document.getElementById(`step${currentStep}`).classList.add('active');
+  }
+
+  // Validasi Step
+  function validateCurrentStep() {
+    const errors = [];
+    
+    switch(currentStep) {
+      case 1: // Data Surat
+        if (!document.getElementById('tanggalSurat').value) {
+          errors.push('Tanggal Surat harus diisi');
+        }
+        if (!generatedData.noSurat) {
+          errors.push('Generate Nomor Surat terlebih dahulu');
+        }
+        break;
+        
+      case 2: // Data Pribadi
+        if (!document.getElementById('namaLengkap').value.trim()) {
+          errors.push('Nama Lengkap harus diisi');
+        }
+        if (!document.getElementById('tempatLahir').value.trim()) {
+          errors.push('Tempat Lahir harus diisi');
+        }
+        if (!document.getElementById('tanggalLahir').value) {
+          errors.push('Tanggal Lahir harus diisi');
+        }
+        if (!generatedData.nip) {
+          errors.push('Generate NIP terlebih dahulu');
+        }
+        if (!document.getElementById('jabatan').value.trim()) {
+          errors.push('Jabatan harus diisi');
+        }
+        if (!document.getElementById('deptKaryawan').value) {
+          errors.push('Departemen harus dipilih');
+        }
+        break;
+        
+      case 3: // Masa Kerja
+        if (!document.getElementById('tanggalMulai').value) {
+          errors.push('Tanggal Mulai harus diisi');
+        }
+        if (!document.getElementById('tanggalBerakhir').value) {
+          errors.push('Tanggal Berakhir harus diisi');
+        }
+        
+        // Validasi tanggal
+        const tanggalMulai = new Date(document.getElementById('tanggalMulai').value);
+        const tanggalBerakhir = new Date(document.getElementById('tanggalBerakhir').value);
+        if (tanggalBerakhir <= tanggalMulai) {
+          errors.push('Tanggal Berakhir harus setelah Tanggal Mulai');
+        }
+        break;
+    }
+    
+    if (errors.length > 0) {
+      showAlert(errors.join(', '), 'error');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Generate Nomor Surat
+  async function generateNomorSurat() {
+    showLoading(true);
+    
+    try {
+      // Cek data terakhir dari Firebase
+      const snapshot = await db.collection('packlaring')
+        .orderBy('nomorUrut', 'desc')
+        .limit(1)
+        .get();
+      
+      if (!snapshot.empty) {
+        const lastData = snapshot.docs[0].data();
+        lastSuratNumber = lastData.nomorUrut || 0;
+      }
+      
+      // Generate nomor baru
+      const newNumber = lastSuratNumber + 1;
+      const formattedNumber = newNumber.toString().padStart(3, '0');
+      
+      // Format nomor surat
+      const now = new Date();
+      const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
+      const tahun2 = now.getFullYear().toString().slice(-2);
+      
+      const nomorSurat = `${formattedNumber}/SK-HRD/NEXT/${bulan}/${tahun2}`;
+      
+      // Simpan ke variabel global
+      generatedData.noSurat = nomorSurat;
+      generatedData.nomorUrut = newNumber;
+      
+      // Update input field
+      document.getElementById('noSurat').value = nomorSurat;
+      
+      showAlert(`Nomor surat berhasil digenerate: ${nomorSurat}`, 'success');
+      
+    } catch (error) {
+      console.error('Error generating nomor surat:', error);
+      
+      // Fallback: generate random number if Firebase fails
+      const randomNum = Math.floor(Math.random() * 900) + 100;
+      const now = new Date();
+      const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
+      const tahun2 = now.getFullYear().toString().slice(-2);
+      
+      const nomorSurat = `${randomNum}/SK-HRD/NEXT/${bulan}/${tahun2}`;
+      
+      generatedData.noSurat = nomorSurat;
+      generatedData.nomorUrut = randomNum;
+      
+      document.getElementById('noSurat').value = nomorSurat;
+      
+      showAlert(`Nomor surat digenerate offline: ${nomorSurat}`, 'warning');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  // Generate NIP
+  async function generateNIP() {
+    showLoading(true);
+    
+    try {
+      // Cek NIP terakhir dari Firebase
+      const snapshot = await db.collection('packlaring')
+        .orderBy('nipNumber', 'desc')
+        .limit(1)
+        .get();
+      
+      if (!snapshot.empty) {
+        const lastData = snapshot.docs[0].data();
+        lastNIPNumber = lastData.nipNumber || 0;
+      }
+      
+      // Generate NIP baru
+      const newNumber = lastNIPNumber + 1;
+      const formattedNumber = newNumber.toString().padStart(4, '0');
+      
+      const nip = `NEXT${formattedNumber}`;
+      
+      // Simpan ke variabel global
+      generatedData.nip = nip;
+      generatedData.nipNumber = newNumber;
+      
+      // Update input field
+      document.getElementById('nip').value = nip;
+      
+      showAlert(`NIP berhasil digenerate: ${nip}`, 'success');
+      
+    } catch (error) {
+      console.error('Error generating NIP:', error);
+      
+      // Fallback: generate random NIP
+      const randomNum = Math.floor(Math.random() * 9000) + 1000;
+      const nip = `NEXT${randomNum}`;
+      
+      generatedData.nip = nip;
+      generatedData.nipNumber = randomNum;
+      
+      document.getElementById('nip').value = nip;
+      
+      showAlert(`NIP digenerate offline: ${nip}`, 'warning');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  // Update Preview
+  function updatePreview() {
+    const previewContent = document.getElementById('previewContent');
+    
+    // Hitung masa kerja
+    const tglMulai = document.getElementById('tanggalMulai').value;
+    const tglBerakhir = document.getElementById('tanggalBerakhir').value;
+    
+    let masaKerja = '-';
+    if (tglMulai && tglBerakhir) {
+      const mulai = new Date(tglMulai);
+      const berakhir = new Date(tglBerakhir);
+      
+      const diffTime = Math.abs(berakhir - mulai);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      const tahun = Math.floor(diffDays / 365);
+      const bulan = Math.floor((diffDays % 365) / 30);
+      const hari = diffDays % 30;
+      
+      masaKerja = '';
+      if (tahun > 0) masaKerja += `${tahun} tahun `;
+      if (bulan > 0) masaKerja += `${bulan} bulan `;
+      if (hari > 0) masaKerja += `${hari} hari`;
+    }
+    
+    const previewHTML = `
+      <div class="preview-item">
+        <div class="preview-label">Periode Kerja</div>
+        <div class="preview-value">${formatShortDate(tglMulai)} - ${formatShortDate(tglBerakhir)}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Lama Bekerja</div>
+        <div class="preview-value">${masaKerja}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Alasan Berhenti</div>
+        <div class="preview-value">${document.getElementById('alasanBerhenti').value}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Keterangan</div>
+        <div class="preview-value">${document.getElementById('keterangan').value || '-'}</div>
+      </div>
+    `;
+    
+    previewContent.innerHTML = previewHTML;
+  }
+
+  // Update Final Preview
+  function updateFinalPreview() {
+    const finalPreview = document.getElementById('finalPreview');
+    
+    const data = {
+      noSurat: document.getElementById('noSurat').value,
+      nama: document.getElementById('namaLengkap').value,
+      nip: document.getElementById('nip').value,
+      jabatan: document.getElementById('jabatan').value,
+      dept: document.getElementById('deptKaryawan').value,
+      ttl: `${document.getElementById('tempatLahir').value}, ${formatDate(document.getElementById('tanggalLahir').value)}`,
+      tglMulai: formatDate(document.getElementById('tanggalMulai').value),
+      tglBerakhir: formatDate(document.getElementById('tanggalBerakhir').value),
+      alasan: document.getElementById('alasanBerhenti').value,
+      tglSurat: formatDate(document.getElementById('tanggalSurat').value),
+      tujuan: document.getElementById('tujuanSurat').value
+    };
+    
+    const previewHTML = `
+      <div class="preview-item">
+        <div class="preview-label">Nomor Surat</div>
+        <div class="preview-value">${data.noSurat}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Nama Lengkap</div>
+        <div class="preview-value">${data.nama}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">NIP</div>
+        <div class="preview-value">${data.nip}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Jabatan</div>
+        <div class="preview-value">${data.jabatan}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Departemen</div>
+        <div class="preview-value">${data.dept}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Tempat/Tgl Lahir</div>
+        <div class="preview-value">${data.ttl}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Masa Kerja</div>
+        <div class="preview-value">${data.tglMulai} - ${data.tglBerakhir}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Alasan Berhenti</div>
+        <div class="preview-value">${data.alasan}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Tanggal Surat</div>
+        <div class="preview-value">${data.tglSurat}</div>
+      </div>
+    `;
+    
+    finalPreview.innerHTML = previewHTML;
+  }
+
+  // Submit Form
+  async function submitForm() {
+    // Validasi semua data
+    if (!validateCurrentStep()) {
+      goToStep(1);
+      return;
+    }
+    
+    showLoading(true);
+    
+    try {
+      // Kumpulkan semua data
+      const formData = {
+        // Data Surat
+        kodeSurat: document.getElementById('kodeSurat').value,
+        departemen: document.getElementById('departemen').value,
+        noSurat: document.getElementById('noSurat').value,
+        tanggalSurat: document.getElementById('tanggalSurat').value,
+        tujuanSurat: document.getElementById('tujuanSurat').value,
+        
+        // Data Pribadi
+        namaLengkap: document.getElementById('namaLengkap').value.trim(),
+        tempatLahir: document.getElementById('tempatLahir').value.trim(),
+        tanggalLahir: document.getElementById('tanggalLahir').value,
+        nip: document.getElementById('nip').value,
+        jabatan: document.getElementById('jabatan').value.trim(),
+        deptKaryawan: document.getElementById('deptKaryawan').value,
+        
+        // Masa Kerja
+        tanggalMulai: document.getElementById('tanggalMulai').value,
+        tanggalBerakhir: document.getElementById('tanggalBerakhir').value,
+        alasanBerhenti: document.getElementById('alasanBerhenti').value,
+        keterangan: document.getElementById('keterangan').value.trim(),
+        
+        // Kontak
+        email: document.getElementById('email').value.trim(),
+        whatsapp: document.getElementById('whatsapp').value.trim(),
+        
+        // Metadata
+        nomorUrut: generatedData.nomorUrut,
+        nipNumber: generatedData.nipNumber,
+        createdAt: new Date(),
+        status: 'pending',
+        source: 'user_form'
+      };
+      
+      // Simpan ke Firebase
+      const docRef = await db.collection('packlaring').add(formData);
+      const docId = docRef.id;
+      
+      // Update success message
+      document.getElementById('successNoSurat').textContent = formData.noSurat;
+      document.getElementById('successNama').textContent = formData.namaLengkap;
+      document.getElementById('successNIP').textContent = formData.nip;
+      
+      // Show success message
+      document.getElementById('formStep4').classList.remove('active');
+      document.getElementById('successMessage').classList.add('active');
+      
+      // Kirim notifikasi WhatsApp otomatis (opsional)
+      sendWhatsAppNotification(formData, docId);
+      
+      showAlert('Data berhasil dikirim! Tim HRD akan menghubungi Anda.', 'success');
+      
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      showAlert('Gagal mengirim data: ' + error.message, 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  // Send WhatsApp Notification
+  function sendWhatsAppNotification(data, docId) {
+    const phoneNumber = "6281383796300"; // Nomor admin
+    const message = `*📋 PERMINTAAN PACKLARING BARU*
+
+Nama: *${data.namaLengkap}*
+NIP: ${data.nip}
+Jabatan: ${data.jabatan}
+Departemen: ${data.deptKaryawan}
+
+No. Surat: ${data.noSurat}
+Tanggal: ${formatDate(data.tanggalSurat)}
+Alasan: ${data.alasanBerhenti}
+
+Masa Kerja: ${formatDate(data.tanggalMulai)} - ${formatDate(data.tanggalBerakhir)}
+
+Kontak:
+📧 ${data.email || 'Tidak ada email'}
+📱 ${data.whatsapp || 'Tidak ada WhatsApp'}
+
+ID Dokumen: ${docId}
+
+Silakan proses melalui panel admin.`;
+    
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    
+    // Buka WhatsApp di tab baru (silent)
+    setTimeout(() => {
+      window.open(whatsappUrl, '_blank');
+    }, 2000);
+  }
+
+  // Reset Form
+  function resetForm() {
+    // Reset semua form
+    document.getElementById('tanggalSurat').value = '';
+    document.getElementById('namaLengkap').value = '';
+    document.getElementById('tempatLahir').value = '';
+    document.getElementById('tanggalLahir').value = '';
+    document.getElementById('nip').value = '';
+    document.getElementById('jabatan').value = '';
+    document.getElementById('deptKaryawan').value = '';
+    document.getElementById('tanggalMulai').value = '';
+    document.getElementById('tanggalBerakhir').value = '';
+    document.getElementById('keterangan').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('whatsapp').value = '';
+    
+    // Reset generated data
+    generatedData = {
+      noSurat: '',
+      nip: '',
+      nomorUrut: 0,
+      nipNumber: 0
+    };
+    
+    // Reset steps
+    currentStep = 1;
+    
+    // Hide success message
+    document.getElementById('successMessage').classList.remove('active');
+    
+    // Reset all steps visual
+    document.querySelectorAll('.step').forEach((step, index) => {
+      step.classList.remove('active', 'completed');
+      if (index === 0) step.classList.add('active');
+    });
+    
+    document.querySelectorAll('.form-step').forEach((step, index) => {
+      step.classList.remove('active');
+      if (index === 0) step.classList.add('active');
+    });
+    
+    // Reset previews
+    document.getElementById('previewContent').innerHTML = '';
+    document.getElementById('finalPreview').innerHTML = '';
+    
+    // Scroll to top
+    window.scrollTo(0, 0);
+    
+    showAlert('Form telah direset. Silakan isi data baru.', 'info');
+  }
+
+  // Initialize Form
+  function initForm() {
+    // Set default tanggal surat ke hari ini
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('tanggalSurat').value = today;
+    
+    // Set min date for tanggal berakhir
+    const tanggalMulaiInput = document.getElementById('tanggalMulai');
+    const tanggalBerakhirInput = document.getElementById('tanggalBerakhir');
+    
+    tanggalMulaiInput.addEventListener('change', function() {
+      tanggalBerakhirInput.min = this.value;
+    });
+    
+    // Auto generate nomor surat dan NIP
+    generateNomorSurat();
+    generateNIP();
+    
+    // Show welcome message
+    setTimeout(() => {
+      showAlert('Selamat datang! Silakan isi formulir packlaring.', 'info');
+    }, 1000);
+  }
+
+  // Initialize when page loads
+  document.addEventListener('DOMContentLoaded', function() {
+    initForm();
+    
+    // Setup keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl + Enter to submit
+      if (e.ctrlKey && e.key === 'Enter') {
+        if (currentStep === 4) {
+          submitForm();
+        } else {
+          nextStep();
+        }
+      }
+      
+      // Escape to go back
+      if (e.key === 'Escape' && currentStep > 1) {
+        prevStep();
+      }
+    });
+  });
+</script>
+</body>
+</html>
