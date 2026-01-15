@@ -193,7 +193,6 @@
       transition: all 0.3s;
       background: #f8f9fa;
       text-transform: uppercase;
-      /* Membuat teks menjadi uppercase */
     }
 
     .form-control:focus {
@@ -214,6 +213,17 @@
       margin-top: 5px;
       font-size: 12px;
       color: #666;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .error-message.active {
+      display: block;
     }
 
     /* Button Groups */
@@ -379,7 +389,7 @@
 
     .whatsapp-btn:hover {
       background: #128c7e;
-      transform: translateY(-2px);
+      transform: translateY(-22px);
       box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);
     }
 
@@ -536,6 +546,15 @@
       display: none;
     }
 
+    /* Field for Technician */
+    .technician-fields {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      margin-top: 15px;
+      border-left: 4px solid #f39c12;
+    }
+
     /* Print Styles */
     @media print {
 
@@ -567,16 +586,6 @@
   </div>
 
   <div class="container">
-    <!-- Header -->
-    <!-- <div class="header"> -->
-    <!-- <div class="logo">NEXT-PROJECT-IFP</div> -->
-    <!-- <div class="title"> -->
-    <!-- <h1>FORMULIR PACKLARING</h1> -->
-    <!-- <p>NEXT Cargo Logistics - Surat Keterangan Kerja</p> -->
-    <!-- <div class="badge">Hubungi HRD: 081383796300</div> -->
-    <!-- </div> -->
-    <!-- </div> -->
-
     <!-- Alert Messages -->
     <div class="alert" id="alert"></div>
 
@@ -629,11 +638,13 @@
               </button>
             </div>
             <span class="help-text">Generate otomatis dari sistem</span>
+            <div class="error-message" id="errorNoSurat"></div>
           </div>
 
           <div class="form-group">
             <label class="required">Tanggal Surat</label>
             <input type="date" id="tanggalSurat" class="form-control">
+            <div class="error-message" id="errorTanggalSurat"></div>
           </div>
         </div>
 
@@ -649,7 +660,7 @@
         </div>
 
         <div class="button-group">
-          <div></div> <!-- Empty div untuk alignment -->
+          <div></div>
           <button class="btn btn-primary" onclick="nextStep()">
             Selanjutnya <span style="font-size: 18px;">→</span>
           </button>
@@ -665,15 +676,16 @@
           <input type="text" id="namaLengkap" class="form-control" placeholder="MASUKKAN NAMA LENGKAP SESUAI KTP"
             oninput="this.value = this.value.toUpperCase()" onblur="this.value = this.value.trim().toUpperCase()">
           <span class="help-text">Nama akan otomatis menjadi huruf besar semua</span>
+          <div class="error-message" id="errorNamaLengkap"></div>
         </div>
 
-        <!-- TAMBAHAN INPUT BARU: Nomor KTP dan Wilayah Area Kerja -->
         <div class="form-row">
           <div class="form-group">
             <label class="required">Nomor KTP</label>
             <input type="text" id="nomorKTP" class="form-control" placeholder="MASUKKAN 16 DIGIT NOMOR KTP"
-              oninput="formatNomorKTP(this)" onblur="this.value = this.value.toUpperCase()" maxlength="19">
+              oninput="formatNomorKTP(this)" onblur="validateUniqueKTP()" maxlength="19">
             <span class="help-text">Format: XXXX-XXXX-XXXX-XXXX</span>
+            <div class="error-message" id="errorNomorKTP"></div>
           </div>
 
           <div class="form-group">
@@ -721,6 +733,7 @@
               <option value="LAINNYA">LAINNYA</option>
             </select>
             <span class="help-text">Pilih wilayah tempat Anda bekerja</span>
+            <div class="error-message" id="errorWilayahArea"></div>
           </div>
         </div>
 
@@ -729,11 +742,13 @@
             <label class="required">Tempat Lahir</label>
             <input type="text" id="tempatLahir" class="form-control" placeholder="KOTA KELAHIRAN"
               oninput="this.value = this.value.toUpperCase()" onblur="this.value = this.value.trim().toUpperCase()">
+            <div class="error-message" id="errorTempatLahir"></div>
           </div>
 
           <div class="form-group">
             <label class="required">Tanggal Lahir</label>
             <input type="date" id="tanggalLahir" class="form-control">
+            <div class="error-message" id="errorTanggalLahir"></div>
           </div>
         </div>
 
@@ -747,20 +762,64 @@
               </button>
             </div>
             <span class="help-text">ID unik karyawan</span>
+            <div class="error-message" id="errorNIP"></div>
           </div>
 
           <div class="form-group">
             <label class="required">Jabatan Terakhir</label>
-            <select id="jabatan" class="form-control">
+            <select id="jabatan" class="form-control" onchange="toggleTechnicianFields()">
               <option value="">PILIH JABATAN</option>
               <option value="TEKNISI">TEKNISI</option>
               <option value="STAFF ADMIN">STAFF ADMIN</option>
+              <option value="SPV AREA">SPV AREA</option>
               <option value="KORDINATOR WILAYAH">KORDINATOR WILAYAH</option>
               <option value="CUSTOMER SERVICE">CUSTOMER SERVICE</option>
               <option value="STAFF MONITORING">STAFF MONITORING</option>
               <option value="MANAGER AREA">MANAGER AREA</option>
-              <!--<option value="Lainnya">Lainnya</option>-->
             </select>
+            <div class="error-message" id="errorJabatan"></div>
+          </div>
+        </div>
+
+        <!-- Informasi Koordinator untuk Teknisi -->
+        <div id="technicianFields" class="technician-fields" style="display: none;">
+          <h4 style="margin-bottom: 15px; color: #f39c12;">📍 Informasi Koordinator untuk Teknisi</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="required">Kabupaten/Kota Tempat Tugas</label>
+              <input type="text" id="kabupatenKotaTugas" class="form-control" placeholder="CONTOH: KOTA JAKARTA SELATAN"
+                oninput="this.value = this.value.toUpperCase()" onblur="this.value = this.value.trim().toUpperCase()">
+              <span class="help-text">Masukkan kabupaten/kota tempat bertugas</span>
+              <div class="error-message" id="errorKabupatenKota"></div>
+            </div>
+            
+            <div class="form-group">
+              <label class="required">Nama Koordinator Wilayah</label>
+              <select id="kordinatorWilayah" class="form-control" onchange="toggleKordinatorLainnya()">
+                <option value="">PILIH KOORDINATOR</option>
+                <option value="LAINNYA">(SILAKAN TULIS)</option>
+              </select>
+              <div class="error-message" id="errorKordinatorWilayah"></div>
+            </div>
+          </div>
+          
+          <div id="kordinatorLainnyaContainer" style="display: none;">
+            <div class="form-group">
+              <label class="required">Nama Koordinator Wilayah Lainnya</label>
+              <input type="text" id="kordinatorLainnyaInput" class="form-control" 
+                placeholder="TULIS NAMA KOORDINATOR WILAYAH"
+                oninput="this.value = this.value.toUpperCase()" 
+                onblur="this.value = this.value.trim().toUpperCase()">
+              <div class="error-message" id="errorKordinatorLainnya"></div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Catatan Koordinator (Opsional)</label>
+            <textarea id="catatanKordinator" class="form-control" rows="2" 
+              placeholder="TAMBAHKAN CATATAN TENTANG KOORDINATOR JIKA PERLU..."
+              oninput="this.value = this.value.toUpperCase()" 
+              onblur="this.value = this.value.trim().toUpperCase()"></textarea>
           </div>
         </div>
 
@@ -770,6 +829,7 @@
             <option value="">PILIH DEPARTEMEN</option>
             <option value="HRD">HRD</option>
           </select>
+          <div class="error-message" id="errorDeptKaryawan"></div>
         </div>
 
         <div class="button-group">
@@ -791,12 +851,14 @@
             <label class="required">Tanggal Mulai Kerja</label>
             <input type="date" id="tanggalMulai" class="form-control">
             <span class="help-text">Tanggal mulai bekerja di perusahaan</span>
+            <div class="error-message" id="errorTanggalMulai"></div>
           </div>
 
           <div class="form-group">
             <label class="required">Tanggal Berakhir</label>
             <input type="date" id="tanggalBerakhir" class="form-control">
             <span class="help-text">Tanggal terakhir bekerja</span>
+            <div class="error-message" id="errorTanggalBerakhir"></div>
           </div>
         </div>
 
@@ -873,7 +935,8 @@
           <p style="margin-top: 5px; font-size: 14px;">
             • DATA YANG SUDAH DIKIRIM AKAN DIPROSES OLEH HRD DALAM 1-3 HARI KERJA<br>
             • PASTIKAN SEMUA DATA SUDAH BENAR SEBELUM MENGIRIM<br>
-            • ADMIN AKAN MENGHUBUNGI VIA WHATSAPP UNTUK KONFIRMASI
+            • ADMIN AKAN MENGHUBUNGI VIA WHATSAPP UNTUK KONFIRMASI<br>
+            • SETIAP NOMOR KTP HANYA BOLEH TERDAFTAR SATU KALI
           </p>
         </div>
 
@@ -953,14 +1016,14 @@
 
     // Global Variables
     let currentStep = 1;
-    let lastSuratNumber = 0;
-    let lastNIPNumber = 0;
     let generatedData = {
       noSurat: '',
       nip: '',
       nomorUrut: 0,
       nipNumber: 0
     };
+    let isGenerating = false;
+    let usedKTPs = new Set(); // Untuk melacak KTP yang sudah digunakan dalam session
 
     // Fungsi untuk format nomor KTP (XXXX-XXXX-XXXX-XXXX)
     function formatNomorKTP(input) {
@@ -1001,6 +1064,55 @@
       return true;
     }
 
+    // Validasi unik KTP
+    async function validateUniqueKTP() {
+      const ktpInput = document.getElementById('nomorKTP');
+      const ktpValue = ktpInput.value.replace(/\D/g, '');
+      const errorElement = document.getElementById('errorNomorKTP');
+
+      if (!ktpValue) {
+        hideError('errorNomorKTP');
+        return true;
+      }
+
+      if (!validateKTP(ktpInput.value)) {
+        showError('errorNomorKTP', 'Nomor KTP harus 16 digit angka');
+        return false;
+      }
+
+      showLoading(true);
+      
+      try {
+        // Cek di Firestore apakah KTP sudah terdaftar
+        const snapshot = await db.collection('packlaring')
+          .where('nomorKTP', '==', ktpInput.value.toUpperCase())
+          .limit(1)
+          .get();
+
+        if (!snapshot.empty) {
+          showError('errorNomorKTP', 'Nomor KTP ini sudah terdaftar. 1 user hanya boleh memiliki 1 nomor KTP.');
+          showLoading(false);
+          return false;
+        }
+
+        // Cek juga di session storage untuk mencegah duplikasi dalam sesi yang sama
+        if (usedKTPs.has(ktpValue)) {
+          showError('errorNomorKTP', 'Nomor KTP ini sudah digunakan dalam sesi ini.');
+          showLoading(false);
+          return false;
+        }
+
+        hideError('errorNomorKTP');
+        showLoading(false);
+        return true;
+      } catch (error) {
+        console.error('Error checking KTP:', error);
+        showLoading(false);
+        hideError('errorNomorKTP');
+        return true; // Biarkan lewat jika error
+      }
+    }
+
     // Format tanggal Indonesia
     function formatDate(dateString) {
       if (!dateString) return '-';
@@ -1037,6 +1149,51 @@
       setTimeout(() => {
         alert.classList.remove('active');
       }, 5000);
+    }
+
+    // Show Error
+    function showError(elementId, message) {
+      const errorElement = document.getElementById(elementId);
+      errorElement.textContent = message;
+      errorElement.classList.add('active');
+    }
+
+    // Hide Error
+    function hideError(elementId) {
+      const errorElement = document.getElementById(elementId);
+      errorElement.classList.remove('active');
+    }
+
+    // Toggle fields untuk teknisi
+    function toggleTechnicianFields() {
+      const jabatan = document.getElementById('jabatan').value;
+      const technicianFields = document.getElementById('technicianFields');
+      
+      if (jabatan === 'TEKNISI') {
+        technicianFields.style.display = 'block';
+        // Set required untuk field teknisi
+        document.getElementById('kabupatenKotaTugas').required = true;
+        document.getElementById('kordinatorWilayah').required = true;
+      } else {
+        technicianFields.style.display = 'none';
+        // Hapus required untuk field teknisi
+        document.getElementById('kabupatenKotaTugas').required = false;
+        document.getElementById('kordinatorWilayah').required = false;
+      }
+    }
+
+    // Toggle input untuk koordinator lainnya
+    function toggleKordinatorLainnya() {
+      const kordinator = document.getElementById('kordinatorWilayah').value;
+      const lainnyaContainer = document.getElementById('kordinatorLainnyaContainer');
+      
+      if (kordinator === 'LAINNYA') {
+        lainnyaContainer.style.display = 'block';
+        document.getElementById('kordinatorLainnyaInput').required = true;
+      } else {
+        lainnyaContainer.style.display = 'none';
+        document.getElementById('kordinatorLainnyaInput').required = false;
+      }
     }
 
     // Navigasi Step
@@ -1107,51 +1264,94 @@
     // Validasi Step
     function validateCurrentStep() {
       const errors = [];
+      hideAllErrors();
 
       switch (currentStep) {
         case 1: // Data Surat
           if (!document.getElementById('tanggalSurat').value) {
+            showError('errorTanggalSurat', 'Tanggal Surat harus diisi');
             errors.push('Tanggal Surat harus diisi');
           }
           if (!generatedData.noSurat) {
+            showError('errorNoSurat', 'Generate Nomor Surat terlebih dahulu');
             errors.push('Generate Nomor Surat terlebih dahulu');
           }
           break;
 
         case 2: // Data Pribadi
           if (!document.getElementById('namaLengkap').value.trim()) {
+            showError('errorNamaLengkap', 'Nama Lengkap harus diisi');
             errors.push('Nama Lengkap harus diisi');
           }
-          if (!document.getElementById('nomorKTP').value.trim()) {
+          
+          const ktpValue = document.getElementById('nomorKTP').value;
+          if (!ktpValue.trim()) {
+            showError('errorNomorKTP', 'Nomor KTP harus diisi');
             errors.push('Nomor KTP harus diisi');
-          } else if (!validateKTP(document.getElementById('nomorKTP').value)) {
+          } else if (!validateKTP(ktpValue)) {
+            showError('errorNomorKTP', 'Nomor KTP harus 16 digit angka');
             errors.push('Nomor KTP harus 16 digit angka');
           }
+          
           if (!document.getElementById('wilayahArea').value) {
+            showError('errorWilayahArea', 'Wilayah Area Kerja harus dipilih');
             errors.push('Wilayah Area Kerja harus dipilih');
           }
+          
           if (!document.getElementById('tempatLahir').value.trim()) {
+            showError('errorTempatLahir', 'Tempat Lahir harus diisi');
             errors.push('Tempat Lahir harus diisi');
           }
+          
           if (!document.getElementById('tanggalLahir').value) {
+            showError('errorTanggalLahir', 'Tanggal Lahir harus diisi');
             errors.push('Tanggal Lahir harus diisi');
           }
+          
           if (!generatedData.nip) {
+            showError('errorNIP', 'Generate NIP terlebih dahulu');
             errors.push('Generate NIP terlebih dahulu');
           }
+          
           if (!document.getElementById('jabatan').value.trim()) {
+            showError('errorJabatan', 'Jabatan harus diisi');
             errors.push('Jabatan harus diisi');
           }
+          
           if (!document.getElementById('deptKaryawan').value) {
+            showError('errorDeptKaryawan', 'Departemen harus dipilih');
             errors.push('Departemen harus dipilih');
+          }
+          
+          // Validasi tambahan untuk teknisi
+          const jabatan = document.getElementById('jabatan').value;
+          if (jabatan === 'TEKNISI') {
+            if (!document.getElementById('kabupatenKotaTugas').value.trim()) {
+              showError('errorKabupatenKota', 'Kabupaten/Kota Tempat Tugas harus diisi');
+              errors.push('Kabupaten/Kota Tempat Tugas harus diisi');
+            }
+            
+            const kordinator = document.getElementById('kordinatorWilayah').value;
+            if (!kordinator) {
+              showError('errorKordinatorWilayah', 'Nama Koordinator Wilayah harus dipilih');
+              errors.push('Nama Koordinator Wilayah harus dipilih');
+            }
+            
+            if (kordinator === 'LAINNYA' && !document.getElementById('kordinatorLainnyaInput').value.trim()) {
+              showError('errorKordinatorLainnya', 'Nama Koordinator Wilayah Lainnya harus diisi');
+              errors.push('Nama Koordinator Wilayah Lainnya harus diisi');
+            }
           }
           break;
 
         case 3: // Masa Kerja
           if (!document.getElementById('tanggalMulai').value) {
+            showError('errorTanggalMulai', 'Tanggal Mulai harus diisi');
             errors.push('Tanggal Mulai harus diisi');
           }
+          
           if (!document.getElementById('tanggalBerakhir').value) {
+            showError('errorTanggalBerakhir', 'Tanggal Berakhir harus diisi');
             errors.push('Tanggal Berakhir harus diisi');
           }
 
@@ -1159,6 +1359,7 @@
           const tanggalMulai = new Date(document.getElementById('tanggalMulai').value);
           const tanggalBerakhir = new Date(document.getElementById('tanggalBerakhir').value);
           if (tanggalBerakhir <= tanggalMulai) {
+            showError('errorTanggalBerakhir', 'Tanggal Berakhir harus setelah Tanggal Mulai');
             errors.push('Tanggal Berakhir harus setelah Tanggal Mulai');
           }
           break;
@@ -1172,36 +1373,57 @@
       return true;
     }
 
-    // Generate Nomor Surat
+    // Hide all errors
+    function hideAllErrors() {
+      const errorElements = document.querySelectorAll('.error-message');
+      errorElements.forEach(element => {
+        element.classList.remove('active');
+      });
+    }
+
+    // Generate Nomor Surat dengan transaction untuk menghindari bentrok
     async function generateNomorSurat() {
+      if (isGenerating) return;
+      
+      isGenerating = true;
       showLoading(true);
+      hideError('errorNoSurat');
 
       try {
-        // Cek data terakhir dari Firebase
-        const snapshot = await db.collection('packlaring')
-          .orderBy('nomorUrut', 'desc')
-          .limit(1)
-          .get();
-
-        if (!snapshot.empty) {
-          const lastData = snapshot.docs[0].data();
-          lastSuratNumber = lastData.nomorUrut || 0;
-        }
-
-        // Generate nomor baru
-        const newNumber = lastSuratNumber + 1;
-        const formattedNumber = newNumber.toString().padStart(3, '0');
-
-        // Format nomor surat
-        const now = new Date();
-        const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
-        const tahun2 = now.getFullYear().toString().slice(-2);
-
-        const nomorSurat = `${formattedNumber}/SK-HRD/NEXT/${bulan}/${tahun2}`;
+        // Gunakan transaction untuk menghindari race condition
+        const nomorSurat = await db.runTransaction(async (transaction) => {
+          // Reference ke dokumen counter
+          const counterRef = db.collection('counters').doc('suratCounter');
+          
+          // Ambil counter saat ini
+          const counterDoc = await transaction.get(counterRef);
+          
+          let lastNumber = 0;
+          if (counterDoc.exists) {
+            lastNumber = counterDoc.data().lastNumber || 0;
+          }
+          
+          // Increment counter
+          const newNumber = lastNumber + 1;
+          
+          // Update counter
+          transaction.set(counterRef, { 
+            lastNumber: newNumber,
+            updatedAt: new Date()
+          }, { merge: true });
+          
+          // Format nomor surat
+          const now = new Date();
+          const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
+          const tahun2 = now.getFullYear().toString().slice(-2);
+          const formattedNumber = newNumber.toString().padStart(3, '0');
+          
+          return `${formattedNumber}/SK-HRD/NEXT/${bulan}/${tahun2}`;
+        });
 
         // Simpan ke variabel global
         generatedData.noSurat = nomorSurat;
-        generatedData.nomorUrut = newNumber;
+        generatedData.nomorUrut = parseInt(nomorSurat.split('/')[0]);
 
         // Update input field
         document.getElementById('noSurat').value = nomorSurat;
@@ -1211,50 +1433,67 @@
       } catch (error) {
         console.error('Error generating nomor surat:', error);
 
-        // Fallback: generate random number if Firebase fails
+        // Fallback dengan timestamp untuk menghindari bentrok
+        const timestamp = Date.now();
         const randomNum = Math.floor(Math.random() * 900) + 100;
         const now = new Date();
         const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
         const tahun2 = now.getFullYear().toString().slice(-2);
+        const uniqueNumber = (timestamp % 900) + 100; // Ambil 3 digit dari timestamp
 
-        const nomorSurat = `${randomNum}/SK-HRD/NEXT/${bulan}/${tahun2}`;
+        const nomorSurat = `${uniqueNumber}/SK-HRD/NEXT/${bulan}/${tahun2}`;
 
         generatedData.noSurat = nomorSurat;
-        generatedData.nomorUrut = randomNum;
+        generatedData.nomorUrut = uniqueNumber;
 
         document.getElementById('noSurat').value = nomorSurat;
 
-        showAlert(`Nomor surat digenerate offline: ${nomorSurat}`, 'warning');
+        showAlert(`Nomor surat digenerate dengan metode alternatif: ${nomorSurat}`, 'warning');
       } finally {
         showLoading(false);
+        isGenerating = false;
       }
     }
 
-    // Generate NIP
+    // Generate NIP dengan transaction untuk menghindari bentrok
     async function generateNIP() {
+      if (isGenerating) return;
+      
+      isGenerating = true;
       showLoading(true);
+      hideError('errorNIP');
 
       try {
-        // Cek NIP terakhir dari Firebase
-        const snapshot = await db.collection('packlaring')
-          .orderBy('nipNumber', 'desc')
-          .limit(1)
-          .get();
-
-        if (!snapshot.empty) {
-          const lastData = snapshot.docs[0].data();
-          lastNIPNumber = lastData.nipNumber || 0;
-        }
-
-        // Generate NIP baru
-        const newNumber = lastNIPNumber + 1;
-        const formattedNumber = newNumber.toString().padStart(4, '0');
-
-        const nip = `NEXT${formattedNumber}`;
+        // Gunakan transaction untuk menghindari race condition
+        const nip = await db.runTransaction(async (transaction) => {
+          // Reference ke dokumen counter
+          const counterRef = db.collection('counters').doc('nipCounter');
+          
+          // Ambil counter saat ini
+          const counterDoc = await transaction.get(counterRef);
+          
+          let lastNumber = 0;
+          if (counterDoc.exists) {
+            lastNumber = counterDoc.data().lastNumber || 0;
+          }
+          
+          // Increment counter
+          const newNumber = lastNumber + 1;
+          
+          // Update counter
+          transaction.set(counterRef, { 
+            lastNumber: newNumber,
+            updatedAt: new Date()
+          }, { merge: true });
+          
+          // Format NIP
+          const formattedNumber = newNumber.toString().padStart(4, '0');
+          return `NEXT${formattedNumber}`;
+        });
 
         // Simpan ke variabel global
         generatedData.nip = nip;
-        generatedData.nipNumber = newNumber;
+        generatedData.nipNumber = parseInt(nip.replace('NEXT', ''));
 
         // Update input field
         document.getElementById('nip').value = nip;
@@ -1264,18 +1503,22 @@
       } catch (error) {
         console.error('Error generating NIP:', error);
 
-        // Fallback: generate random NIP
+        // Fallback dengan timestamp untuk menghindari bentrok
+        const timestamp = Date.now();
         const randomNum = Math.floor(Math.random() * 9000) + 1000;
-        const nip = `NEXT${randomNum}`;
+        const uniqueNumber = (timestamp % 9000) + 1000; // Ambil 4 digit dari timestamp
+
+        const nip = `NEXT${uniqueNumber}`;
 
         generatedData.nip = nip;
-        generatedData.nipNumber = randomNum;
+        generatedData.nipNumber = uniqueNumber;
 
         document.getElementById('nip').value = nip;
 
-        showAlert(`NIP digenerate offline: ${nip}`, 'warning');
+        showAlert(`NIP digenerate dengan metode alternatif: ${nip}`, 'warning');
       } finally {
         showLoading(false);
+        isGenerating = false;
       }
     }
 
@@ -1331,13 +1574,36 @@
     function updateFinalPreview() {
       const finalPreview = document.getElementById('finalPreview');
 
+      // Ambil data koordinator jika teknisi
+      let kordinatorInfo = '';
+      const jabatan = document.getElementById('jabatan').value;
+      if (jabatan === 'TEKNISI') {
+        const kabupaten = document.getElementById('kabupatenKotaTugas').value;
+        let kordinator = document.getElementById('kordinatorWilayah').value;
+        
+        if (kordinator === 'LAINNYA') {
+          kordinator = document.getElementById('kordinatorLainnyaInput').value;
+        }
+        
+        kordinatorInfo = `
+          <div class="preview-item">
+            <div class="preview-label">Kab/Kota Tugas</div>
+            <div class="preview-value">${kabupaten}</div>
+          </div>
+          <div class="preview-item">
+            <div class="preview-label">Koordinator Wilayah</div>
+            <div class="preview-value">${kordinator}</div>
+          </div>
+        `;
+      }
+
       const data = {
         noSurat: document.getElementById('noSurat').value,
         nama: document.getElementById('namaLengkap').value,
         nomorKTP: document.getElementById('nomorKTP').value,
         wilayahArea: document.getElementById('wilayahArea').value,
         nip: document.getElementById('nip').value,
-        jabatan: document.getElementById('jabatan').value,
+        jabatan: jabatan,
         dept: document.getElementById('deptKaryawan').value,
         ttl: `${document.getElementById('tempatLahir').value}, ${formatDate(document.getElementById('tanggalLahir').value)}`,
         tglMulai: formatDate(document.getElementById('tanggalMulai').value),
@@ -1364,6 +1630,7 @@
         <div class="preview-label">Wilayah Area Kerja</div>
         <div class="preview-value">${data.wilayahArea}</div>
       </div>
+      ${kordinatorInfo}
       <div class="preview-item">
         <div class="preview-label">NIP</div>
         <div class="preview-value">${data.nip}</div>
@@ -1397,11 +1664,19 @@
       finalPreview.innerHTML = previewHTML;
     }
 
-    // Submit Form
+    // Submit Form dengan validasi tambahan
     async function submitForm() {
       // Validasi semua data
       if (!validateCurrentStep()) {
         goToStep(1);
+        return;
+      }
+
+      // Validasi KTP unik sebelum submit
+      const isKTPValid = await validateUniqueKTP();
+      if (!isKTPValid) {
+        showAlert('NOMOR KTP SUDAH TERDAFTAR. 1 USER HANYA BOLEH MEMILIKI 1 NOMOR KTP.', 'error');
+        goToStep(2);
         return;
       }
 
@@ -1427,6 +1702,11 @@
           jabatan: document.getElementById('jabatan').value.trim().toUpperCase(),
           deptKaryawan: document.getElementById('deptKaryawan').value.toUpperCase(),
 
+          // Data Koordinator (jika teknisi)
+          kabupatenKotaTugas: '',
+          kordinatorWilayah: '',
+          catatanKordinator: '',
+
           // Masa Kerja
           tanggalMulai: document.getElementById('tanggalMulai').value,
           tanggalBerakhir: document.getElementById('tanggalBerakhir').value,
@@ -1441,13 +1721,60 @@
           nomorUrut: generatedData.nomorUrut,
           nipNumber: generatedData.nipNumber,
           createdAt: new Date(),
+          updatedAt: new Date(),
           status: 'pending',
-          source: 'user_form'
+          source: 'user_form',
+          sessionId: sessionStorage.getItem('sessionId') || generateSessionId()
         };
 
-        // Simpan ke Firebase
+        // Tambahkan data koordinator jika teknisi
+        if (formData.jabatan === 'TEKNISI') {
+          formData.kabupatenKotaTugas = document.getElementById('kabupatenKotaTugas').value.trim().toUpperCase();
+          
+          let kordinator = document.getElementById('kordinatorWilayah').value;
+          if (kordinator === 'LAINNYA') {
+            kordinator = document.getElementById('kordinatorLainnyaInput').value.trim().toUpperCase();
+          }
+          formData.kordinatorWilayah = kordinator;
+          
+          formData.catatanKordinator = document.getElementById('catatanKordinator').value.trim().toUpperCase();
+        }
+
+        // Simpan ke Firebase dengan pengecekan duplikasi
+        const ktpClean = formData.nomorKTP.replace(/\D/g, '');
+        
+        // Cek lagi untuk memastikan tidak ada duplikasi
+        const existingKTP = await db.collection('packlaring')
+          .where('nomorKTP', '==', formData.nomorKTP)
+          .limit(1)
+          .get();
+
+        if (!existingKTP.empty) {
+          showAlert('NOMOR KTP SUDAH TERDAFTAR. DATA TIDAK DAPAT DISIMPAN.', 'error');
+          showLoading(false);
+          return;
+        }
+
+        // Cek duplikasi NIP
+        const existingNIP = await db.collection('packlaring')
+          .where('nip', '==', formData.nip)
+          .limit(1)
+          .get();
+
+        if (!existingNIP.empty) {
+          showAlert('NIP SUDAH TERDAFTAR. SILAKAN GENERATE NIP BARU.', 'error');
+          showLoading(false);
+          generateNIP(); // Generate NIP baru
+          return;
+        }
+
+        // Simpan data
         const docRef = await db.collection('packlaring').add(formData);
         const docId = docRef.id;
+
+        // Simpan KTP ke session storage untuk mencegah duplikasi dalam session
+        usedKTPs.add(ktpClean);
+        sessionStorage.setItem('usedKTPs', JSON.stringify(Array.from(usedKTPs)));
 
         // Update success message
         document.getElementById('successNoSurat').textContent = formData.noSurat;
@@ -1458,7 +1785,7 @@
         document.getElementById('formStep4').classList.remove('active');
         document.getElementById('successMessage').classList.add('active');
 
-        // Kirim notifikasi WhatsApp otomatis (opsional)
+        // Kirim notifikasi WhatsApp otomatis
         sendWhatsAppNotification(formData, docId);
 
         showAlert('DATA BERHASIL DIKIRIM! TIM HRD AKAN MENGHUBUNGI ANDA.', 'success');
@@ -1471,9 +1798,26 @@
       }
     }
 
+    // Generate session ID
+    function generateSessionId() {
+      return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
     // Send WhatsApp Notification
     function sendWhatsAppNotification(data, docId) {
-      const phoneNumber = "6281383796300"; // Nomor admin
+      const phoneNumber = "6281383796300";
+      
+      // Buat pesan dengan informasi koordinator jika teknisi
+      let koordinatorInfo = '';
+      if (data.jabatan === 'TEKNISI') {
+        koordinatorInfo = `
+KOORDINATOR:
+📍 ${data.kabupatenKotaTugas}
+👤 ${data.kordinatorWilayah}
+${data.catatanKordinator ? `📝 ${data.catatanKordinator}` : ''}
+`;
+      }
+
       const message = `*📋 PERMINTAAN PACKLARING BARU*
 
 NAMA: *${data.namaLengkap}*
@@ -1483,6 +1827,7 @@ NIP: ${data.nip}
 JABATAN: ${data.jabatan}
 DEPARTEMEN: ${data.deptKaryawan}
 
+${koordinatorInfo}
 NO. SURAT: ${data.noSurat}
 TANGGAL: ${formatDate(data.tanggalSurat)}
 ALASAN: ${data.alasanBerhenti}
@@ -1500,7 +1845,7 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-      // Buka WhatsApp di tab baru (silent)
+      // Buka WhatsApp di tab baru
       setTimeout(() => {
         window.open(whatsappUrl, '_blank');
       }, 2000);
@@ -1523,6 +1868,13 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
       document.getElementById('keterangan').value = '';
       document.getElementById('email').value = '';
       document.getElementById('whatsapp').value = '';
+      
+      // Reset field teknisi
+      document.getElementById('kabupatenKotaTugas').value = '';
+      document.getElementById('kordinatorWilayah').value = '';
+      document.getElementById('kordinatorLainnyaInput').value = '';
+      document.getElementById('catatanKordinator').value = '';
+      document.getElementById('technicianFields').style.display = 'none';
 
       // Reset generated data
       generatedData = {
@@ -1553,6 +1905,9 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
       document.getElementById('previewContent').innerHTML = '';
       document.getElementById('finalPreview').innerHTML = '';
 
+      // Hide all errors
+      hideAllErrors();
+
       // Scroll to top
       window.scrollTo(0, 0);
 
@@ -1568,6 +1923,7 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
       // Set default tanggal surat ke hari ini
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('tanggalSurat').value = today;
+      document.getElementById('tanggalLahir').value = '';
 
       // Set min date for tanggal berakhir
       const tanggalMulaiInput = document.getElementById('tanggalMulai');
@@ -1576,6 +1932,17 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
       tanggalMulaiInput.addEventListener('change', function () {
         tanggalBerakhirInput.min = this.value;
       });
+
+      // Load used KTPs from session storage
+      const savedKTPs = sessionStorage.getItem('usedKTPs');
+      if (savedKTPs) {
+        usedKTPs = new Set(JSON.parse(savedKTPs));
+      }
+
+      // Generate session ID jika belum ada
+      if (!sessionStorage.getItem('sessionId')) {
+        sessionStorage.setItem('sessionId', generateSessionId());
+      }
 
       // Auto generate nomor surat dan NIP
       generateNomorSurat();
@@ -1604,9 +1971,12 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
         });
       });
 
+      // Event listener untuk validasi KTP saat input
+      document.getElementById('nomorKTP').addEventListener('blur', validateUniqueKTP);
+
       // Show welcome message
       setTimeout(() => {
-        showAlert('SELAMAT DATANG! SILAKAN ISI FORMULIR PACKLARING.', 'info');
+        showAlert('SELAMAT DATANG! SILAKAN ISI FORMULIR PACKLARING. PASTIKAN DATA YANG ANDA MASUKKAN BENAR DAN TIDAK DUPLIKAT.', 'info');
       }, 1000);
     }
 
