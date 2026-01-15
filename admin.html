@@ -16,35 +16,48 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <!-- Font Awesome untuk ikon -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- <link rel="stylesheet" href="astyle.css"> -->
 </head>
 <style>
   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
+}
 
-  body {
+body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     background: linear-gradient(135deg, #1a237e 0%, #311b92 100%);
     color: #333;
     min-height: 100vh;
     padding: 20px;
-  }
+}
 
-  .admin-container {
+Tambahkan di CSS Anda
+/* .data-table-container { */
+    /* overflow-x: auto; */
+    /* margin-top: 20px; */
+    /* border-radius: 12px; */
+    /* background: white; */
+    /* box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); */
+/* } */
+/*  */
+/* .data-table { */
+    /* min-width: 1200px; */
+    Lebar minimum untuk menampung semua kolom
+/* } */
+
+.admin-container {
     max-width: 1400px;
     margin: 0 auto;
     background: white;
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     overflow: hidden;
-  }
+}
 
-  /* Header Admin */
-  .admin-header {
+/* Header Admin */
+.admin-header {
     background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
     color: white;
     padding: 25px 40px;
@@ -53,15 +66,15 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 20px;
-  }
+}
 
-  .company-brand {
+.company-brand {
     display: flex;
     align-items: center;
     gap: 15px;
-  }
+}
 
-  .company-logo {
+.company-logo {
     font-size: 36px;
     font-weight: bold;
     background: white;
@@ -73,61 +86,61 @@
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  }
+}
 
-  .company-info h1 {
+.company-info h1 {
     font-size: 24px;
     margin-bottom: 5px;
-  }
+}
 
-  .company-info .subtitle {
+.company-info .subtitle {
     font-size: 14px;
     opacity: 0.9;
-  }
+}
 
-  .admin-stats {
+.admin-stats {
     display: flex;
     gap: 20px;
     background: rgba(255, 255, 255, 0.1);
     padding: 15px 25px;
     border-radius: 15px;
     backdrop-filter: blur(10px);
-  }
+}
 
-  .stat-item {
+.stat-item {
     text-align: center;
-  }
+}
 
-  .stat-number {
+.stat-number {
     font-size: 28px;
     font-weight: bold;
     display: block;
-  }
+}
 
-  .stat-label {
+.stat-label {
     font-size: 12px;
     opacity: 0.8;
-  }
+}
 
-  /* Main Content */
-  .admin-content {
+/* Main Content */
+.admin-content {
     display: grid;
     grid-template-columns: 350px 1fr;
     min-height: 800px;
-  }
+}
 
-  /* Sidebar */
-  .admin-sidebar {
+/* Sidebar */
+.admin-sidebar {
     background: #f8f9fa;
     border-right: 1px solid #e0e0e0;
     padding: 30px;
-  }
+}
 
-  .search-box {
+.search-box {
     margin-bottom: 30px;
-  }
+}
 
-  .search-input {
+.search-input {
     width: 100%;
     padding: 15px 20px;
     border: 2px solid #e0e0e0;
@@ -135,119 +148,119 @@
     font-size: 16px;
     background: white;
     transition: all 0.3s;
-  }
+}
 
-  .search-input:focus {
+.search-input:focus {
     outline: none;
     border-color: #e74c3c;
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
-  }
+}
 
-  .filter-section {
+.filter-section {
     margin-bottom: 30px;
-  }
+}
 
-  .filter-section h3 {
+.filter-section h3 {
     color: #333;
     margin-bottom: 15px;
     font-size: 16px;
     text-transform: uppercase;
     letter-spacing: 1px;
-  }
+}
 
-  .filter-group {
+.filter-group {
     margin-bottom: 20px;
-  }
+}
 
-  .filter-label {
+.filter-label {
     display: block;
     margin-bottom: 8px;
     color: #555;
     font-weight: 500;
-  }
+}
 
-  .filter-select,
-  .filter-date {
+.filter-select,
+.filter-date {
     width: 100%;
     padding: 12px 15px;
     border: 1px solid #ddd;
     border-radius: 8px;
     background: white;
     font-size: 14px;
-  }
+}
 
-  .recent-requests {
+.recent-requests {
     background: white;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
+}
 
-  .recent-requests h3 {
+.recent-requests h3 {
     color: #333;
     margin-bottom: 15px;
     font-size: 16px;
-  }
+}
 
-  .recent-list {
+.recent-list {
     list-style: none;
     max-height: 300px;
     overflow-y: auto;
-  }
+}
 
-  .recent-item {
+.recent-item {
     padding: 12px 15px;
     border-bottom: 1px solid #f0f0f0;
     cursor: pointer;
     transition: background 0.2s;
-  }
+}
 
-  .recent-item:hover {
+.recent-item:hover {
     background: #f8f9fa;
-  }
+}
 
-  .recent-item.active {
+.recent-item.active {
     background: #e74c3c;
     color: white;
     border-radius: 6px;
-  }
+}
 
-  /* Main Panel */
-  .admin-main {
+/* Main Panel */
+.admin-main {
     padding: 30px;
     background: #fff;
-  }
+}
 
-  /* Data List */
-  .data-list-container {
+/* Data List */
+.data-list-container {
     display: none;
-  }
+}
 
-  .data-list-container.active {
+.data-list-container.active {
     display: block;
-  }
+}
 
-  .data-header {
+.data-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
     flex-wrap: wrap;
     gap: 15px;
-  }
+}
 
-  .data-header h2 {
+.data-header h2 {
     color: #333;
     font-size: 22px;
-  }
+}
 
-  .data-actions {
+.data-actions {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-  }
+}
 
-  .btn {
+.btn {
     padding: 12px 24px;
     border: none;
     border-radius: 8px;
@@ -258,58 +271,58 @@
     align-items: center;
     gap: 8px;
     font-size: 14px;
-  }
+}
 
-  .btn-primary {
+.btn-primary {
     background: #3498db;
     color: white;
-  }
+}
 
-  .btn-primary:hover {
+.btn-primary:hover {
     background: #2980b9;
     transform: translateY(-2px);
-  }
+}
 
-  .btn-success {
+.btn-success {
     background: #27ae60;
     color: white;
-  }
+}
 
-  .btn-success:hover {
+.btn-success:hover {
     background: #219653;
     transform: translateY(-2px);
-  }
+}
 
-  .btn-warning {
+.btn-warning {
     background: #f39c12;
     color: white;
-  }
+}
 
-  .btn-warning:hover {
+.btn-warning:hover {
     background: #e67e22;
     transform: translateY(-2px);
-  }
+}
 
-  .btn-danger {
+.btn-danger {
     background: #e74c3c;
     color: white;
-  }
+}
 
-  .btn-danger:hover {
+.btn-danger:hover {
     background: #c0392b;
     transform: translateY(-2px);
-  }
+}
 
-  .data-table {
+.data-table {
     width: 100%;
     border-collapse: collapse;
     background: white;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  }
+}
 
-  .data-table th {
+.data-table th {
     background: #2c3e50;
     color: white;
     padding: 18px 15px;
@@ -318,66 +331,66 @@
     text-transform: uppercase;
     font-size: 13px;
     letter-spacing: 0.5px;
-  }
+}
 
-  .data-table td {
+.data-table td {
     padding: 18px 15px;
     border-bottom: 1px solid #eee;
     vertical-align: middle;
-  }
+}
 
-  .data-table tr:hover {
+.data-table tr:hover {
     background: #f8f9fa;
-  }
+}
 
-  .status-badge {
+.status-badge {
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
     display: inline-block;
-  }
+}
 
-  .status-pending {
+.status-pending {
     background: #fff3cd;
     color: #856404;
-  }
+}
 
-  .status-processed {
+.status-processed {
     background: #d1ecf1;
     color: #0c5460;
-  }
+}
 
-  .status-completed {
+.status-completed {
     background: #d4edda;
     color: #155724;
-  }
+}
 
-  .action-buttons {
+.action-buttons {
     display: flex;
     gap: 8px;
-  }
+}
 
-  .btn-small {
+.btn-small {
     padding: 6px 12px;
     font-size: 12px;
     border-radius: 6px;
-  }
+}
 
-  /* Preview Container */
-  .preview-container {
+/* Preview Container */
+.preview-container {
     display: none;
     background: #f5f5f5;
     padding: 30px;
     border-radius: 15px;
     margin-top: 30px;
-  }
+}
 
-  .preview-container.active {
+.preview-container.active {
     display: block;
-  }
+}
 
-  .preview-header {
+.preview-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -386,145 +399,184 @@
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
+}
 
-  .preview-info h3 {
+.preview-info h3 {
     color: #333;
     margin-bottom: 10px;
     font-size: 20px;
-  }
+}
 
-  .preview-info p {
+.preview-info p {
     color: #666;
     font-size: 14px;
-  }
+}
 
-  /* Template Styling - DIPERBAIKI untuk PDF export */
-  .letter-container {
+/* Template Styling - REVISI SESUAI PERMINTAAN */
+.letter-container {
     width: 210mm;
+    /* Lebar A4 */
     min-height: 297mm;
+    /* Tinggi A4 */
     margin: 0 auto;
     padding: 20mm;
+    /* Margin seragam untuk A4 */
     box-sizing: border-box;
     position: relative;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    
+
     /* Background yang optimal untuk keterbacaan */
-    background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)),
-                url('./template/template-1.jpg');
+    background:
+        /* Overlay putih dengan opacity 85% */
+        linear-gradient(rgba(255, 255, 255, 0.25),
+            rgba(255, 255, 255, 0.25)),
+        /* Background image */
+        url('./template/template-1.jpg');
+    filter: brightness(1.1);
+    /* Mengatur background image */
     background-size: 100% 100%;
+    /* atau  cover jika ingin memaksa penuh */
     background-position: center center;
     background-repeat: no-repeat;
     background-attachment: scroll;
-    
+
+    /* Memastikan background memenuhi area konten */
+    background-origin: padding-box;
+    background-clip: padding-box;
+
     /* Font dan typography */
     font-size: 11pt;
     line-height: 1.5;
     color: #333333;
-    font-family: 'Times New Roman', Times, serif; /* Font yang lebih formal untuk surat */
-  }
+    /* Warna teks yang kontras */
+}
 
-  /* PERBAIKAN: Warna untuk teks italic/bahasa Inggris */
-  .letter-container .letter-statement.italic-text,
-  .letter-container em {
-    font-style: italic;
-    color: #1a237e !important; /* Warna biru tua untuk italic text */
-    font-weight: 500;
-  }
-
-  /* Hapus letter-header (logo) */
-  .letter-header {
+/* Hapus pseudo-element ::before karena sudah menggunakan gradient overlay */
+.letter-container::before {
     display: none;
-  }
+}
 
-  /* Title */
-  .letter-title {
+/* Semua konten surat */
+.letter-container>* {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* Hapus letter-header (logo) */
+.letter-header {
+    display: none;
+}
+
+/* REVISI: Title dirapatkan dan disesuaikan */
+.letter-title {
     text-align: center;
     font-size: 14pt;
+    /* Ukuran dikurangi sedikit */
     font-weight: bold;
     margin: 0 0 0.1cm 0;
+    /* Margin bawah dikurangi */
     text-transform: uppercase;
     color: #1a237e;
     line-height: 1;
-  }
+    /* Line height diperkecil */
+}
 
-  .letter-title:nth-of-type(2) {
+.letter-title:nth-of-type(2) {
     font-size: 12pt;
     margin-bottom: 0.1cm;
-  }
+    /* Jarak ke nomor surat */
+}
 
-  .letter-no {
+.letter-no {
     text-align: center;
     font-size: 10pt;
+    /* Ukuran dikurangi */
     margin-bottom: 0.8cm;
+    /* Dikurangi dari 1cm */
     color: #333;
     font-weight: bold;
-  }
+}
 
-  /* Data Section */
-  .letter-data-section {
+/* Ganti tabel dengan div untuk data - lebih fleksibel */
+.letter-data-section {
     margin-bottom: 0.2cm;
-  }
+    /* Dikurangi dari 0.6cm */
+}
 
-  .data-row {
+.data-row {
     display: flex;
     margin-bottom: 3px;
+    /* Dikurangi dari 5px */
     align-items: flex-start;
     min-height: 22px;
-  }
+    /* Tinggi minimum untuk konsistensi */
+}
 
-  .data-label {
+.data-label {
     width: 35%;
     font-weight: bold;
     padding-right: 10px;
     white-space: nowrap;
     font-size: 11pt;
-  }
+    /* Ukuran font diseragamkan */
+}
 
-  .data-value {
+.data-value {
     width: 65%;
     padding-bottom: 2px;
+    /* Dikurangi dari 3px */
     border-bottom: 1px dotted #777;
     min-height: 1.2em;
     font-size: 11pt;
-  }
+    /* Ukuran font diseragamkan */
+}
 
-  .letter-statement {
+.letter-statement {
     text-align: justify;
     margin: 0.4cm 0;
+    /* Dikurangi dari 0.6cm */
     text-indent: 40px;
     line-height: 1.5;
+    /* Disesuaikan */
     font-size: 11pt;
-  }
-  
-  .letter-statement-field {
-    margin-top: 0.5cm;
-    text-align: center;
-  }
+    /* Ukuran font diseragamkan */
+}
 
-  /* Tanggal dan Hormat Kami */
-  .letter-date-place {
+.letter-statement-field{
+     margin-top: 1cm;
+     padding-bottom: 2px;
+text-align: center;
+}
+
+/* REVISI: Tanggal dan Hormat Kami dirapatkan */
+.letter-date-place {
     margin-top: 1cm;
+    /* Dikurangi dari 2cm */
     text-align: left;
     margin-bottom: 0;
+    /* Dihilangkan margin bawah */
     font-size: 11pt;
-  }
+}
 
-  .letter-signature {
+.letter-signature {
     text-align: left;
     margin-top: 0.1cm;
+    /* Ditambahkan margin kecil di atas */
     font-size: 12pt;
-  }
+}
 
-  .letter-signature-name {
+.letter-signature-name {
     margin-top: 3cm;
+    /* Dikurangi dari 2cm */
     text-decoration: underline;
     font-weight: bold;
     font-size: 12pt;
-  }
+    /* Dikurangi dari 12pt */
+}
 
-  /* Footer dengan ikon media sosial */
-  .letter-footer {
+/* Footer dengan ikon media sosial */
+.letter-footer {
     position: absolute;
     bottom: 1.2cm;
     left: 2cm;
@@ -534,28 +586,28 @@
     text-align: center;
     border-top: 1px solid #aaa;
     padding-top: 0.4cm;
-  }
+}
 
-  .social-icons {
+.social-icons {
     margin-top: 8px;
     display: flex;
     justify-content: center;
     gap: 15px;
-  }
+}
 
-  .social-icons a {
+.social-icons a {
     color: #555;
     font-size: 12pt;
     transition: color 0.3s;
     text-decoration: none;
-  }
+}
 
-  .social-icons a:hover {
+.social-icons a:hover {
     color: #e74c3c;
-  }
+}
 
-  /* Modal */
-  .modal {
+/* Modal */
+.modal {
     display: none;
     position: fixed;
     top: 0;
@@ -566,13 +618,13 @@
     z-index: 1000;
     align-items: center;
     justify-content: center;
-  }
+}
 
-  .modal.active {
+.modal.active {
     display: flex;
-  }
+}
 
-  .modal-content {
+.modal-content {
     background: white;
     border-radius: 15px;
     width: 90%;
@@ -580,9 +632,9 @@
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  }
+}
 
-  .modal-header {
+.modal-header {
     padding: 25px 30px;
     background: #2c3e50;
     color: white;
@@ -590,14 +642,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
+}
 
-  .modal-header h3 {
+.modal-header h3 {
     margin: 0;
     font-size: 20px;
-  }
+}
 
-  .modal-close {
+.modal-close {
     background: none;
     border: none;
     color: white;
@@ -609,152 +661,149 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
+}
 
-  .modal-body {
+.modal-body {
     padding: 30px;
-  }
+}
 
-  .form-group {
+.form-group {
     margin-bottom: 20px;
-  }
+}
 
-  .form-group label {
+.form-group label {
     display: block;
     margin-bottom: 8px;
     color: #333;
     font-weight: 500;
-  }
+}
 
-  .form-control {
+.form-control {
     width: 100%;
     padding: 12px 15px;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 14px;
     background: #f8f9fa;
-  }
+}
 
-  /* Responsive */
-  @media (max-width: 1200px) {
+/* Responsive */
+@media (max-width: 1200px) {
     .admin-content {
-      grid-template-columns: 1fr;
+        grid-template-columns: 1fr;
     }
 
     .admin-sidebar {
-      border-right: none;
-      border-bottom: 1px solid #e0e0e0;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
     }
 
     .letter-container {
-      width: 100%;
-      padding: 2cm;
+        width: 100%;
+        padding: 2cm;
     }
-  }
+}
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
     .admin-header {
-      flex-direction: column;
-      text-align: center;
-      padding: 20px;
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
     }
 
     .admin-stats {
-      width: 100%;
-      justify-content: center;
+        width: 100%;
+        justify-content: center;
     }
 
     .data-header {
-      flex-direction: column;
-      align-items: flex-start;
+        flex-direction: column;
+        align-items: flex-start;
     }
 
     .data-actions {
-      width: 100%;
+        width: 100%;
     }
 
     .btn {
-      flex: 1;
-      justify-content: center;
+        flex: 1;
+        justify-content: center;
     }
 
     .data-table {
-      display: block;
-      overflow-x: auto;
+        display: block;
+        overflow-x: auto;
     }
 
     .letter-container {
-      padding: 1.5cm;
-      background-size: cover;
+        padding: 1.5cm;
+        background-size: cover;
     }
 
     .data-row {
-      flex-direction: column;
-      margin-bottom: 10px;
+        flex-direction: column;
+        margin-bottom: 10px;
     }
 
     .data-label,
     .data-value {
-      width: 100%;
+        width: 100%;
     }
 
     .data-label {
-      padding-right: 0;
-      margin-bottom: 2px;
+        padding-right: 0;
+        margin-bottom: 2px;
     }
-  }
+}
 
-  /* Printing Styles - DIPERBAIKI untuk PDF */
-  @media print {
+/* Printing Styles */
+@media print {
     body * {
-      visibility: hidden;
+        visibility: hidden;
     }
 
     .preview-container,
     .preview-container * {
-      visibility: visible;
+        visibility: visible;
     }
 
     .preview-container {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      background: white;
-      padding: 0;
-      margin: 0;
-      box-shadow: none;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white;
+        padding: 0;
+        margin: 0;
+        box-shadow: none;
     }
 
     .preview-header {
-      display: none !important;
+        display: none;
     }
 
     .letter-container {
-      box-shadow: none;
-      margin: 0;
-      padding: 20mm !important;
-      width: 210mm !important;
-      min-height: 297mm !important;
-      background: white !important;
-      position: static !important;
+        box-shadow: none;
+        margin: 0;
+        padding: 20mm;
+        width: 210mm;
+        min-height: 297mm;
+        background: white !important;
+        /* Pastikan background putih saat print */
+    }
+
+    .letter-container::before {
+        display: none;
+        /* Hilangkan overlay saat print */
     }
 
     .btn {
-      display: none !important;
+        display: none;
     }
-    
-    /* Pastikan teks italic tetap berwarna saat print */
-    .letter-container .letter-statement.italic-text,
-    .letter-container em {
-      -webkit-print-color-adjust: exact !important;
-      color-adjust: exact !important;
-      color: #1a237e !important;
-    }
-  }
+}
 
-  /* Loading */
-  .loading {
+/* Loading */
+.loading {
     position: fixed;
     top: 0;
     left: 0;
@@ -766,13 +815,13 @@
     justify-content: center;
     z-index: 9999;
     flex-direction: column;
-  }
+}
 
-  .loading.active {
+.loading.active {
     display: flex;
-  }
+}
 
-  .spinner {
+.spinner {
     width: 60px;
     height: 60px;
     border: 5px solid #f3f3f3;
@@ -780,20 +829,20 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 20px;
-  }
+}
 
-  @keyframes spin {
+@keyframes spin {
     0% {
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
 
     100% {
-      transform: rotate(360deg);
+        transform: rotate(360deg);
     }
-  }
+}
 
-  /* Notification */
-  .notification {
+/* Notification */
+.notification {
     position: fixed;
     top: 20px;
     right: 20px;
@@ -807,52 +856,52 @@
     z-index: 1001;
     transform: translateX(400px);
     transition: transform 0.3s;
-  }
+}
 
-  .notification.show {
+.notification.show {
     transform: translateX(0);
-  }
+}
 
-  .notification.success {
+.notification.success {
     border-left: 5px solid #27ae60;
-  }
+}
 
-  .notification.error {
+.notification.error {
     border-left: 5px solid #e74c3c;
-  }
+}
 
-  .notification.warning {
+.notification.warning {
     border-left: 5px solid #f39c12;
-  }
+}
 
-  .notification-icon {
+.notification-icon {
     font-size: 24px;
-  }
+}
 
-  .notification.success .notification-icon {
+.notification.success .notification-icon {
     color: #27ae60;
-  }
+}
 
-  .notification.error .notification-icon {
+.notification.error .notification-icon {
     color: #e74c3c;
-  }
+}
 
-  .notification.warning .notification-icon {
+.notification.warning .notification-icon {
     color: #f39c12;
-  }
+}
 
-  .notification-content h4 {
+.notification-content h4 {
     margin: 0 0 5px 0;
     color: #333;
-  }
+}
 
-  .notification-content p {
+.notification-content p {
     margin: 0;
     color: #666;
     font-size: 14px;
-  }
+}
 
-  .notification-close {
+.notification-close {
     background: none;
     border: none;
     color: #999;
@@ -860,17 +909,17 @@
     font-size: 20px;
     padding: 0;
     margin-left: 10px;
-  }
+}
 
-  /* Tabs */
-  .tabs {
+/* Tabs */
+.tabs {
     display: flex;
     margin-bottom: 20px;
     border-bottom: 2px solid #e0e0e0;
     flex-wrap: wrap;
-  }
+}
 
-  .tab-btn {
+.tab-btn {
     padding: 12px 24px;
     background: none;
     border: none;
@@ -880,84 +929,84 @@
     color: #666;
     border-bottom: 3px solid transparent;
     transition: all 0.3s;
-  }
+}
 
-  .tab-btn:hover {
+.tab-btn:hover {
     color: #e74c3c;
-  }
+}
 
-  .tab-btn.active {
+.tab-btn.active {
     color: #e74c3c;
     border-bottom-color: #e74c3c;
-  }
+}
 
-  .tab-content {
+.tab-content {
     display: none;
     animation: fadeIn 0.5s ease;
-  }
+}
 
-  .tab-content.active {
+.tab-content.active {
     display: block;
-  }
+}
 
-  @keyframes fadeIn {
+@keyframes fadeIn {
     from {
-      opacity: 0;
+        opacity: 0;
     }
 
     to {
-      opacity: 1;
+        opacity: 1;
     }
-  }
+}
 
-  /* Dashboard Cards */
-  .dashboard-cards {
+/* Dashboard Cards */
+.dashboard-cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
-  }
+}
 
-  .card {
+.card {
     background: white;
     border-radius: 15px;
     padding: 25px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s;
-  }
+}
 
-  .card:hover {
+.card:hover {
     transform: translateY(-5px);
-  }
+}
 
-  .card-icon {
+.card-icon {
     font-size: 40px;
     margin-bottom: 15px;
-  }
+}
 
-  .card-title {
+.card-title {
     font-size: 14px;
     color: #666;
     margin-bottom: 10px;
     text-transform: uppercase;
     letter-spacing: 1px;
-  }
+}
 
-  .card-value {
+.card-value {
     font-size: 32px;
     font-weight: bold;
     color: #333;
     margin-bottom: 5px;
-  }
+}
 
-  .card-change {
+.card-change {
     font-size: 12px;
     color: #27ae60;
-  }
+}
 
-  .card-change.negative {
+.card-change.negative {
     color: #e74c3c;
-  }
+}
 </style>
 <body>
 
@@ -1243,8 +1292,8 @@
             </div>
           </div>
           
-          <!-- Template Surat - DIPERBAIKI untuk PDF export -->
-          <div id="letterTemplate" class="letter-container" style="background: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('./template/template-1.jpg'); background-size: 100% 100%;">
+          <!-- Template Surat -->
+          <div id="letterTemplate" class="letter-container">
             <div class="letter-title">SURAT KETERANGAN KERJA</div>
             <div class="letter-title">CERTIFICATE OF EMPLOYMENT</div>
             <div class="letter-no" id="letterNo">
@@ -1253,7 +1302,7 @@
 
             <div class="letter-statement">
               Yang bertanda tangan di bawah ini:<br>
-              <em class="italic-text">The undersigned below:</em>
+              <em>The undersigned below:</em>
             </div>
 
             <div class="letter-data-section">
@@ -1269,7 +1318,7 @@
 
             <div class="letter-statement" style="margin-top:0.6cm;">
               Dengan ini menerangkan bahwa:<br>
-              <em class="italic-text">Hereby certifies that:</em>
+              <em>Hereby certifies that:</em>
             </div>
 
             <div class="letter-data-section">
@@ -1291,9 +1340,9 @@
               </div>
             </div>
 
-            <div class="letter-statement">
+            <div class="letter-statement style="margin-top:0.6cm;">
               Adalah benar pernah bekerja di perusahaan kami sejak:<br>
-              <em class="italic-text">Was employed at our company starting from:</em>
+              <em>Was employed at our company starting from:</em>
             </div>
 
             <div class="letter-data-section">
@@ -1309,14 +1358,13 @@
 
             <div class="letter-statement-field">
               Alasan berhenti kerja : <span id="fieldAlasanBerhenti">Mengundurkan diri secara baik-baik / kontrak kerja berakhir</span><br>
-              <em class="italic-text">Reason for leaving : <span id="fieldAlasanBerhentiEn">Resigned in good standing / end of contract</span></em>
+              <em>Reason for leaving : <span id="fieldAlasanBerhentiEn">Resigned in good standing / end of contract</span></em>
             </div>
 
-            <div class="letter-statement">
+            <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
               Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.
-            </div>
-            <div class="letter-statement italic-text" style="font-style:italic; color:#1a237e;">
-              We would like to say thank you for your cooperation during work with us and we wish you success in your career in the future.
+            
+              <!-- <em>We would like to say thank you for your cooperation during work with us and we wish you success in your career in the future.</em> -->
             </div>
 
             <div class="letter-date-place" id="fieldTempatTanggal">
@@ -1325,7 +1373,7 @@
 
             <div class="letter-signature">
               Hormat kami,<br>
-              <em class="italic-text">Sincerely,</em><br>
+              <em>Sincerely,</em><br>
 
               <div class="letter-signature-name" id="fieldTandaTangan">M. Fajrian Noor</div>
               <span id="fieldJabatanTTD">Direktur</span>
@@ -1453,6 +1501,9 @@
     </div>
   </div>
 </div>
+
+<!-- Chart.js untuk grafik -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Firebase Configuration -->
 <script>
@@ -2150,7 +2201,7 @@
         }
       }
       
-      // Filter by search
+      // Filter by search - TAMBAHKAN KOLOM BARU
       if (searchFilter) {
         const searchStr = `
           ${data.namaLengkap || ''} 
@@ -2217,7 +2268,7 @@
     }
   }
 
-  // Populate Letter Template - DIPERBAIKI
+  // Populate Letter Template
   function populateLetterTemplate(data) {
     // Format tanggal untuk Indonesia
     function formatLetterDate(dateString) {
@@ -2268,76 +2319,42 @@
     document.getElementById('dataListContainer').classList.add('active');
   }
 
-  // Download PDF - FUNGSI INI YANG DIPERBAIKI
+  // Download PDF
   async function downloadPDF() {
     showLoading(true);
     
     try {
-      // Simpan elemen asli untuk nanti dikembalikan
-      const originalElement = document.getElementById('letterTemplate');
-      const originalDisplay = originalElement.style.display;
-      const originalPosition = originalElement.style.position;
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
       
-      // Buat clone elemen untuk konversi PDF
-      const element = originalElement.cloneNode(true);
+      // Get the letter template
+      const element = document.getElementById('letterTemplate');
       
-      // Atur style untuk clone agar optimal untuk PDF
-      element.style.display = 'block';
-      element.style.position = 'absolute';
-      element.style.left = '-9999px';
-      element.style.top = '0';
-      element.style.width = '210mm';
-      element.style.height = '297mm';
-      element.style.background = 'white'; // Pastikan background putih untuk PDF
-      element.style.fontFamily = "'Times New Roman', Times, serif";
-      
-      // Tambahkan ke body sementara
-      document.body.appendChild(element);
-      
-      // Tunggu sebentar untuk memastikan elemen dirender
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Konversi ke canvas dengan pengaturan yang lebih baik
+      // Convert to canvas with higher quality
       const canvas = await html2canvas(element, {
-        scale: 3, // Skala lebih tinggi untuk kualitas lebih baik
-        useCORS: true,
+        scale: 2,
         backgroundColor: '#ffffff',
-        logging: false,
-        width: 210 * 3.78, // Konversi mm ke pixel (1mm = 3.78px)
-        height: 297 * 3.78,
-        windowWidth: 210 * 3.78,
-        windowHeight: 297 * 3.78
+        useCORS: true,
+        logging: false
       });
-      
-      // Hapus elemen clone dari body
-      document.body.removeChild(element);
       
       // Get image data
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const imgData = canvas.toDataURL('image/png');
       
-      // Create PDF
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      // Add image to PDF
+      // Calculate dimensions
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth - 20; // 10mm margin each side
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
       
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      // Add image to PDF
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       
       // Generate filename
       const fileName = `Packlaring_${selectedData.nip || 'NoNIP'}_${selectedData.namaLengkap?.replace(/\s+/g, '_') || 'NoName'}.pdf`;
       
       // Save PDF
       pdf.save(fileName);
-      
-      // Kembalikan style asli
-      originalElement.style.display = originalDisplay;
-      originalElement.style.position = originalPosition;
       
       // Update status to completed if it was pending
       if (selectedData.status === 'pending') {
@@ -2363,7 +2380,16 @@
 
   // Print Letter
   function printLetter() {
+    const printContent = document.getElementById('letterTemplate').innerHTML;
+    const originalContent = document.body.innerHTML;
+    
+    document.body.innerHTML = printContent;
     window.print();
+    document.body.innerHTML = originalContent;
+    
+    // Restore preview
+    document.getElementById('previewContainer').classList.add('active');
+    document.getElementById('dataListContainer').classList.remove('active');
   }
 
   // Edit Status Modal
@@ -2416,7 +2442,7 @@
 
   // Export to Excel
   function exportExcel() {
-    // Prepare data
+    // Prepare data - TAMBAHKAN KOLOM BARU
     const exportData = filteredData.map(data => ({
       'No Surat': data.noSurat || '',
       'Nama Karyawan': data.namaLengkap || '',
