@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Formulir Packlaring - NEXT Logistics</title>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -16,7 +17,7 @@
 
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #ffffff);
       color: #333;
       line-height: 1.6;
       min-height: 100vh;
@@ -28,13 +29,13 @@
       margin: 0 auto;
       background: white;
       border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       overflow: hidden;
     }
 
     /* Header */
     .header {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      background: linear-gradient(135deg, #f7a01e 70%, #f10707 100%);
       color: white;
       padding: 30px;
       text-align: center;
@@ -58,7 +59,7 @@
 
     .badge {
       display: inline-block;
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.2);
       padding: 5px 15px;
       border-radius: 20px;
       font-size: 12px;
@@ -122,11 +123,11 @@
 
     .step-label {
       font-size: 12px;
-      color: #666;
+      color: #666666;
     }
 
     .step.active .step-label {
-      color: #3498db;
+      color: #4898e2;
       font-weight: bold;
     }
 
@@ -141,8 +142,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .step-title {
@@ -184,6 +192,8 @@
       font-size: 16px;
       transition: all 0.3s;
       background: #f8f9fa;
+      text-transform: uppercase;
+      /* Membuat teks menjadi uppercase */
     }
 
     .form-control:focus {
@@ -380,7 +390,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255,255,255,0.95);
+      background: rgba(255, 255, 255, 0.95);
       display: none;
       align-items: center;
       justify-content: center;
@@ -403,8 +413,13 @@
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     /* Alert Messages */
@@ -444,40 +459,40 @@
         margin: 10px;
         border-radius: 15px;
       }
-      
+
       .header {
         padding: 20px;
       }
-      
+
       .form-container {
         padding: 20px;
       }
-      
+
       .steps {
         margin-bottom: 30px;
       }
-      
+
       .step {
         width: 60px;
       }
-      
+
       .step-label {
         font-size: 10px;
       }
-      
+
       .button-group {
         flex-direction: column;
       }
-      
+
       .btn {
         width: 100%;
       }
-      
+
       .form-row {
         grid-template-columns: 1fr;
         gap: 15px;
       }
-      
+
       .preview-grid {
         grid-template-columns: 1fr;
       }
@@ -487,17 +502,17 @@
       body {
         padding: 10px;
       }
-      
+
       .step-number {
         width: 25px;
         height: 25px;
         font-size: 14px;
       }
-      
+
       .step-title {
         font-size: 18px;
       }
-      
+
       .form-control {
         padding: 10px 12px;
         font-size: 14px;
@@ -523,17 +538,18 @@
 
     /* Print Styles */
     @media print {
+
       .header,
       .steps,
       .button-group,
       .alert {
         display: none !important;
       }
-      
+
       .form-step {
         display: block !important;
       }
-      
+
       .container {
         box-shadow: none;
         border: none;
@@ -541,635 +557,755 @@
     }
   </style>
 </head>
+
 <body>
 
-<!-- Loading Overlay -->
-<div class="loading" id="loading">
-  <div class="spinner"></div>
-  <p style="color: #3498db; font-weight: 600; margin-top: 10px;">Menyimpan data...</p>
-</div>
-
-<div class="container">
-  <!-- Header -->
-  <div class="header">
-    <div class="logo">NEXT-PROJECT-IFP</div>
-    <div class="title">
-      <h1>FORMULIR PACKLARING</h1>
-      <p>NEXT Cargo Logistics - Surat Keterangan Kerja</p>
-      <div class="badge">Hubungi HRD: 081383796300</div>
-    </div>
+  <!-- Loading Overlay -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p style="color: #3498db; font-weight: 600; margin-top: 10px;">Menyimpan data...</p>
   </div>
 
-  <!-- Alert Messages -->
-  <div class="alert" id="alert"></div>
+  <div class="container">
+    <!-- Header -->
+    <!-- <div class="header"> -->
+    <!-- <div class="logo">NEXT-PROJECT-IFP</div> -->
+    <!-- <div class="title"> -->
+    <!-- <h1>FORMULIR PACKLARING</h1> -->
+    <!-- <p>NEXT Cargo Logistics - Surat Keterangan Kerja</p> -->
+    <!-- <div class="badge">Hubungi HRD: 081383796300</div> -->
+    <!-- </div> -->
+    <!-- </div> -->
 
-  <!-- Progress Steps -->
-  <div class="steps">
-    <div class="step active" id="step1">
-      <div class="step-number">1</div>
-      <div class="step-label">Data Surat</div>
-    </div>
-    <div class="step" id="step2">
-      <div class="step-number">2</div>
-      <div class="step-label">Data Pribadi</div>
-    </div>
-    <div class="step" id="step3">
-      <div class="step-number">3</div>
-      <div class="step-label">Masa Kerja</div>
-    </div>
-    <div class="step" id="step4">
-      <div class="step-number">4</div>
-      <div class="step-label">Konfirmasi</div>
-    </div>
-  </div>
+    <!-- Alert Messages -->
+    <div class="alert" id="alert"></div>
 
-  <!-- Form Steps -->
-  <div class="form-container">
-    <!-- Step 1: Data Surat -->
-    <div class="form-step active" id="formStep1">
-      <h2 class="step-title">📄 Data Surat</h2>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label class="required">Kode Surat</label>
-          <input type="text" id="kodeSurat" class="form-control" value="SK" readonly>
-          <span class="help-text">Kode tetap untuk Surat Keterangan</span>
-        </div>
-        
-        <div class="form-group">
-          <label class="required">Departemen</label>
-          <input type="text" id="departemen" class="form-control" value="HRD" readonly>
-        </div>
+    <!-- Progress Steps -->
+    <div class="steps">
+      <div class="step active" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-label">Data Surat</div>
       </div>
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-label">Data Pribadi</div>
+      </div>
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-label">Masa Kerja</div>
+      </div>
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-label">Konfirmasi</div>
+      </div>
+    </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label class="required">Nomor Surat</label>
-          <div style="display: flex; gap: 10px;">
-            <input type="text" id="noSurat" class="form-control" placeholder="Auto Generate" readonly>
-            <button type="button" class="btn btn-warning" onclick="generateNomorSurat()" style="white-space: nowrap;">
-              Generate
-            </button>
+    <!-- Form Steps -->
+    <div class="form-container">
+      <!-- Step 1: Data Surat -->
+      <div class="form-step active" id="formStep1">
+        <h2 class="step-title">📄 Data Surat</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Kode Surat</label>
+            <input type="text" id="kodeSurat" class="form-control" value="SK" readonly>
+            <span class="help-text">Kode tetap untuk Surat Keterangan</span>
           </div>
-          <span class="help-text">Generate otomatis dari sistem</span>
-        </div>
-        
-        <div class="form-group">
-          <label class="required">Tanggal Surat</label>
-          <input type="date" id="tanggalSurat" class="form-control">
-        </div>
-      </div>
 
-      <div class="form-group">
-        <label class="required">Tujuan Surat</label>
-        <select id="tujuanSurat" class="form-control">
-          <option value="Packlaring" selected>Paklaring</option>
-          <option value="Pengunduran Diri">Pengunduran Diri</option>
-          <option value="PHK">Pemutusan Hubungan Kerja</option>
-          <option value="Mutasi">Mutasi</option>
-          <option value="Promosi">Promosi</option>
-        </select>
-      </div>
-
-      <div class="button-group">
-        <div></div> <!-- Empty div untuk alignment -->
-        <button class="btn btn-primary" onclick="nextStep()">
-          Selanjutnya <span style="font-size: 18px;">→</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 2: Data Pribadi -->
-    <div class="form-step" id="formStep2">
-      <h2 class="step-title">👤 Data Pribadi</h2>
-      
-      <div class="form-group">
-        <label class="required">Nama Lengkap</label>
-        <input type="text" id="namaLengkap" class="form-control" placeholder="Masukkan nama lengkap sesuai KTP">
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="required">Tempat Lahir</label>
-          <input type="text" id="tempatLahir" class="form-control" placeholder="Kota kelahiran">
-        </div>
-        
-        <div class="form-group">
-          <label class="required">Tanggal Lahir</label>
-          <input type="date" id="tanggalLahir" class="form-control">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="required">NIP / ID Karyawan</label>
-          <div style="display: flex; gap: 10px;">
-            <input type="text" id="nip" class="form-control" placeholder="NEXT0001" readonly>
-            <button type="button" class="btn btn-warning" onclick="generateNIP()" style="white-space: nowrap;">
-              Generate NIP
-            </button>
+          <div class="form-group">
+            <label class="required">Departemen</label>
+            <input type="text" id="departemen" class="form-control" value="HRD" readonly>
           </div>
-          <span class="help-text">ID unik karyawan</span>
         </div>
-        
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Nomor Surat</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="text" id="noSurat" class="form-control" placeholder="Auto Generate" readonly>
+              <button type="button" class="btn btn-warning" onclick="generateNomorSurat()" style="white-space: nowrap;">
+                Generate
+              </button>
+            </div>
+            <span class="help-text">Generate otomatis dari sistem</span>
+          </div>
+
+          <div class="form-group">
+            <label class="required">Tanggal Surat</label>
+            <input type="date" id="tanggalSurat" class="form-control">
+          </div>
+        </div>
+
         <div class="form-group">
-          <label class="required">Jabatan Terakhir</label>
-        <select id="jabatan" class="form-control">
-          <option value="">Pilih Jabatan</option>
-          <option value="TEKNISI">TEKNISI</option>
-          <option value="Staff Admin">Staff Admin</option>
-          <option value="Coordinator Area">Coordinator Area</option>
-          <option value="Customer Service">Customer Service</option>
-          <option value="Staff Monitoring">Staff Monitoring</option>
-          <option value="Manager Area">Manager Area</option>
-          <!--<option value="Lainnya">Lainnya</option>-->
-        </select>
+          <label class="required">Tujuan Surat</label>
+          <select id="tujuanSurat" class="form-control">
+            <option value="Packlaring" selected>Paklaring</option>
+            <option value="Pengunduran Diri">Pengunduran Diri</option>
+            <option value="PHK">Pemutusan Hubungan Kerja</option>
+            <option value="Mutasi">Mutasi</option>
+            <option value="Promosi">Promosi</option>
+          </select>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label class="required">Departemen</label>
-        <select id="deptKaryawan" class="form-control">
-          <option value="">Pilih Departemen</option>
-          <option value="HRD">HRD</option>
-        </select>
-      </div>
-
-      <div class="button-group">
-        <button class="btn btn-secondary" onclick="prevStep()">
-          <span style="font-size: 18px;">←</span> Sebelumnya
-        </button>
-        <button class="btn btn-primary" onclick="nextStep()">
-          Selanjutnya <span style="font-size: 18px;">→</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 3: Masa Kerja -->
-    <div class="form-step" id="formStep3">
-      <h2 class="step-title">📅 Masa Kerja</h2>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label class="required">Tanggal Mulai Kerja</label>
-          <input type="date" id="tanggalMulai" class="form-control">
-          <span class="help-text">Tanggal mulai bekerja di perusahaan</span>
-        </div>
-        
-        <div class="form-group">
-          <label class="required">Tanggal Berakhir</label>
-          <input type="date" id="tanggalBerakhir" class="form-control">
-          <span class="help-text">Tanggal terakhir bekerja</span>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label class="required">Alasan Berhenti</label>
-        <select id="alasanBerhenti" class="form-control">
-          <option value="Kontrak Berakhir" selected>Kontrak Berakhir</option>
-          <option value="Pengunduran Diri">Pengunduran Diri</option>
-          <option value="PHK">Pemutusan Hubungan Kerja</option>
-          <option value="Pensiun">Pensiun</option>
-          <option value="Meninggal Dunia">Meninggal Dunia</option>
-          <option value="Lainnya">Lainnya</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Keterangan Tambahan</label>
-        <textarea id="keterangan" class="form-control" rows="4" placeholder="Tambahkan keterangan jika diperlukan..."></textarea>
-      </div>
-
-      <div class="preview-section" id="previewMasaKerja">
-        <div class="preview-title">
-          <span>📋 Preview Data</span>
-          <button type="button" class="btn btn-secondary" onclick="updatePreview()" style="padding: 5px 10px; font-size: 12px;">
-            Refresh Preview
+        <div class="button-group">
+          <div></div> <!-- Empty div untuk alignment -->
+          <button class="btn btn-primary" onclick="nextStep()">
+            Selanjutnya <span style="font-size: 18px;">→</span>
           </button>
         </div>
-        <div class="preview-grid" id="previewContent">
-          <!-- Preview akan diisi oleh JavaScript -->
+      </div>
+
+      <!-- Step 2: Data Pribadi -->
+      <div class="form-step" id="formStep2">
+        <h2 class="step-title">👤 Data Pribadi</h2>
+
+        <div class="form-group">
+          <label class="required">Nama Lengkap</label>
+          <input type="text" id="namaLengkap" class="form-control" placeholder="MASUKKAN NAMA LENGKAP SESUAI KTP"
+            oninput="this.value = this.value.toUpperCase()" onblur="this.value = this.value.trim().toUpperCase()">
+          <span class="help-text">Nama akan otomatis menjadi huruf besar semua</span>
+        </div>
+
+        <!-- TAMBAHAN INPUT BARU: Nomor KTP dan Wilayah Area Kerja -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Nomor KTP</label>
+            <input type="text" id="nomorKTP" class="form-control" placeholder="MASUKKAN 16 DIGIT NOMOR KTP"
+              oninput="formatNomorKTP(this)" onblur="this.value = this.value.toUpperCase()" maxlength="19">
+            <span class="help-text">Format: XXXX-XXXX-XXXX-XXXX</span>
+          </div>
+
+          <div class="form-group">
+            <label class="required">Wilayah Area Kerja</label>
+            <select id="wilayahArea" class="form-control">
+              <option value="">PILIH WILAYAH AREA KERJA</option>
+              <option value="ACEH">ACEH</option>
+              <option value="SUMATERA UTARA">SUMATERA UTARA</option>
+              <option value="SUMATERA BARAT">SUMATERA BARAT</option>
+              <option value="RIAU">RIAU</option>
+              <option value="JAMBI">JAMBI</option>
+              <option value="SUMATERA SELATAN">SUMATERA SELATAN</option>
+              <option value="BENGKULU">BENGKULU</option>
+              <option value="LAMPUNG">LAMPUNG</option>
+              <option value="KEPULAUAN BANGKA BELITUNG">KEPULAUAN BANGKA BELITUNG</option>
+              <option value="KEPULAUAN RIAU">KEPULAUAN RIAU</option>
+              <option value="DKI JAKARTA">DKI JAKARTA</option>
+              <option value="JAWA BARAT">JAWA BARAT</option>
+              <option value="JAWA TENGAH">JAWA TENGAH</option>
+              <option value="DAERAH ISTIMEWA YOGYAKARTA">DAERAH ISTIMEWA YOGYAKARTA</option>
+              <option value="JAWA TIMUR">JAWA TIMUR</option>
+              <option value="BANTEN">BANTEN</option>
+              <option value="BALI">BALI</option>
+              <option value="NUSA TENGGARA BARAT">NUSA TENGGARA BARAT</option>
+              <option value="NUSA TENGGARA TIMUR">NUSA TENGGARA TIMUR</option>
+              <option value="KALIMANTAN BARAT">KALIMANTAN BARAT</option>
+              <option value="KALIMANTAN TENGAH">KALIMANTAN TENGAH</option>
+              <option value="KALIMANTAN SELATAN">KALIMANTAN SELATAN</option>
+              <option value="KALIMANTAN TIMUR">KALIMANTAN TIMUR</option>
+              <option value="KALIMANTAN UTARA">KALIMANTAN UTARA</option>
+              <option value="SULAWESI UTARA">SULAWESI UTARA</option>
+              <option value="SULAWESI TENGAH">SULAWESI TENGAH</option>
+              <option value="SULAWESI SELATAN">SULAWESI SELATAN</option>
+              <option value="SULAWESI TENGGARA">SULAWESI TENGGARA</option>
+              <option value="GORONTALO">GORONTALO</option>
+              <option value="SULAWESI BARAT">SULAWESI BARAT</option>
+              <option value="MALUKU">MALUKU</option>
+              <option value="MALUKU UTARA">MALUKU UTARA</option>
+              <option value="PAPUA BARAT">PAPUA BARAT</option>
+              <option value="PAPUA">PAPUA</option>
+              <option value="PAPUA TENGAH">PAPUA TENGAH</option>
+              <option value="PAPUA PEGUNUNGAN">PAPUA PEGUNUNGAN</option>
+              <option value="PAPUA SELATAN">PAPUA SELATAN</option>
+              <option value="PAPUA BARAT DAYA">PAPUA BARAT DAYA</option>
+              <option value="LAINNYA">LAINNYA</option>
+            </select>
+            <span class="help-text">Pilih wilayah tempat Anda bekerja</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Tempat Lahir</label>
+            <input type="text" id="tempatLahir" class="form-control" placeholder="KOTA KELAHIRAN"
+              oninput="this.value = this.value.toUpperCase()" onblur="this.value = this.value.trim().toUpperCase()">
+          </div>
+
+          <div class="form-group">
+            <label class="required">Tanggal Lahir</label>
+            <input type="date" id="tanggalLahir" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">NIP / ID Karyawan</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="text" id="nip" class="form-control" placeholder="NEXT0001" readonly>
+              <button type="button" class="btn btn-warning" onclick="generateNIP()" style="white-space: nowrap;">
+                Generate NIP
+              </button>
+            </div>
+            <span class="help-text">ID unik karyawan</span>
+          </div>
+
+          <div class="form-group">
+            <label class="required">Jabatan Terakhir</label>
+            <select id="jabatan" class="form-control">
+              <option value="">PILIH JABATAN</option>
+              <option value="TEKNISI">TEKNISI</option>
+              <option value="STAFF ADMIN">STAFF ADMIN</option>
+              <option value="KORDINATOR WILAYAH">KORDINATOR WILAYAH</option>
+              <option value="CUSTOMER SERVICE">CUSTOMER SERVICE</option>
+              <option value="STAFF MONITORING">STAFF MONITORING</option>
+              <option value="MANAGER AREA">MANAGER AREA</option>
+              <!--<option value="Lainnya">Lainnya</option>-->
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="required">Departemen</label>
+          <select id="deptKaryawan" class="form-control">
+            <option value="">PILIH DEPARTEMEN</option>
+            <option value="HRD">HRD</option>
+          </select>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-secondary" onclick="prevStep()">
+            <span style="font-size: 18px;">←</span> Sebelumnya
+          </button>
+          <button class="btn btn-primary" onclick="nextStep()">
+            Selanjutnya <span style="font-size: 18px;">→</span>
+          </button>
         </div>
       </div>
 
-      <div class="button-group">
-        <button class="btn btn-secondary" onclick="prevStep()">
-          <span style="font-size: 18px;">←</span> Sebelumnya
-        </button>
-        <button class="btn btn-primary" onclick="nextStep()">
-          Selanjutnya <span style="font-size: 18px;">→</span>
-        </button>
-      </div>
-    </div>
+      <!-- Step 3: Masa Kerja -->
+      <div class="form-step" id="formStep3">
+        <h2 class="step-title">📅 Masa Kerja</h2>
 
-    <!-- Step 4: Konfirmasi -->
-    <div class="form-step" id="formStep4">
-      <h2 class="step-title">✅ Konfirmasi Data</h2>
-      
-      <div class="preview-section">
-        <div class="preview-title">
-          <span>📄 Ringkasan Data Packlaring</span>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="required">Tanggal Mulai Kerja</label>
+            <input type="date" id="tanggalMulai" class="form-control">
+            <span class="help-text">Tanggal mulai bekerja di perusahaan</span>
+          </div>
+
+          <div class="form-group">
+            <label class="required">Tanggal Berakhir</label>
+            <input type="date" id="tanggalBerakhir" class="form-control">
+            <span class="help-text">Tanggal terakhir bekerja</span>
+          </div>
         </div>
-        <div class="preview-grid" id="finalPreview">
-          <!-- Final preview akan diisi oleh JavaScript -->
+
+        <div class="form-group">
+          <label class="required">Alasan Berhenti</label>
+          <select id="alasanBerhenti" class="form-control">
+            <option value="KONTRAK BERAKHIR" selected>KONTRAK BERAKHIR</option>
+            <option value="PENGUNDURAN DIRI">PENGUNDURAN DIRI</option>
+            <option value="PHK">PEMUTUSAN HUBUNGAN KERJA</option>
+            <option value="PENSIUN">PENSIUN</option>
+            <option value="MENINGGAL DUNIA">MENINGGAL DUNIA</option>
+            <option value="LAINNYA">LAINNYA</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Keterangan Tambahan</label>
+          <textarea id="keterangan" class="form-control" rows="4" placeholder="TAMBAHKAN KETERANGAN JIKA DIPERLUKAN..."
+            oninput="this.value = this.value.toUpperCase()"
+            onblur="this.value = this.value.trim().toUpperCase()"></textarea>
+        </div>
+
+        <div class="preview-section" id="previewMasaKerja">
+          <div class="preview-title">
+            <span>📋 Preview Data</span>
+            <button type="button" class="btn btn-secondary" onclick="updatePreview()"
+              style="padding: 5px 10px; font-size: 12px;">
+              Refresh Preview
+            </button>
+          </div>
+          <div class="preview-grid" id="previewContent">
+            <!-- Preview akan diisi oleh JavaScript -->
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-secondary" onclick="prevStep()">
+            <span style="font-size: 18px;">←</span> Sebelumnya
+          </button>
+          <button class="btn btn-primary" onclick="nextStep()">
+            Selanjutnya <span style="font-size: 18px;">→</span>
+          </button>
         </div>
       </div>
 
-      <div class="form-group mt-20">
-        <label>Email untuk Notifikasi (opsional)</label>
-        <input type="email" id="email" class="form-control" placeholder="email@contoh.com">
-        <span class="help-text">Kirim salinan konfirmasi ke email</span>
+      <!-- Step 4: Konfirmasi -->
+      <div class="form-step" id="formStep4">
+        <h2 class="step-title">✅ Konfirmasi Data</h2>
+
+        <div class="preview-section">
+          <div class="preview-title">
+            <span>📄 Ringkasan Data Packlaring</span>
+          </div>
+          <div class="preview-grid" id="finalPreview">
+            <!-- Final preview akan diisi oleh JavaScript -->
+          </div>
+        </div>
+
+        <div class="form-group mt-20">
+          <label>Email untuk Notifikasi (opsional)</label>
+          <input type="email" id="email" class="form-control" placeholder="EMAIL@CONTOH.COM"
+            oninput="this.value = this.value.toUpperCase()" onblur="this.value = this.value.trim().toUpperCase()">
+          <span class="help-text">Kirim salinan konfirmasi ke email</span>
+        </div>
+
+        <div class="form-group">
+          <label>No. WhatsApp untuk Konfirmasi</label>
+          <input type="tel" id="whatsapp" class="form-control" placeholder="081234567890">
+          <span class="help-text">Admin akan menghubungi via WhatsApp</span>
+        </div>
+
+        <div class="alert alert-info" style="display: block;">
+          <strong>📢 INFORMASI PENTING:</strong>
+          <p style="margin-top: 5px; font-size: 14px;">
+            • DATA YANG SUDAH DIKIRIM AKAN DIPROSES OLEH HRD DALAM 1-3 HARI KERJA<br>
+            • PASTIKAN SEMUA DATA SUDAH BENAR SEBELUM MENGIRIM<br>
+            • ADMIN AKAN MENGHUBUNGI VIA WHATSAPP UNTUK KONFIRMASI
+          </p>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-secondary" onclick="prevStep()">
+            <span style="font-size: 18px;">←</span> Periksa Kembali
+          </button>
+          <button class="btn btn-success" onclick="submitForm()">
+            <span style="font-size: 20px;">✓</span> Kirim Permintaan
+          </button>
+        </div>
       </div>
 
-      <div class="form-group">
-        <label>No. WhatsApp untuk Konfirmasi</label>
-        <input type="tel" id="whatsapp" class="form-control" placeholder="081234567890">
-        <span class="help-text">Admin akan menghubungi via WhatsApp</span>
-      </div>
-
-      <div class="alert alert-info" style="display: block;">
-        <strong>📢 Informasi Penting:</strong>
-        <p style="margin-top: 5px; font-size: 14px;">
-          • Data yang sudah dikirim akan diproses oleh HRD dalam 1-3 hari kerja<br>
-          • Pastikan semua data sudah benar sebelum mengirim<br>
-          • Admin akan menghubungi via WhatsApp untuk konfirmasi
+      <!-- Success Message -->
+      <div class="success-message" id="successMessage">
+        <div class="success-icon">✅</div>
+        <h2>PERMINTAAN BERHASIL DIKIRIM!</h2>
+        <p>
+          DATA PACKLARING ANDA TELAH BERHASIL DISIMPAN. <br>
+          TIM HRD AKAN MEMPROSES PERMINTAAN ANDA DAN AKAN MENGHUBUNGI VIA WHATSAPP DALAM 1-3 HARI KERJA.
         </p>
-      </div>
 
-      <div class="button-group">
-        <button class="btn btn-secondary" onclick="prevStep()">
-          <span style="font-size: 18px;">←</span> Periksa Kembali
-        </button>
-        <button class="btn btn-success" onclick="submitForm()">
-          <span style="font-size: 20px;">✓</span> Kirim Permintaan
-        </button>
-      </div>
-    </div>
+        <div class="preview-section" style="max-width: 500px; margin: 30px auto;">
+          <div class="preview-item">
+            <div class="preview-label">Nomor Surat</div>
+            <div class="preview-value" id="successNoSurat">-</div>
+          </div>
+          <div class="preview-item">
+            <div class="preview-label">Nama</div>
+            <div class="preview-value" id="successNama">-</div>
+          </div>
+          <div class="preview-item">
+            <div class="preview-label">NIP</div>
+            <div class="preview-value" id="successNIP">-</div>
+          </div>
+          <div class="preview-item">
+            <div class="preview-label">Status</div>
+            <div class="preview-value" style="color: #f39c12;">⏳ MENUNGGU PROSES</div>
+          </div>
+        </div>
 
-    <!-- Success Message -->
-    <div class="success-message" id="successMessage">
-      <div class="success-icon">✅</div>
-      <h2>Permintaan Berhasil Dikirim!</h2>
-      <p>
-        Data packlaring Anda telah berhasil disimpan. <br>
-        Tim HRD akan memproses permintaan Anda dan akan menghubungi via WhatsApp dalam 1-3 hari kerja.
-      </p>
-      
-      <div class="preview-section" style="max-width: 500px; margin: 30px auto;">
-        <div class="preview-item">
-          <div class="preview-label">Nomor Surat</div>
-          <div class="preview-value" id="successNoSurat">-</div>
-        </div>
-        <div class="preview-item">
-          <div class="preview-label">Nama</div>
-          <div class="preview-value" id="successNama">-</div>
-        </div>
-        <div class="preview-item">
-          <div class="preview-label">NIP</div>
-          <div class="preview-value" id="successNIP">-</div>
-        </div>
-        <div class="preview-item">
-          <div class="preview-label">Status</div>
-          <div class="preview-value" style="color: #f39c12;">⏳ Menunggu Proses</div>
-        </div>
-      </div>
+        <p style="margin-top: 30px; font-size: 14px; color: #666;">
+          <strong>📱 HUBUNGI ADMIN:</strong><br>
+          JIKA ADA PERTANYAAN, HUBUNGI ADMIN VIA WHATSAPP:
+        </p>
 
-      <p style="margin-top: 30px; font-size: 14px; color: #666;">
-        <strong>📱 Hubungi Admin:</strong><br>
-        Jika ada pertanyaan, hubungi admin via WhatsApp:
-      </p>
-      
-      <a href="https://wa.me/6281383796300?text=Halo%20Admin,%20saya%20sudah%20mengirim%20permintaan%20packlaring." 
-         class="whatsapp-btn" target="_blank">
-        <span style="font-size: 20px;">💬</span> Chat Admin via WhatsApp
-      </a>
-      
-      <div style="margin-top: 40px;">
-        <button class="btn btn-primary" onclick="resetForm()">
-          <span style="font-size: 18px;">🔄</span> Buat Permintaan Baru
-        </button>
+        <a href="https://wa.me/6281383796300?text=Halo%20Admin,%20saya%20sudah%20mengirim%20permintaan%20packlaring."
+          class="whatsapp-btn" target="_blank">
+          <span style="font-size: 20px;">💬</span> CHAT ADMIN VIA WHATSAPP
+        </a>
+
+        <div style="margin-top: 40px;">
+          <button class="btn btn-primary" onclick="resetForm()">
+            <span style="font-size: 18px;">🔄</span> BUAT PERMINTAAN BARU
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Firebase Configuration -->
-<script>
-  // Konfigurasi Firebase Anda
-  const firebaseConfig = {
-    apiKey: "AIzaSyAEvDR-h0hkgs1xAawra7u3jo9Sc3lCbpo",
-    authDomain: "next-packlaring.firebaseapp.com",
-    projectId: "next-packlaring",
-    storageBucket: "next-packlaring.firebasestorage.app",
-    messagingSenderId: "400584486436",
-    appId: "1:400584486436:web:99067d2c6dc6d87ef7b2b1",
-    measurementId: "G-KRFXBYN663"
-  };
+  <!-- Firebase Configuration -->
+  <script>
+    // Konfigurasi Firebase Anda
+    const firebaseConfig = {
+      apiKey: "AIzaSyAEvDR-h0hkgs1xAawra7u3jo9Sc3lCbpo",
+      authDomain: "next-packlaring.firebaseapp.com",
+      projectId: "next-packlaring",
+      storageBucket: "next-packlaring.firebasestorage.app",
+      messagingSenderId: "400584486436",
+      appId: "1:400584486436:web:99067d2c6dc6d87ef7b2b1",
+      measurementId: "G-KRFXBYN663"
+    };
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-  // Global Variables
-  let currentStep = 1;
-  let lastSuratNumber = 0;
-  let lastNIPNumber = 0;
-  let generatedData = {
-    noSurat: '',
-    nip: '',
-    nomorUrut: 0,
-    nipNumber: 0
-  };
+    // Global Variables
+    let currentStep = 1;
+    let lastSuratNumber = 0;
+    let lastNIPNumber = 0;
+    let generatedData = {
+      noSurat: '',
+      nip: '',
+      nomorUrut: 0,
+      nipNumber: 0
+    };
 
-  // Format tanggal Indonesia
-  function formatDate(dateString) {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-    return date.toLocaleDateString('id-ID', options);
-  }
+    // Fungsi untuk format nomor KTP (XXXX-XXXX-XXXX-XXXX)
+    function formatNomorKTP(input) {
+      // Hapus semua karakter non-digit
+      let value = input.value.replace(/\D/g, '');
 
-  function formatShortDate(dateString) {
-    if (!dateString) return '-';
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear().toString().slice(-2);
-    return `${day}/${month}/${year}`;
-  }
+      // Batasi hanya 16 digit
+      value = value.substring(0, 16);
 
-  // Show Loading
-  function showLoading(show) {
-    document.getElementById('loading').classList.toggle('active', show);
-  }
-
-  // Show Alert
-  function showAlert(message, type = 'success') {
-    const alert = document.getElementById('alert');
-    alert.textContent = message;
-    alert.className = `alert alert-${type} active`;
-    
-    // Auto hide after 5 seconds
-    setTimeout(() => {
-      alert.classList.remove('active');
-    }, 5000);
-  }
-
-  // Navigasi Step
-  function nextStep() {
-    // Validasi step saat ini sebelum lanjut
-    if (!validateCurrentStep()) {
-      return;
-    }
-    
-    // Update preview jika di step 3
-    if (currentStep === 3) {
-      updatePreview();
-    }
-    
-    // Update final preview jika di step 4
-    if (currentStep === 4) {
-      updateFinalPreview();
-    }
-    
-    // Hide current step
-    document.getElementById(`formStep${currentStep}`).classList.remove('active');
-    document.getElementById(`step${currentStep}`).classList.remove('active');
-    
-    // Update current step
-    currentStep++;
-    
-    // Show next step
-    document.getElementById(`formStep${currentStep}`).classList.add('active');
-    document.getElementById(`step${currentStep}`).classList.add('active');
-    
-    // Scroll to top of form
-    document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
-  }
-
-  function prevStep() {
-    // Hide current step
-    document.getElementById(`formStep${currentStep}`).classList.remove('active');
-    document.getElementById(`step${currentStep}`).classList.remove('active');
-    
-    // Update current step
-    currentStep--;
-    
-    // Show previous step
-    document.getElementById(`formStep${currentStep}`).classList.add('active');
-    document.getElementById(`step${currentStep}`).classList.add('active');
-    
-    // Scroll to top of form
-    document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
-  }
-
-  function goToStep(step) {
-    // Hide current step
-    document.getElementById(`formStep${currentStep}`).classList.remove('active');
-    document.getElementById(`step${currentStep}`).classList.remove('active');
-    
-    // Update current step
-    currentStep = step;
-    
-    // Show selected step
-    document.getElementById(`formStep${currentStep}`).classList.add('active');
-    document.getElementById(`step${currentStep}`).classList.add('active');
-  }
-
-  // Validasi Step
-  function validateCurrentStep() {
-    const errors = [];
-    
-    switch(currentStep) {
-      case 1: // Data Surat
-        if (!document.getElementById('tanggalSurat').value) {
-          errors.push('Tanggal Surat harus diisi');
+      // Format dengan tanda hubung setiap 4 digit
+      let formattedValue = '';
+      for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 4 === 0) {
+          formattedValue += '-';
         }
-        if (!generatedData.noSurat) {
-          errors.push('Generate Nomor Surat terlebih dahulu');
-        }
-        break;
-        
-      case 2: // Data Pribadi
-        if (!document.getElementById('namaLengkap').value.trim()) {
-          errors.push('Nama Lengkap harus diisi');
-        }
-        if (!document.getElementById('tempatLahir').value.trim()) {
-          errors.push('Tempat Lahir harus diisi');
-        }
-        if (!document.getElementById('tanggalLahir').value) {
-          errors.push('Tanggal Lahir harus diisi');
-        }
-        if (!generatedData.nip) {
-          errors.push('Generate NIP terlebih dahulu');
-        }
-        if (!document.getElementById('jabatan').value.trim()) {
-          errors.push('Jabatan harus diisi');
-        }
-        if (!document.getElementById('deptKaryawan').value) {
-          errors.push('Departemen harus dipilih');
-        }
-        break;
-        
-      case 3: // Masa Kerja
-        if (!document.getElementById('tanggalMulai').value) {
-          errors.push('Tanggal Mulai harus diisi');
-        }
-        if (!document.getElementById('tanggalBerakhir').value) {
-          errors.push('Tanggal Berakhir harus diisi');
-        }
-        
-        // Validasi tanggal
-        const tanggalMulai = new Date(document.getElementById('tanggalMulai').value);
-        const tanggalBerakhir = new Date(document.getElementById('tanggalBerakhir').value);
-        if (tanggalBerakhir <= tanggalMulai) {
-          errors.push('Tanggal Berakhir harus setelah Tanggal Mulai');
-        }
-        break;
-    }
-    
-    if (errors.length > 0) {
-      showAlert(errors.join(', '), 'error');
-      return false;
-    }
-    
-    return true;
-  }
-
-  // Generate Nomor Surat
-  async function generateNomorSurat() {
-    showLoading(true);
-    
-    try {
-      // Cek data terakhir dari Firebase
-      const snapshot = await db.collection('packlaring')
-        .orderBy('nomorUrut', 'desc')
-        .limit(1)
-        .get();
-      
-      if (!snapshot.empty) {
-        const lastData = snapshot.docs[0].data();
-        lastSuratNumber = lastData.nomorUrut || 0;
+        formattedValue += value[i];
       }
-      
-      // Generate nomor baru
-      const newNumber = lastSuratNumber + 1;
-      const formattedNumber = newNumber.toString().padStart(3, '0');
-      
-      // Format nomor surat
-      const now = new Date();
-      const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
-      const tahun2 = now.getFullYear().toString().slice(-2);
-      
-      const nomorSurat = `${formattedNumber}/SK-HRD/NEXT/${bulan}/${tahun2}`;
-      
-      // Simpan ke variabel global
-      generatedData.noSurat = nomorSurat;
-      generatedData.nomorUrut = newNumber;
-      
-      // Update input field
-      document.getElementById('noSurat').value = nomorSurat;
-      
-      showAlert(`Nomor surat berhasil digenerate: ${nomorSurat}`, 'success');
-      
-    } catch (error) {
-      console.error('Error generating nomor surat:', error);
-      
-      // Fallback: generate random number if Firebase fails
-      const randomNum = Math.floor(Math.random() * 900) + 100;
-      const now = new Date();
-      const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
-      const tahun2 = now.getFullYear().toString().slice(-2);
-      
-      const nomorSurat = `${randomNum}/SK-HRD/NEXT/${bulan}/${tahun2}`;
-      
-      generatedData.noSurat = nomorSurat;
-      generatedData.nomorUrut = randomNum;
-      
-      document.getElementById('noSurat').value = nomorSurat;
-      
-      showAlert(`Nomor surat digenerate offline: ${nomorSurat}`, 'warning');
-    } finally {
-      showLoading(false);
-    }
-  }
 
-  // Generate NIP
-  async function generateNIP() {
-    showLoading(true);
-    
-    try {
-      // Cek NIP terakhir dari Firebase
-      const snapshot = await db.collection('packlaring')
-        .orderBy('nipNumber', 'desc')
-        .limit(1)
-        .get();
-      
-      if (!snapshot.empty) {
-        const lastData = snapshot.docs[0].data();
-        lastNIPNumber = lastData.nipNumber || 0;
+      // Set nilai kembali ke input
+      input.value = formattedValue.toUpperCase();
+    }
+
+    // Fungsi untuk validasi nomor KTP
+    function validateKTP(ktp) {
+      // Hapus tanda hubung
+      const cleanKTP = ktp.replace(/\D/g, '');
+
+      // Validasi panjang 16 digit
+      if (cleanKTP.length !== 16) {
+        return false;
       }
-      
-      // Generate NIP baru
-      const newNumber = lastNIPNumber + 1;
-      const formattedNumber = newNumber.toString().padStart(4, '0');
-      
-      const nip = `NEXT${formattedNumber}`;
-      
-      // Simpan ke variabel global
-      generatedData.nip = nip;
-      generatedData.nipNumber = newNumber;
-      
-      // Update input field
-      document.getElementById('nip').value = nip;
-      
-      showAlert(`NIP berhasil digenerate: ${nip}`, 'success');
-      
-    } catch (error) {
-      console.error('Error generating NIP:', error);
-      
-      // Fallback: generate random NIP
-      const randomNum = Math.floor(Math.random() * 9000) + 1000;
-      const nip = `NEXT${randomNum}`;
-      
-      generatedData.nip = nip;
-      generatedData.nipNumber = randomNum;
-      
-      document.getElementById('nip').value = nip;
-      
-      showAlert(`NIP digenerate offline: ${nip}`, 'warning');
-    } finally {
-      showLoading(false);
-    }
-  }
 
-  // Update Preview
-  function updatePreview() {
-    const previewContent = document.getElementById('previewContent');
-    
-    // Hitung masa kerja
-    const tglMulai = document.getElementById('tanggalMulai').value;
-    const tglBerakhir = document.getElementById('tanggalBerakhir').value;
-    
-    let masaKerja = '-';
-    if (tglMulai && tglBerakhir) {
-      const mulai = new Date(tglMulai);
-      const berakhir = new Date(tglBerakhir);
-      
-      const diffTime = Math.abs(berakhir - mulai);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      const tahun = Math.floor(diffDays / 365);
-      const bulan = Math.floor((diffDays % 365) / 30);
-      const hari = diffDays % 30;
-      
-      masaKerja = '';
-      if (tahun > 0) masaKerja += `${tahun} tahun `;
-      if (bulan > 0) masaKerja += `${bulan} bulan `;
-      if (hari > 0) masaKerja += `${hari} hari`;
+      // Validasi hanya angka
+      if (!/^\d+$/.test(cleanKTP)) {
+        return false;
+      }
+
+      return true;
     }
-    
-    const previewHTML = `
+
+    // Format tanggal Indonesia
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      const options = {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      };
+      return date.toLocaleDateString('id-ID', options);
+    }
+
+    function formatShortDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear().toString().slice(-2);
+      return `${day}/${month}/${year}`;
+    }
+
+    // Show Loading
+    function showLoading(show) {
+      document.getElementById('loading').classList.toggle('active', show);
+    }
+
+    // Show Alert
+    function showAlert(message, type = 'success') {
+      const alert = document.getElementById('alert');
+      alert.textContent = message.toUpperCase();
+      alert.className = `alert alert-${type} active`;
+
+      // Auto hide after 5 seconds
+      setTimeout(() => {
+        alert.classList.remove('active');
+      }, 5000);
+    }
+
+    // Navigasi Step
+    function nextStep() {
+      // Validasi step saat ini sebelum lanjut
+      if (!validateCurrentStep()) {
+        return;
+      }
+
+      // Update preview jika di step 3
+      if (currentStep === 3) {
+        updatePreview();
+      }
+
+      // Update final preview jika di step 4
+      if (currentStep === 4) {
+        updateFinalPreview();
+      }
+
+      // Hide current step
+      document.getElementById(`formStep${currentStep}`).classList.remove('active');
+      document.getElementById(`step${currentStep}`).classList.remove('active');
+
+      // Update current step
+      currentStep++;
+
+      // Show next step
+      document.getElementById(`formStep${currentStep}`).classList.add('active');
+      document.getElementById(`step${currentStep}`).classList.add('active');
+
+      // Scroll to top of form
+      document.querySelector('.form-container').scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
+
+    function prevStep() {
+      // Hide current step
+      document.getElementById(`formStep${currentStep}`).classList.remove('active');
+      document.getElementById(`step${currentStep}`).classList.remove('active');
+
+      // Update current step
+      currentStep--;
+
+      // Show previous step
+      document.getElementById(`formStep${currentStep}`).classList.add('active');
+      document.getElementById(`step${currentStep}`).classList.add('active');
+
+      // Scroll to top of form
+      document.querySelector('.form-container').scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
+
+    function goToStep(step) {
+      // Hide current step
+      document.getElementById(`formStep${currentStep}`).classList.remove('active');
+      document.getElementById(`step${currentStep}`).classList.remove('active');
+
+      // Update current step
+      currentStep = step;
+
+      // Show selected step
+      document.getElementById(`formStep${currentStep}`).classList.add('active');
+      document.getElementById(`step${currentStep}`).classList.add('active');
+    }
+
+    // Validasi Step
+    function validateCurrentStep() {
+      const errors = [];
+
+      switch (currentStep) {
+        case 1: // Data Surat
+          if (!document.getElementById('tanggalSurat').value) {
+            errors.push('Tanggal Surat harus diisi');
+          }
+          if (!generatedData.noSurat) {
+            errors.push('Generate Nomor Surat terlebih dahulu');
+          }
+          break;
+
+        case 2: // Data Pribadi
+          if (!document.getElementById('namaLengkap').value.trim()) {
+            errors.push('Nama Lengkap harus diisi');
+          }
+          if (!document.getElementById('nomorKTP').value.trim()) {
+            errors.push('Nomor KTP harus diisi');
+          } else if (!validateKTP(document.getElementById('nomorKTP').value)) {
+            errors.push('Nomor KTP harus 16 digit angka');
+          }
+          if (!document.getElementById('wilayahArea').value) {
+            errors.push('Wilayah Area Kerja harus dipilih');
+          }
+          if (!document.getElementById('tempatLahir').value.trim()) {
+            errors.push('Tempat Lahir harus diisi');
+          }
+          if (!document.getElementById('tanggalLahir').value) {
+            errors.push('Tanggal Lahir harus diisi');
+          }
+          if (!generatedData.nip) {
+            errors.push('Generate NIP terlebih dahulu');
+          }
+          if (!document.getElementById('jabatan').value.trim()) {
+            errors.push('Jabatan harus diisi');
+          }
+          if (!document.getElementById('deptKaryawan').value) {
+            errors.push('Departemen harus dipilih');
+          }
+          break;
+
+        case 3: // Masa Kerja
+          if (!document.getElementById('tanggalMulai').value) {
+            errors.push('Tanggal Mulai harus diisi');
+          }
+          if (!document.getElementById('tanggalBerakhir').value) {
+            errors.push('Tanggal Berakhir harus diisi');
+          }
+
+          // Validasi tanggal
+          const tanggalMulai = new Date(document.getElementById('tanggalMulai').value);
+          const tanggalBerakhir = new Date(document.getElementById('tanggalBerakhir').value);
+          if (tanggalBerakhir <= tanggalMulai) {
+            errors.push('Tanggal Berakhir harus setelah Tanggal Mulai');
+          }
+          break;
+      }
+
+      if (errors.length > 0) {
+        showAlert(errors.join(', '), 'error');
+        return false;
+      }
+
+      return true;
+    }
+
+    // Generate Nomor Surat
+    async function generateNomorSurat() {
+      showLoading(true);
+
+      try {
+        // Cek data terakhir dari Firebase
+        const snapshot = await db.collection('packlaring')
+          .orderBy('nomorUrut', 'desc')
+          .limit(1)
+          .get();
+
+        if (!snapshot.empty) {
+          const lastData = snapshot.docs[0].data();
+          lastSuratNumber = lastData.nomorUrut || 0;
+        }
+
+        // Generate nomor baru
+        const newNumber = lastSuratNumber + 1;
+        const formattedNumber = newNumber.toString().padStart(3, '0');
+
+        // Format nomor surat
+        const now = new Date();
+        const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
+        const tahun2 = now.getFullYear().toString().slice(-2);
+
+        const nomorSurat = `${formattedNumber}/SK-HRD/NEXT/${bulan}/${tahun2}`;
+
+        // Simpan ke variabel global
+        generatedData.noSurat = nomorSurat;
+        generatedData.nomorUrut = newNumber;
+
+        // Update input field
+        document.getElementById('noSurat').value = nomorSurat;
+
+        showAlert(`Nomor surat berhasil digenerate: ${nomorSurat}`, 'success');
+
+      } catch (error) {
+        console.error('Error generating nomor surat:', error);
+
+        // Fallback: generate random number if Firebase fails
+        const randomNum = Math.floor(Math.random() * 900) + 100;
+        const now = new Date();
+        const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
+        const tahun2 = now.getFullYear().toString().slice(-2);
+
+        const nomorSurat = `${randomNum}/SK-HRD/NEXT/${bulan}/${tahun2}`;
+
+        generatedData.noSurat = nomorSurat;
+        generatedData.nomorUrut = randomNum;
+
+        document.getElementById('noSurat').value = nomorSurat;
+
+        showAlert(`Nomor surat digenerate offline: ${nomorSurat}`, 'warning');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Generate NIP
+    async function generateNIP() {
+      showLoading(true);
+
+      try {
+        // Cek NIP terakhir dari Firebase
+        const snapshot = await db.collection('packlaring')
+          .orderBy('nipNumber', 'desc')
+          .limit(1)
+          .get();
+
+        if (!snapshot.empty) {
+          const lastData = snapshot.docs[0].data();
+          lastNIPNumber = lastData.nipNumber || 0;
+        }
+
+        // Generate NIP baru
+        const newNumber = lastNIPNumber + 1;
+        const formattedNumber = newNumber.toString().padStart(4, '0');
+
+        const nip = `NEXT${formattedNumber}`;
+
+        // Simpan ke variabel global
+        generatedData.nip = nip;
+        generatedData.nipNumber = newNumber;
+
+        // Update input field
+        document.getElementById('nip').value = nip;
+
+        showAlert(`NIP berhasil digenerate: ${nip}`, 'success');
+
+      } catch (error) {
+        console.error('Error generating NIP:', error);
+
+        // Fallback: generate random NIP
+        const randomNum = Math.floor(Math.random() * 9000) + 1000;
+        const nip = `NEXT${randomNum}`;
+
+        generatedData.nip = nip;
+        generatedData.nipNumber = randomNum;
+
+        document.getElementById('nip').value = nip;
+
+        showAlert(`NIP digenerate offline: ${nip}`, 'warning');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Update Preview
+    function updatePreview() {
+      const previewContent = document.getElementById('previewContent');
+
+      // Hitung masa kerja
+      const tglMulai = document.getElementById('tanggalMulai').value;
+      const tglBerakhir = document.getElementById('tanggalBerakhir').value;
+
+      let masaKerja = '-';
+      if (tglMulai && tglBerakhir) {
+        const mulai = new Date(tglMulai);
+        const berakhir = new Date(tglBerakhir);
+
+        const diffTime = Math.abs(berakhir - mulai);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        const tahun = Math.floor(diffDays / 365);
+        const bulan = Math.floor((diffDays % 365) / 30);
+        const hari = diffDays % 30;
+
+        masaKerja = '';
+        if (tahun > 0) masaKerja += `${tahun} TAHUN `;
+        if (bulan > 0) masaKerja += `${bulan} BULAN `;
+        if (hari > 0) masaKerja += `${hari} HARI`;
+      }
+
+      const previewHTML = `
       <div class="preview-item">
         <div class="preview-label">Periode Kerja</div>
         <div class="preview-value">${formatShortDate(tglMulai)} - ${formatShortDate(tglBerakhir)}</div>
@@ -1187,29 +1323,31 @@
         <div class="preview-value">${document.getElementById('keterangan').value || '-'}</div>
       </div>
     `;
-    
-    previewContent.innerHTML = previewHTML;
-  }
 
-  // Update Final Preview
-  function updateFinalPreview() {
-    const finalPreview = document.getElementById('finalPreview');
-    
-    const data = {
-      noSurat: document.getElementById('noSurat').value,
-      nama: document.getElementById('namaLengkap').value,
-      nip: document.getElementById('nip').value,
-      jabatan: document.getElementById('jabatan').value,
-      dept: document.getElementById('deptKaryawan').value,
-      ttl: `${document.getElementById('tempatLahir').value}, ${formatDate(document.getElementById('tanggalLahir').value)}`,
-      tglMulai: formatDate(document.getElementById('tanggalMulai').value),
-      tglBerakhir: formatDate(document.getElementById('tanggalBerakhir').value),
-      alasan: document.getElementById('alasanBerhenti').value,
-      tglSurat: formatDate(document.getElementById('tanggalSurat').value),
-      tujuan: document.getElementById('tujuanSurat').value
-    };
-    
-    const previewHTML = `
+      previewContent.innerHTML = previewHTML;
+    }
+
+    // Update Final Preview
+    function updateFinalPreview() {
+      const finalPreview = document.getElementById('finalPreview');
+
+      const data = {
+        noSurat: document.getElementById('noSurat').value,
+        nama: document.getElementById('namaLengkap').value,
+        nomorKTP: document.getElementById('nomorKTP').value,
+        wilayahArea: document.getElementById('wilayahArea').value,
+        nip: document.getElementById('nip').value,
+        jabatan: document.getElementById('jabatan').value,
+        dept: document.getElementById('deptKaryawan').value,
+        ttl: `${document.getElementById('tempatLahir').value}, ${formatDate(document.getElementById('tanggalLahir').value)}`,
+        tglMulai: formatDate(document.getElementById('tanggalMulai').value),
+        tglBerakhir: formatDate(document.getElementById('tanggalBerakhir').value),
+        alasan: document.getElementById('alasanBerhenti').value,
+        tglSurat: formatDate(document.getElementById('tanggalSurat').value),
+        tujuan: document.getElementById('tujuanSurat').value
+      };
+
+      const previewHTML = `
       <div class="preview-item">
         <div class="preview-label">Nomor Surat</div>
         <div class="preview-value">${data.noSurat}</div>
@@ -1217,6 +1355,14 @@
       <div class="preview-item">
         <div class="preview-label">Nama Lengkap</div>
         <div class="preview-value">${data.nama}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Nomor KTP</div>
+        <div class="preview-value">${data.nomorKTP}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">Wilayah Area Kerja</div>
+        <div class="preview-value">${data.wilayahArea}</div>
       </div>
       <div class="preview-item">
         <div class="preview-label">NIP</div>
@@ -1247,211 +1393,245 @@
         <div class="preview-value">${data.tglSurat}</div>
       </div>
     `;
-    
-    finalPreview.innerHTML = previewHTML;
-  }
 
-  // Submit Form
-  async function submitForm() {
-    // Validasi semua data
-    if (!validateCurrentStep()) {
-      goToStep(1);
-      return;
+      finalPreview.innerHTML = previewHTML;
     }
-    
-    showLoading(true);
-    
-    try {
-      // Kumpulkan semua data
-      const formData = {
-        // Data Surat
-        kodeSurat: document.getElementById('kodeSurat').value,
-        departemen: document.getElementById('departemen').value,
-        noSurat: document.getElementById('noSurat').value,
-        tanggalSurat: document.getElementById('tanggalSurat').value,
-        tujuanSurat: document.getElementById('tujuanSurat').value,
-        
-        // Data Pribadi
-        namaLengkap: document.getElementById('namaLengkap').value.trim(),
-        tempatLahir: document.getElementById('tempatLahir').value.trim(),
-        tanggalLahir: document.getElementById('tanggalLahir').value,
-        nip: document.getElementById('nip').value,
-        jabatan: document.getElementById('jabatan').value.trim(),
-        deptKaryawan: document.getElementById('deptKaryawan').value,
-        
-        // Masa Kerja
-        tanggalMulai: document.getElementById('tanggalMulai').value,
-        tanggalBerakhir: document.getElementById('tanggalBerakhir').value,
-        alasanBerhenti: document.getElementById('alasanBerhenti').value,
-        keterangan: document.getElementById('keterangan').value.trim(),
-        
-        // Kontak
-        email: document.getElementById('email').value.trim(),
-        whatsapp: document.getElementById('whatsapp').value.trim(),
-        
-        // Metadata
-        nomorUrut: generatedData.nomorUrut,
-        nipNumber: generatedData.nipNumber,
-        createdAt: new Date(),
-        status: 'pending',
-        source: 'user_form'
-      };
-      
-      // Simpan ke Firebase
-      const docRef = await db.collection('packlaring').add(formData);
-      const docId = docRef.id;
-      
-      // Update success message
-      document.getElementById('successNoSurat').textContent = formData.noSurat;
-      document.getElementById('successNama').textContent = formData.namaLengkap;
-      document.getElementById('successNIP').textContent = formData.nip;
-      
-      // Show success message
-      document.getElementById('formStep4').classList.remove('active');
-      document.getElementById('successMessage').classList.add('active');
-      
-      // Kirim notifikasi WhatsApp otomatis (opsional)
-      sendWhatsAppNotification(formData, docId);
-      
-      showAlert('Data berhasil dikirim! Tim HRD akan menghubungi Anda.', 'success');
-      
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      showAlert('Gagal mengirim data: ' + error.message, 'error');
-    } finally {
-      showLoading(false);
+
+    // Submit Form
+    async function submitForm() {
+      // Validasi semua data
+      if (!validateCurrentStep()) {
+        goToStep(1);
+        return;
+      }
+
+      showLoading(true);
+
+      try {
+        // Kumpulkan semua data
+        const formData = {
+          // Data Surat
+          kodeSurat: document.getElementById('kodeSurat').value,
+          departemen: document.getElementById('departemen').value,
+          noSurat: document.getElementById('noSurat').value,
+          tanggalSurat: document.getElementById('tanggalSurat').value,
+          tujuanSurat: document.getElementById('tujuanSurat').value,
+
+          // Data Pribadi
+          namaLengkap: document.getElementById('namaLengkap').value.trim().toUpperCase(),
+          nomorKTP: document.getElementById('nomorKTP').value.toUpperCase(),
+          wilayahArea: document.getElementById('wilayahArea').value.toUpperCase(),
+          tempatLahir: document.getElementById('tempatLahir').value.trim().toUpperCase(),
+          tanggalLahir: document.getElementById('tanggalLahir').value,
+          nip: document.getElementById('nip').value,
+          jabatan: document.getElementById('jabatan').value.trim().toUpperCase(),
+          deptKaryawan: document.getElementById('deptKaryawan').value.toUpperCase(),
+
+          // Masa Kerja
+          tanggalMulai: document.getElementById('tanggalMulai').value,
+          tanggalBerakhir: document.getElementById('tanggalBerakhir').value,
+          alasanBerhenti: document.getElementById('alasanBerhenti').value.toUpperCase(),
+          keterangan: document.getElementById('keterangan').value.trim().toUpperCase(),
+
+          // Kontak
+          email: document.getElementById('email').value.trim().toUpperCase(),
+          whatsapp: document.getElementById('whatsapp').value.trim(),
+
+          // Metadata
+          nomorUrut: generatedData.nomorUrut,
+          nipNumber: generatedData.nipNumber,
+          createdAt: new Date(),
+          status: 'pending',
+          source: 'user_form'
+        };
+
+        // Simpan ke Firebase
+        const docRef = await db.collection('packlaring').add(formData);
+        const docId = docRef.id;
+
+        // Update success message
+        document.getElementById('successNoSurat').textContent = formData.noSurat;
+        document.getElementById('successNama').textContent = formData.namaLengkap;
+        document.getElementById('successNIP').textContent = formData.nip;
+
+        // Show success message
+        document.getElementById('formStep4').classList.remove('active');
+        document.getElementById('successMessage').classList.add('active');
+
+        // Kirim notifikasi WhatsApp otomatis (opsional)
+        sendWhatsAppNotification(formData, docId);
+
+        showAlert('DATA BERHASIL DIKIRIM! TIM HRD AKAN MENGHUBUNGI ANDA.', 'success');
+
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        showAlert('GAGAL MENGIRIM DATA: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
     }
-  }
 
-  // Send WhatsApp Notification
-  function sendWhatsAppNotification(data, docId) {
-    const phoneNumber = "6281383796300"; // Nomor admin
-    const message = `*📋 PERMINTAAN PACKLARING BARU*
+    // Send WhatsApp Notification
+    function sendWhatsAppNotification(data, docId) {
+      const phoneNumber = "6281383796300"; // Nomor admin
+      const message = `*📋 PERMINTAAN PACKLARING BARU*
 
-Nama: *${data.namaLengkap}*
+NAMA: *${data.namaLengkap}*
+NOMOR KTP: ${data.nomorKTP}
+WILAYAH AREA: ${data.wilayahArea}
 NIP: ${data.nip}
-Jabatan: ${data.jabatan}
-Departemen: ${data.deptKaryawan}
+JABATAN: ${data.jabatan}
+DEPARTEMEN: ${data.deptKaryawan}
 
-No. Surat: ${data.noSurat}
-Tanggal: ${formatDate(data.tanggalSurat)}
-Alasan: ${data.alasanBerhenti}
+NO. SURAT: ${data.noSurat}
+TANGGAL: ${formatDate(data.tanggalSurat)}
+ALASAN: ${data.alasanBerhenti}
 
-Masa Kerja: ${formatDate(data.tanggalMulai)} - ${formatDate(data.tanggalBerakhir)}
+MASA KERJA: ${formatDate(data.tanggalMulai)} - ${formatDate(data.tanggalBerakhir)}
 
-Kontak:
-📧 ${data.email || 'Tidak ada email'}
-📱 ${data.whatsapp || 'Tidak ada WhatsApp'}
+KONTAK:
+📧 ${data.email || 'TIDAK ADA EMAIL'}
+📱 ${data.whatsapp || 'TIDAK ADA WHATSAPP'}
 
-ID Dokumen: ${docId}
+ID DOKUMEN: ${docId}
 
-Silakan proses melalui panel admin.`;
-    
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    
-    // Buka WhatsApp di tab baru (silent)
-    setTimeout(() => {
-      window.open(whatsappUrl, '_blank');
-    }, 2000);
-  }
+SILAKAN PROSES MELALUI PANEL ADMIN.`;
 
-  // Reset Form
-  function resetForm() {
-    // Reset semua form
-    document.getElementById('tanggalSurat').value = '';
-    document.getElementById('namaLengkap').value = '';
-    document.getElementById('tempatLahir').value = '';
-    document.getElementById('tanggalLahir').value = '';
-    document.getElementById('nip').value = '';
-    document.getElementById('jabatan').value = '';
-    document.getElementById('deptKaryawan').value = '';
-    document.getElementById('tanggalMulai').value = '';
-    document.getElementById('tanggalBerakhir').value = '';
-    document.getElementById('keterangan').value = '';
-    document.getElementById('email').value = '';
-    document.getElementById('whatsapp').value = '';
-    
-    // Reset generated data
-    generatedData = {
-      noSurat: '',
-      nip: '',
-      nomorUrut: 0,
-      nipNumber: 0
-    };
-    
-    // Reset steps
-    currentStep = 1;
-    
-    // Hide success message
-    document.getElementById('successMessage').classList.remove('active');
-    
-    // Reset all steps visual
-    document.querySelectorAll('.step').forEach((step, index) => {
-      step.classList.remove('active', 'completed');
-      if (index === 0) step.classList.add('active');
-    });
-    
-    document.querySelectorAll('.form-step').forEach((step, index) => {
-      step.classList.remove('active');
-      if (index === 0) step.classList.add('active');
-    });
-    
-    // Reset previews
-    document.getElementById('previewContent').innerHTML = '';
-    document.getElementById('finalPreview').innerHTML = '';
-    
-    // Scroll to top
-    window.scrollTo(0, 0);
-    
-    showAlert('Form telah direset. Silakan isi data baru.', 'info');
-  }
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
-  // Initialize Form
-  function initForm() {
-    // Set default tanggal surat ke hari ini
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('tanggalSurat').value = today;
-    
-    // Set min date for tanggal berakhir
-    const tanggalMulaiInput = document.getElementById('tanggalMulai');
-    const tanggalBerakhirInput = document.getElementById('tanggalBerakhir');
-    
-    tanggalMulaiInput.addEventListener('change', function() {
-      tanggalBerakhirInput.min = this.value;
-    });
-    
-    // Auto generate nomor surat dan NIP
-    generateNomorSurat();
-    generateNIP();
-    
-    // Show welcome message
-    setTimeout(() => {
-      showAlert('Selamat datang! Silakan isi formulir packlaring.', 'info');
-    }, 1000);
-  }
+      // Buka WhatsApp di tab baru (silent)
+      setTimeout(() => {
+        window.open(whatsappUrl, '_blank');
+      }, 2000);
+    }
 
-  // Initialize when page loads
-  document.addEventListener('DOMContentLoaded', function() {
-    initForm();
-    
-    // Setup keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-      // Ctrl + Enter to submit
-      if (e.ctrlKey && e.key === 'Enter') {
-        if (currentStep === 4) {
-          submitForm();
-        } else {
-          nextStep();
+    // Reset Form
+    function resetForm() {
+      // Reset semua form
+      document.getElementById('tanggalSurat').value = '';
+      document.getElementById('namaLengkap').value = '';
+      document.getElementById('nomorKTP').value = '';
+      document.getElementById('wilayahArea').value = '';
+      document.getElementById('tempatLahir').value = '';
+      document.getElementById('tanggalLahir').value = '';
+      document.getElementById('nip').value = '';
+      document.getElementById('jabatan').value = '';
+      document.getElementById('deptKaryawan').value = '';
+      document.getElementById('tanggalMulai').value = '';
+      document.getElementById('tanggalBerakhir').value = '';
+      document.getElementById('keterangan').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('whatsapp').value = '';
+
+      // Reset generated data
+      generatedData = {
+        noSurat: '',
+        nip: '',
+        nomorUrut: 0,
+        nipNumber: 0
+      };
+
+      // Reset steps
+      currentStep = 1;
+
+      // Hide success message
+      document.getElementById('successMessage').classList.remove('active');
+
+      // Reset all steps visual
+      document.querySelectorAll('.step').forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        if (index === 0) step.classList.add('active');
+      });
+
+      document.querySelectorAll('.form-step').forEach((step, index) => {
+        step.classList.remove('active');
+        if (index === 0) step.classList.add('active');
+      });
+
+      // Reset previews
+      document.getElementById('previewContent').innerHTML = '';
+      document.getElementById('finalPreview').innerHTML = '';
+
+      // Scroll to top
+      window.scrollTo(0, 0);
+
+      // Generate nomor surat dan NIP baru
+      generateNomorSurat();
+      generateNIP();
+
+      showAlert('FORM TELAH DIRESET. SILAKAN ISI DATA BARU.', 'info');
+    }
+
+    // Initialize Form
+    function initForm() {
+      // Set default tanggal surat ke hari ini
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('tanggalSurat').value = today;
+
+      // Set min date for tanggal berakhir
+      const tanggalMulaiInput = document.getElementById('tanggalMulai');
+      const tanggalBerakhirInput = document.getElementById('tanggalBerakhir');
+
+      tanggalMulaiInput.addEventListener('change', function () {
+        tanggalBerakhirInput.min = this.value;
+      });
+
+      // Auto generate nomor surat dan NIP
+      generateNomorSurat();
+      generateNIP();
+
+      // Event listener untuk uppercase otomatis
+      const uppercaseInputs = document.querySelectorAll('input[type="text"], textarea');
+      uppercaseInputs.forEach(input => {
+        if (!input.id.includes('noSurat') && !input.id.includes('nip') &&
+          !input.id.includes('kodeSurat') && !input.id.includes('departemen')) {
+          input.addEventListener('input', function () {
+            this.value = this.value.toUpperCase();
+          });
+
+          input.addEventListener('blur', function () {
+            this.value = this.value.trim().toUpperCase();
+          });
         }
-      }
-      
-      // Escape to go back
-      if (e.key === 'Escape' && currentStep > 1) {
-        prevStep();
-      }
+      });
+
+      // Event listener untuk select elements
+      const selectElements = document.querySelectorAll('select');
+      selectElements.forEach(select => {
+        select.addEventListener('change', function () {
+          this.value = this.value.toUpperCase();
+        });
+      });
+
+      // Show welcome message
+      setTimeout(() => {
+        showAlert('SELAMAT DATANG! SILAKAN ISI FORMULIR PACKLARING.', 'info');
+      }, 1000);
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+      initForm();
+
+      // Setup keyboard shortcuts
+      document.addEventListener('keydown', function (e) {
+        // Ctrl + Enter to submit
+        if (e.ctrlKey && e.key === 'Enter') {
+          if (currentStep === 4) {
+            submitForm();
+          } else {
+            nextStep();
+          }
+        }
+
+        // Escape to go back
+        if (e.key === 'Escape' && currentStep > 1) {
+          prevStep();
+        }
+      });
     });
-  });
-</script>
+  </script>
 </body>
+
 </html>
