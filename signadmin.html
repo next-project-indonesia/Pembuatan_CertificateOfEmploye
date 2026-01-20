@@ -1476,6 +1476,12 @@ body {
   </div>
 </div>
 
+<!-- Debug Console Panel -->
+<div id="debugPanel" style="position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px; max-width: 300px; max-height: 200px; overflow-y: auto; z-index: 9999; display: none;">
+  <strong>Debug Console:</strong>
+  <div id="debugMessages"></div>
+</div>
+
 <!-- Main Admin Container -->
 <div class="admin-container">
   <!-- Header -->
@@ -1501,6 +1507,10 @@ body {
         <span class="stat-number" id="completedData">0</span>
         <span class="stat-label">Selesai</span>
       </div>
+      <button class="stat-item" onclick="toggleDebugPanel()" style="background: none; border: none; color: white; cursor: pointer;">
+        <span class="stat-number">🔧</span>
+        <span class="stat-label">Debug</span>
+      </button>
     </div>
   </div>
 
@@ -1570,6 +1580,7 @@ body {
         <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
         <button class="tab-btn" onclick="showTab('data')">📋 Data Packlaring</button>
         <button class="tab-btn" onclick="showTab('settings')">⚙️ Pengaturan</button>
+        <button class="tab-btn" onclick="showTab('firebase')">🔥 Firebase</button>
       </div>
 
       <!-- Dashboard Tab -->
@@ -1616,7 +1627,6 @@ body {
           </div>
         </div>
 
-        <!-- FIXED: Aktivitas Terbaru dan Top Provinsi -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px;">
           <div style="background: white; border-radius: 15px; padding: 25px;">
             <h4 style="margin-bottom: 15px; color: #333;">📋 Aktivitas Terbaru</h4>
@@ -1655,6 +1665,9 @@ body {
               <button class="btn btn-info" onclick="showSignatureModal()">
                 🖋️ Upload Tanda Tangan
               </button>
+              <button class="btn btn-secondary" onclick="testConnection()">
+                🔗 Test Koneksi
+              </button>
             </div>
           </div>
           
@@ -1670,7 +1683,6 @@ body {
             </div>
           </div>
           
-          <!-- FIX: Table Container dengan Scroll Horizontal -->
           <div class="data-table-container">
             <table class="data-table">
               <thead>
@@ -1696,7 +1708,6 @@ body {
               </tbody>
             </table>
             
-            <!-- Pagination Controls -->
             <div class="pagination-container" id="paginationControls">
               <div class="pagination-info" id="paginationInfo">
                 Menampilkan 0-0 dari 0 data
@@ -1818,10 +1829,8 @@ body {
             </div>
 
             <div class="letter-signature">
-              <!-- Tempat untuk gambar tanda tangan -->
               <img id="signatureImage" class="letter-signature-image" src="" alt="Tanda Tangan" style="display: none;">
               
-              <!-- Text signature fallback -->
               <div id="textSignature">
                 Hormat kami,<br>
                 <em>Sincerely,</em><br>
@@ -1830,11 +1839,6 @@ body {
                 <span id="fieldJabatanTTD">Direktur</span>
               </div>
             </div>
-
-            <!-- Informasi WhatsApp di footer -->
-            <!-- <div class="letter-footer" style="text-align: center; font-size: 10pt; margin-top: 2cm;">
-              <p>Untuk informasi lebih lanjut, hubungi WhatsApp: <span id="fieldWhatsappFooter">081383796300</span></p>
-            </div> -->
           </div>
         </div>
       </div>
@@ -1943,7 +1947,7 @@ body {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
               <div>
                 <small style="color: #888;">Versi Sistem</small>
-                <div><strong>v2.5.0</strong></div>
+                <div><strong>v2.5.1</strong></div>
               </div>
               <div>
                 <small style="color: #888;">Terakhir Update</small>
@@ -1966,34 +1970,90 @@ body {
                 <div><strong id="todayDataCount">0</strong></div>
               </div>
             </div>
-            
-            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;">
-              <h5 style="margin-bottom: 10px; color: #555;">💾 Informasi Storage Firebase</h5>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
-                <div>
-                  <small style="color: #888;">Total Storage</small>
-                  <div><strong id="firebaseTotalStorage">0 GB</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Firebase Debug Tab -->
+      <div id="tab-firebase" class="tab-content">
+        <div style="background: white; border-radius: 15px; padding: 30px;">
+          <h3 style="margin-bottom: 25px; color: #333;">🔥 Debug Firebase</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 30px;">
+            <div>
+              <h4 style="margin-bottom: 15px; color: #555;">📡 Koneksi Firebase</h4>
+              <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                  <div id="firebaseStatus" style="width: 12px; height: 12px; border-radius: 50%; background: gray;"></div>
+                  <span id="firebaseStatusText">Memeriksa koneksi...</span>
                 </div>
-                <div>
-                  <small style="color: #888;">Storage Terpakai</small>
-                  <div><strong id="firebaseUsedStorage">0 GB</strong></div>
+                
+                <div style="margin-top: 15px;">
+                  <button class="btn btn-primary" onclick="testFirebaseConnection()" style="width: 100%;">
+                    🔗 Test Koneksi Firebase
+                  </button>
                 </div>
-                <div>
-                  <small style="color: #888;">Storage Tersedia</small>
-                  <div><strong id="firebaseAvailableStorage">0 GB</strong></div>
+                
+                <div style="margin-top: 15px;">
+                  <button class="btn btn-info" onclick="listFirebaseCollections()" style="width: 100%;">
+                    📋 List Collections
+                  </button>
                 </div>
-                <div>
-                  <small style="color: #888;">Persentase</small>
-                  <div><strong id="firebaseStoragePercent">0%</strong></div>
-                </div>
-              </div>
-              <div style="margin-top: 10px;">
-                <div class="storage-progress" style="background: #e0e0e0;">
-                  <div class="storage-progress-bar" id="firebaseStorageProgress" style="background: #3498db; width: 0%"></div>
-                </div>
-                <small style="color: #888; font-size: 12px;" id="firebaseStorageText">0% terpakai</small>
               </div>
             </div>
+            
+            <div>
+              <h4 style="margin-bottom: 15px; color: #555;">🔧 Konfigurasi</h4>
+              <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <div style="margin-bottom: 10px;">
+                  <small style="color: #888;">Project ID</small>
+                  <div><strong id="configProjectId">next-packlaring</strong></div>
+                </div>
+                <div style="margin-bottom: 10px;">
+                  <small style="color: #888;">API Key</small>
+                  <div><code style="font-size: 10px;" id="configApiKey">AIzaSyAEvDR-h0hkgs1xAawra7u3jo9Sc3lCbpo</code></div>
+                </div>
+                <div>
+                  <small style="color: #888;">Auth Domain</small>
+                  <div><strong id="configAuthDomain">next-packlaring.firebaseapp.com</strong></div>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h4 style="margin-bottom: 15px; color: #555;">🛠️ Tools</h4>
+              <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  <button class="btn btn-warning" onclick="clearAllCache()">
+                    🗑️ Clear Cache
+                  </button>
+                  <button class="btn btn-secondary" onclick="checkFirestoreRules()">
+                    📜 Check Firestore Rules
+                  </button>
+                  <button class="btn btn-info" onclick="showFirebaseConsole()">
+                    🔥 Buka Firebase Console
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div style="background: #f0f8ff; padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 4px solid #3498db;">
+            <h5 style="color: #2c3e50; margin-bottom: 10px;">🔍 Log Firebase</h5>
+            <div id="firebaseLog" style="background: white; padding: 15px; border-radius: 8px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+              <div>Log akan muncul di sini...</div>
+            </div>
+          </div>
+          
+          <div style="background: #fff3cd; padding: 20px; border-radius: 10px; border-left: 4px solid #ffc107;">
+            <h5 style="color: #856404; margin-bottom: 10px;">⚠️ Troubleshooting</h5>
+            <ul style="color: #856404; font-size: 13px; padding-left: 20px; margin: 0;">
+              <li>Pastikan Firebase sudah diinisialisasi</li>
+              <li>Periksa apakah Firestore rules mengizinkan read</li>
+              <li>Cek apakah koleksi "packlaring" ada di Firestore</li>
+              <li>Periksa koneksi internet Anda</li>
+              <li>Pastikan API key masih valid</li>
+            </ul>
           </div>
         </div>
       </div>
@@ -2002,7 +2062,7 @@ body {
 </div>
 
 <script>
-  // Firebase Configuration
+  // Firebase Configuration - DIUBAH KE YANG BARU
   const firebaseConfig = {
     apiKey: "AIzaSyAEvDR-h0hkgs1xAawra7u3jo9Sc3lCbpo",
     authDomain: "next-packlaring.firebaseapp.com",
@@ -2013,13 +2073,11 @@ body {
     measurementId: "G-KRFXBYN663"
   };
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const storage = firebase.storage();
-  const analytics = firebase.analytics();
-
   // Global Variables
+  let firebaseApp = null;
+  let db = null;
+  let storage = null;
+  let analytics = null;
   let allData = [];
   let filteredData = [];
   let selectedDocId = null;
@@ -2061,6 +2119,211 @@ body {
   let signatureUrl = null;
   let signatureName = '';
   let signaturePosition = '';
+
+  // Debug Functions
+  function logDebug(message, type = 'info') {
+    const debugPanel = document.getElementById('debugPanel');
+    const debugMessages = document.getElementById('debugMessages');
+    
+    if (!debugMessages) return;
+    
+    const timestamp = new Date().toLocaleTimeString();
+    const messageDiv = document.createElement('div');
+    messageDiv.innerHTML = `<span style="color: ${type === 'error' ? '#e74c3c' : type === 'success' ? '#27ae60' : '#3498db'}">[${timestamp}] ${message}</span>`;
+    
+    debugMessages.appendChild(messageDiv);
+    debugMessages.scrollTop = debugMessages.scrollHeight;
+    
+    // Show debug panel if hidden
+    if (debugPanel && debugPanel.style.display === 'none') {
+      debugPanel.style.display = 'block';
+    }
+    
+    // Also log to firebaseLog
+    logToFirebaseLog(message, type);
+  }
+
+  function logToFirebaseLog(message, type = 'info') {
+    const firebaseLog = document.getElementById('firebaseLog');
+    if (!firebaseLog) return;
+    
+    const timestamp = new Date().toLocaleTimeString();
+    const messageDiv = document.createElement('div');
+    messageDiv.innerHTML = `<span style="color: ${type === 'error' ? '#e74c3c' : type === 'success' ? '#27ae60' : '#3498db'}">[${timestamp}] ${message}</span>`;
+    
+    firebaseLog.appendChild(messageDiv);
+    firebaseLog.scrollTop = firebaseLog.scrollHeight;
+  }
+
+  function toggleDebugPanel() {
+    const debugPanel = document.getElementById('debugPanel');
+    if (debugPanel) {
+      debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
+    }
+  }
+
+  // Initialize Firebase with better error handling
+  function initializeFirebase() {
+    try {
+      logDebug('Menginisialisasi Firebase...', 'info');
+      
+      // Check if Firebase is already initialized
+      if (firebase.apps.length > 0) {
+        firebaseApp = firebase.app();
+        logDebug('Firebase sudah diinisialisasi sebelumnya', 'success');
+      } else {
+        firebaseApp = firebase.initializeApp(firebaseConfig);
+        logDebug('Firebase berhasil diinisialisasi', 'success');
+      }
+      
+      // Initialize services
+      db = firebase.firestore();
+      storage = firebase.storage();
+      analytics = firebase.analytics();
+      
+      logDebug('Firebase services berhasil diinisialisasi', 'success');
+      
+      // Update connection status
+      updateConnectionStatus('connected');
+      
+      return true;
+      
+    } catch (error) {
+      logDebug(`Gagal menginisialisasi Firebase: ${error.message}`, 'error');
+      console.error('Firebase initialization error:', error);
+      showNotification(`Firebase error: ${error.message}`, 'error');
+      updateConnectionStatus('error');
+      return false;
+    }
+  }
+
+  function updateConnectionStatus(status) {
+    const statusElement = document.getElementById('connectionStatus');
+    const firebaseStatus = document.getElementById('firebaseStatus');
+    const firebaseStatusText = document.getElementById('firebaseStatusText');
+    
+    if (statusElement) {
+      statusElement.textContent = status === 'connected' ? '✅ Terhubung' : '❌ Gagal';
+    }
+    
+    if (firebaseStatus) {
+      firebaseStatus.style.background = status === 'connected' ? '#27ae60' : 
+                                       status === 'connecting' ? '#f39c12' : '#e74c3c';
+    }
+    
+    if (firebaseStatusText) {
+      firebaseStatusText.textContent = status === 'connected' ? 'Terhubung' :
+                                      status === 'connecting' ? 'Menghubungkan...' : 'Gagal Terhubung';
+    }
+  }
+
+  // Test Firebase Connection
+  async function testFirebaseConnection() {
+    logDebug('Menguji koneksi Firebase...', 'info');
+    updateConnectionStatus('connecting');
+    
+    try {
+      if (!db) {
+        throw new Error('Firestore belum diinisialisasi');
+      }
+      
+      // Try to get server timestamp
+      const timestamp = await db.collection('test').doc('test').get();
+      
+      logDebug('Koneksi Firebase berhasil!', 'success');
+      updateConnectionStatus('connected');
+      showNotification('Koneksi Firebase berhasil!', 'success');
+      
+    } catch (error) {
+      logDebug(`Koneksi Firebase gagal: ${error.message}`, 'error');
+      updateConnectionStatus('error');
+      showNotification(`Koneksi Firebase gagal: ${error.message}`, 'error');
+    }
+  }
+
+  // List Firebase Collections
+  async function listFirebaseCollections() {
+    logDebug('Mengambil daftar collections...', 'info');
+    
+    try {
+      if (!db) {
+        throw new Error('Firestore belum diinisialisasi');
+      }
+      
+      // This is a hacky way to list collections - Firestore doesn't have a direct method
+      // We'll try to get a document to see if the collection exists
+      const testDoc = await db.collection('packlaring').limit(1).get();
+      
+      if (testDoc.empty) {
+        logDebug('Collection "packlaring" ditemukan tetapi kosong', 'info');
+      } else {
+        logDebug(`Collection "packlaring" ditemukan dengan ${testDoc.size} dokumen`, 'success');
+      }
+      
+      // Try other common collections
+      const collections = ['packlaring', 'users', 'settings'];
+      for (const collection of collections) {
+        try {
+          const snapshot = await db.collection(collection).limit(1).get();
+          logDebug(`Collection "${collection}": ${snapshot.empty ? 'kosong' : 'berisi data'}`, 'info');
+        } catch (err) {
+          logDebug(`Collection "${collection}" tidak ditemukan atau error: ${err.message}`, 'error');
+        }
+      }
+      
+    } catch (error) {
+      logDebug(`Gagal mengambil daftar collections: ${error.message}`, 'error');
+    }
+  }
+
+  // Check Firestore Rules
+  async function checkFirestoreRules() {
+    logDebug('Memeriksa Firestore rules...', 'info');
+    
+    try {
+      if (!db) {
+        throw new Error('Firestore belum diinisialisasi');
+      }
+      
+      // Try to read from the packlaring collection
+      const testRead = await db.collection('packlaring').limit(1).get();
+      logDebug('Firestore rules: Read diizinkan', 'success');
+      
+      // Try to write a test document (then delete it)
+      const testRef = db.collection('test').doc('test-connection');
+      await testRef.set({ test: true, timestamp: new Date() });
+      logDebug('Firestore rules: Write diizinkan', 'success');
+      
+      // Clean up
+      await testRef.delete();
+      logDebug('Firestore rules: Delete diizinkan', 'success');
+      
+      showNotification('Firestore rules berfungsi dengan baik!', 'success');
+      
+    } catch (error) {
+      logDebug(`Firestore rules error: ${error.message}`, 'error');
+      showNotification(`Firestore rules error: ${error.message}`, 'error');
+    }
+  }
+
+  // Clear Cache
+  function clearAllCache() {
+    localStorage.clear();
+    sessionStorage.clear();
+    logDebug('Cache berhasil dibersihkan', 'success');
+    showNotification('Cache berhasil dibersihkan!', 'success');
+    location.reload();
+  }
+
+  // Show Firebase Console
+  function showFirebaseConsole() {
+    window.open('https://console.firebase.google.com/project/next-packlaring/firestore', '_blank');
+  }
+
+  // Test Connection Button
+  function testConnection() {
+    testFirebaseConnection();
+  }
 
   // Format tanggal Indonesia
   function formatDate(dateString) {
@@ -2134,7 +2397,9 @@ body {
       renderDataTable();
     } else if (tabName === 'settings') {
       loadSettings();
-      updateFirebaseStorageInfo();
+    } else if (tabName === 'firebase') {
+      // Auto test connection when opening Firebase tab
+      setTimeout(testFirebaseConnection, 100);
     }
   }
 
@@ -2184,11 +2449,20 @@ body {
     }
   }
 
-  // Load Data from Firebase
+  // Load Data from Firebase - DIUBAH dengan error handling yang lebih baik
   async function loadData() {
     showLoading(true);
+    logDebug('Memulai load data dari Firestore...', 'info');
     
     try {
+      if (!db) {
+        const initialized = initializeFirebase();
+        if (!initialized) {
+          throw new Error('Firebase gagal diinisialisasi');
+        }
+      }
+      
+      logDebug('Mengambil data dari koleksi "packlaring"...', 'info');
       const snapshot = await db.collection('packlaring')
         .orderBy('createdAt', 'desc')
         .get();
@@ -2209,6 +2483,8 @@ body {
         allData.push(data);
       });
       
+      logDebug(`Berhasil memuat ${allData.length} data dari Firestore`, 'success');
+      
       // Apply sorting
       sortData();
       
@@ -2218,7 +2494,6 @@ body {
       updateRecentList();
       updateDashboard();
       updateSystemInfo();
-      updateFirebaseStorageInfo();
       
       const connectionStatus = document.getElementById('connectionStatus');
       if (connectionStatus) connectionStatus.textContent = '✅ Terhubung';
@@ -2226,14 +2501,89 @@ body {
       const lastUpdate = document.getElementById('lastUpdate');
       if (lastUpdate) lastUpdate.textContent = new Date().toLocaleTimeString('id-ID');
       
+      showNotification(`Data berhasil dimuat (${allData.length} data)`, 'success');
+      
     } catch (error) {
       console.error('Error loading data:', error);
+      logDebug(`Gagal memuat data: ${error.message}`, 'error');
       showNotification('Gagal memuat data: ' + error.message, 'error');
+      
+      // Show sample data for testing
+      if (allData.length === 0) {
+        logDebug('Menampilkan data contoh untuk testing...', 'warning');
+        showSampleData();
+      }
+      
       const connectionStatus = document.getElementById('connectionStatus');
       if (connectionStatus) connectionStatus.textContent = '❌ Gagal';
     } finally {
       showLoading(false);
     }
+  }
+
+  // Show sample data for testing
+  function showSampleData() {
+    allData = [
+      {
+        id: 'sample1',
+        namaLengkap: 'John Doe',
+        nip: 'NEXT-2024-01-001',
+        nomorKTP: '1234567890123456',
+        wilayahArea: 'Jawa Barat',
+        kabupaten: 'Bekasi',
+        koordinator: 'Budi Santoso',
+        keterangan: 'Sample data untuk testing',
+        whatsapp: '081234567890',
+        noSurat: '01/SK-HRD/NEXT/I/24',
+        tanggalSurat: new Date('2024-01-15'),
+        status: 'completed',
+        jabatan: 'Teknisi',
+        deptKaryawan: 'IT',
+        tempatLahir: 'Jakarta',
+        tanggalLahir: new Date('1990-05-10'),
+        tanggalMulai: new Date('2023-01-01'),
+        tanggalBerakhir: new Date('2023-12-31'),
+        alasanBerhenti: 'Kontrak Berakhir',
+        tujuanSurat: 'Bank',
+        email: 'john@example.com',
+        createdAt: new Date('2024-01-15'),
+        updatedAt: new Date('2024-01-15')
+      },
+      {
+        id: 'sample2',
+        namaLengkap: 'Jane Smith',
+        nip: 'NEXT-2024-02-002',
+        nomorKTP: '9876543210987654',
+        wilayahArea: 'Jawa Timur',
+        kabupaten: 'Surabaya',
+        koordinator: 'Siti Rahayu',
+        keterangan: 'Data contoh kedua',
+        whatsapp: '081987654321',
+        noSurat: '02/SK-HRD/NEXT/II/24',
+        tanggalSurat: new Date('2024-02-20'),
+        status: 'pending',
+        jabatan: 'Administrasi',
+        deptKaryawan: 'HR',
+        tempatLahir: 'Surabaya',
+        tanggalLahir: new Date('1992-08-20'),
+        tanggalMulai: new Date('2023-03-01'),
+        tanggalBerakhir: new Date('2024-02-29'),
+        alasanBerhenti: 'Pengunduran Diri',
+        tujuanSurat: 'BPJS',
+        email: 'jane@example.com',
+        createdAt: new Date('2024-02-20'),
+        updatedAt: new Date('2024-02-20')
+      }
+    ];
+    
+    filteredData = [...allData];
+    renderDataTable();
+    updateStats();
+    updateRecentList();
+    updateDashboard();
+    updateSystemInfo();
+    
+    showNotification('Menggunakan data contoh. Periksa koneksi Firebase Anda.', 'warning');
   }
 
   // Sort Data
@@ -2336,6 +2686,9 @@ body {
           <td colspan="14" style="text-align: center; padding: 40px; color: #666;">
             <h3>📭 Tidak Ada Data</h3>
             <p>Tidak ada data packlaring yang ditemukan.</p>
+            <button class="btn btn-primary" onclick="loadData()" style="margin-top: 15px;">
+              🔄 Coba Muat Ulang
+            </button>
           </td>
         </tr>
       `;
@@ -2551,44 +2904,6 @@ body {
     
     if (todayDataCount) todayDataCount.textContent = todayData.length;
     if (totalDataInfo) totalDataInfo.textContent = allData.length;
-  }
-
-  // Get Firebase Storage Information
-  async function updateFirebaseStorageInfo() {
-    try {
-      // Get storage usage from Firebase
-      const totalDocs = allData.length;
-      
-      // Estimated storage usage (average 1KB per document)
-      const estimatedUsageKB = totalDocs * 1;
-      const estimatedUsageMB = estimatedUsageKB / 1024;
-      const estimatedUsageGB = estimatedUsageMB / 1024;
-      
-      // Firebase free tier: 1GB storage
-      const freeStorageGB = 1;
-      const usedStorageGB = Math.min(estimatedUsageGB, freeStorageGB);
-      const availableStorageGB = freeStorageGB - usedStorageGB;
-      const percentageUsed = (usedStorageGB / freeStorageGB) * 100;
-      
-      // Update UI
-      const firebaseTotalStorage = document.getElementById('firebaseTotalStorage');
-      const firebaseUsedStorage = document.getElementById('firebaseUsedStorage');
-      const firebaseAvailableStorage = document.getElementById('firebaseAvailableStorage');
-      const firebaseStoragePercent = document.getElementById('firebaseStoragePercent');
-      const firebaseStorageProgress = document.getElementById('firebaseStorageProgress');
-      const firebaseStorageText = document.getElementById('firebaseStorageText');
-      
-      if (firebaseTotalStorage) firebaseTotalStorage.textContent = `${freeStorageGB.toFixed(2)} GB`;
-      if (firebaseUsedStorage) firebaseUsedStorage.textContent = `${usedStorageGB.toFixed(2)} GB`;
-      if (firebaseAvailableStorage) firebaseAvailableStorage.textContent = `${availableStorageGB.toFixed(2)} GB`;
-      if (firebaseStoragePercent) firebaseStoragePercent.textContent = `${percentageUsed.toFixed(1)}%`;
-      if (firebaseStorageProgress) firebaseStorageProgress.style.width = `${percentageUsed}%`;
-      if (firebaseStorageText) firebaseStorageText.textContent = `${percentageUsed.toFixed(1)}% terpakai`;
-      
-    } catch (error) {
-      console.error('Error getting Firebase storage info:', error);
-      showNotification('Tidak dapat memuat informasi storage Firebase', 'warning');
-    }
   }
 
   // Calculate storage size
@@ -3282,7 +3597,7 @@ body {
     const totalData = allData.length;
     let provinceHTML = '';
     
-    sortedProvinces.forEach(([province, count], index) {
+    sortedProvinces.forEach(([province, count], index) => {
       const percentage = ((count / totalData) * 100).toFixed(1);
       const colorClass = `province-color-${index % 10}`;
       const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
@@ -3944,12 +4259,14 @@ body {
         loadData();
       }, refreshSeconds * 1000);
       
-      console.log(`Auto refresh diatur setiap ${refreshSeconds} detik`);
+      logDebug(`Auto refresh diatur setiap ${refreshSeconds} detik`, 'info');
     }
   }
 
   // Initialize Admin Panel
   document.addEventListener('DOMContentLoaded', function() {
+    logDebug('Memulai inisialisasi Admin Panel...', 'info');
+    
     // Set default dates for filter
     const today = new Date();
     const lastMonth = new Date();
@@ -3975,12 +4292,21 @@ body {
       initialTh.classList.add(`sort-${currentSortDirection}`);
     }
     
-    // Load initial data
-    loadData();
-    loadSettings();
+    // Initialize Firebase first
+    const firebaseInitialized = initializeFirebase();
     
-    // Setup auto refresh
-    setupAutoRefresh();
+    if (firebaseInitialized) {
+      // Load initial data
+      loadData();
+      loadSettings();
+      
+      // Setup auto refresh
+      setupAutoRefresh();
+    } else {
+      logDebug('Firebase gagal diinisialisasi, menggunakan data contoh', 'error');
+      showSampleData();
+      loadSettings();
+    }
     
     // Add keyboard shortcuts
     document.addEventListener('keydown', function(e) {
@@ -4022,6 +4348,8 @@ body {
         deleteSelected();
       }
     });
+    
+    logDebug('Admin Panel berhasil diinisialisasi', 'success');
   });
 </script>
 </body>
