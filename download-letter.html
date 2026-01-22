@@ -345,6 +345,7 @@
             margin-top: 1cm;
             padding-bottom: 2px;
             text-align: center;
+            font-style: italic;
         }
 
         .letter-date-place {
@@ -934,8 +935,10 @@
                             <em>Reason for leaving : <span id="fieldAlasanBerhentiEnPreview">Resigned in good standing / end of contract</span></em>
                         </div>
 
+                        <!-- PARAGRAF UCAPAN TERIMA KASIH DENGAN BAHASA INGGRIS -->
                         <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
-                            Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.
+                            Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.<br>
+                            <em style="font-weight: normal;">We would like to express our gratitude for your cooperation during your employment with us and we wish you success in your future career.</em>
                         </div>
 
                         <div class="letter-date-place" id="fieldTempatTanggalPreview">
@@ -1022,8 +1025,10 @@
                         <em>Reason for leaving : <span id="fieldAlasanBerhentiEnPrint">Resigned in good standing / end of contract</span></em>
                     </div>
 
+                    <!-- PARAGRAF UCAPAN TERIMA KASIH DENGAN BAHASA INGGRIS -->
                     <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
-                        Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.
+                        Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.<br>
+                        <em style="font-weight: normal;">We would like to express our gratitude for your cooperation during your employment with us and we wish you success in your future career.</em>
                     </div>
 
                     <div class="letter-date-place" id="fieldTempatTanggalPrint">
@@ -1299,9 +1304,18 @@
         // Format Date
         function formatDate(dateString) {
             if (!dateString) return '-';
-            const date = new Date(dateString);
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
-            return date.toLocaleDateString('id-ID', options);
+            try {
+                const date = new Date(dateString);
+                // Cek apakah date valid
+                if (isNaN(date.getTime())) {
+                    return '-';
+                }
+                const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                return date.toLocaleDateString('id-ID', options);
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return '-';
+            }
         }
 
         // Format WhatsApp
@@ -1351,20 +1365,55 @@
             `;
         }
 
-        // Populate BOTH Letter Templates
-        function populateLetterTemplates() {
-            // Format tanggal untuk Indonesia
-            function formatLetterDate(dateString) {
-                if (!dateString) return '-';
-                const date = new Date(dateString);
+        // Format tanggal untuk surat (lebih robust)
+        function formatLetterDate(dateString) {
+            if (!dateString) {
+                // Jika tidak ada tanggal, gunakan tanggal hari ini
+                const today = new Date();
                 const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
                              'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
+                return `${today.getDate()} ${bulan[today.getMonth()]} ${today.getFullYear()}`;
             }
             
+            try {
+                // Coba parse tanggal dari string
+                let date;
+                
+                // Cek jika dateString adalah timestamp Firebase
+                if (dateString.toDate && typeof dateString.toDate === 'function') {
+                    date = dateString.toDate();
+                } else if (dateString.seconds) {
+                    // Jika format Firebase timestamp {seconds: ..., nanoseconds: ...}
+                    date = new Date(dateString.seconds * 1000);
+                } else {
+                    // Coba parse sebagai string tanggal biasa
+                    date = new Date(dateString);
+                }
+                
+                // Validasi tanggal
+                if (isNaN(date.getTime())) {
+                    throw new Error('Invalid date');
+                }
+                
+                const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                
+                return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
+            } catch (error) {
+                console.error('Error formatting letter date:', error, 'dateString:', dateString);
+                // Fallback ke tanggal hari ini
+                const today = new Date();
+                const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return `${today.getDate()} ${bulan[today.getMonth()]} ${today.getFullYear()}`;
+            }
+        }
+
+        // Populate BOTH Letter Templates
+        function populateLetterTemplates() {
             // Format TTL
             const tempatLahir = currentData.tempatLahir || '-';
-            const tglLahir = currentData.tanggalLahir ? formatLetterDate(currentData.tanggalLahir) : '-';
+            const tglLahir = formatLetterDate(currentData.tanggalLahir);
             
             // Format alasan berhenti dalam dua bahasa
             const alasanBerhentiMap = {
@@ -1389,10 +1438,23 @@
             // Load from localStorage if available
             const savedSettings = localStorage.getItem('packlaringAdminSettings');
             if (savedSettings) {
-                const adminSettings = JSON.parse(savedSettings);
-                if (adminSettings.kotaTandaTangan) settings.kotaTandaTangan = adminSettings.kotaTandaTangan;
-                if (adminSettings.defaultPenandatangan) settings.defaultPenandatangan = adminSettings.defaultPenandatangan;
-                if (adminSettings.defaultJabatan) settings.defaultJabatan = adminSettings.defaultJabatan;
+                try {
+                    const adminSettings = JSON.parse(savedSettings);
+                    if (adminSettings.kotaTandaTangan) settings.kotaTandaTangan = adminSettings.kotaTandaTangan;
+                    if (adminSettings.defaultPenandatangan) settings.defaultPenandatangan = adminSettings.defaultPenandatangan;
+                    if (adminSettings.defaultJabatan) settings.defaultJabatan = adminSettings.defaultJabatan;
+                } catch (e) {
+                    console.error('Error parsing saved settings:', e);
+                }
+            }
+            
+            // Format tanggal surat - FIX untuk menghindari "undefined"
+            let tanggalSuratFormatted;
+            try {
+                tanggalSuratFormatted = formatLetterDate(currentData.tanggalSurat);
+            } catch (error) {
+                console.error('Error formatting tanggal surat:', error);
+                tanggalSuratFormatted = formatLetterDate(new Date()); // Fallback ke hari ini
             }
             
             // Data untuk kedua template
@@ -1404,14 +1466,17 @@
                 ttl: `${tempatLahir}, ${tglLahir}`,
                 jabatan: currentData.jabatan || '.................................................',
                 nip: currentData.nip || '.................................................',
-                tanggalMasuk: currentData.tanggalMulai ? formatLetterDate(currentData.tanggalMulai) : '.................................................',
-                tanggalKeluar: currentData.tanggalBerakhir ? formatLetterDate(currentData.tanggalBerakhir) : '.................................................',
+                tanggalMasuk: formatLetterDate(currentData.tanggalMulai),
+                tanggalKeluar: formatLetterDate(currentData.tanggalBerakhir),
                 alasanBerhentiId: alasanBerhenti.id,
                 alasanBerhentiEn: alasanBerhenti.en,
-                tempatTanggal: `${settings.kotaTandaTangan}, ${formatLetterDate(currentData.tanggalSurat || new Date())}`,
+                tempatTanggal: `${settings.kotaTandaTangan}, ${tanggalSuratFormatted}`, // FIXED: Tidak akan ada "undefined"
                 tandaTangan: currentData.namaPenandatangan || settings.defaultPenandatangan,
                 jabatanTTD: currentData.jabatanPenandatangan || settings.defaultJabatan
             };
+            
+            // Debug log untuk memastikan data benar
+            console.log('Template data:', templateData);
             
             // Update PREVIEW template
             document.getElementById('letterNoPreview').textContent = `NO : ${templateData.noSurat}`;
