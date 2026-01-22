@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>Download Surat Packlaring - NEXT Logistics</title>
     
     <!-- Firebase SDK -->
@@ -16,6 +16,9 @@
     <!-- html2canvas untuk konversi ke gambar -->
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         * {
             margin: 0;
@@ -28,85 +31,122 @@
             background: linear-gradient(135deg, #1a237e 0%, #311b92 100%);
             color: #333;
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 100%;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+            min-height: 100vh;
+            position: relative;
         }
 
         /* Header */
         .header {
             background: linear-gradient(135deg, #f7a01e 70%, #f10707 100%);
             color: white;
-            padding: 25px 40px;
+            padding: 20px 15px;
             text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
         }
 
         .title h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
+            font-size: 18px;
+            margin-bottom: 8px;
+            line-height: 1.3;
         }
 
         .title p {
-            font-size: 14px;
+            font-size: 12px;
             opacity: 0.9;
+            margin-bottom: 8px;
         }
 
         .badge {
             display: inline-block;
             background: rgba(255, 255, 255, 0.2);
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 12px;
-            margin-top: 10px;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        /* Back Button Mobile */
+        .back-button-mobile {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 101;
+            text-decoration: none;
+        }
+
+        .back-button-mobile i {
+            font-size: 20px;
         }
 
         /* Content */
         .content {
-            padding: 40px;
+            padding: 20px 15px;
         }
 
         /* Search Section */
         .search-section {
             background: #f8f9fa;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
             text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
         .search-title {
-            font-size: 22px;
+            font-size: 18px;
             color: #2c3e50;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-title i {
+            color: #3498db;
         }
 
         .search-box {
-            max-width: 500px;
-            margin: 0 auto;
+            width: 100%;
         }
 
         .search-input {
             width: 100%;
-            padding: 15px 20px;
+            padding: 16px;
             border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            border-radius: 10px;
             font-size: 16px;
             margin-bottom: 15px;
             text-align: center;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
+            font-family: monospace;
         }
 
         .search-input:focus {
@@ -116,22 +156,26 @@
         }
 
         .search-btn {
-            padding: 15px 30px;
+            padding: 16px;
             background: #3498db;
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .search-btn:hover {
+        .search-btn:hover, .search-btn:active {
             background: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
         }
 
         .search-btn:disabled {
@@ -146,167 +190,196 @@
             margin-top: 10px;
             font-size: 12px;
             color: #666;
+            line-height: 1.4;
         }
 
         /* Letter Container */
         .letter-container {
             display: none;
             background: #f5f5f5;
-            padding: 30px;
-            border-radius: 15px;
-            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
         }
 
         .letter-container.active {
             display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .letter-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
         .letter-info h3 {
             color: #333;
-            margin-bottom: 10px;
-            font-size: 20px;
+            margin-bottom: 8px;
+            font-size: 18px;
+            line-height: 1.3;
         }
 
         .letter-info p {
             color: #666;
-            font-size: 14px;
+            font-size: 13px;
+            line-height: 1.4;
         }
 
-        /* Template Styling */
+        /* Template Surat yang Responsif */
         .letter-template {
-            width: 210mm;
-            min-height: 297mm;
+            width: 100%;
+            min-height: auto;
             margin: 0 auto;
-            padding: 20mm;
+            padding: 20px;
             box-sizing: border-box;
             position: relative;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            background: url('./template/next2.png');
-            filter: brightness(1.1);
-            background-size: 100% 100%;
-            background-position: center center;
-            background-repeat: no-repeat;
-            font-size: 11pt;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            font-size: 13px;
             line-height: 1.5;
             color: #333333;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        /* Background untuk surat saat di mobile */
+        .letter-template::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('next2.png') no-repeat center center;
+            background-size: contain;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .letter-template > * {
+            position: relative;
+            z-index: 1;
         }
 
         .letter-title {
             text-align: center;
-            font-size: 14pt;
+            font-size: 14px;
             font-weight: bold;
-            margin: 0 0 0.1cm 0;
+            margin: 0 0 8px 0;
             text-transform: uppercase;
             color: #000000;
-            line-height: 1;
+            line-height: 1.2;
         }
 
         .letter-title:nth-of-type(2) {
-            font-size: 12pt;
-            margin-bottom: 0.1cm;
+            font-size: 12px;
+            margin-bottom: 8px;
         }
 
         .letter-no {
             text-align: center;
-            font-size: 10pt;
-            margin-bottom: 0.8cm;
+            font-size: 11px;
+            margin-bottom: 20px;
             color: #333;
             font-weight: bold;
         }
 
         .letter-data-section {
-            margin-bottom: 0.2cm;
+            margin-bottom: 10px;
         }
 
         .data-row {
             display: flex;
-            margin-bottom: 3px;
+            flex-direction: column;
+            margin-bottom: 8px;
             align-items: flex-start;
-            min-height: 22px;
+            min-height: auto;
+            padding-bottom: 5px;
+            border-bottom: 1px dotted #ddd;
         }
 
         .data-label {
-            width: 35%;
+            width: 100%;
             font-weight: bold;
-            padding-right: 10px;
-            white-space: nowrap;
-            font-size: 11pt;
+            margin-bottom: 2px;
+            font-size: 12px;
+            color: #444;
         }
 
         .data-value {
-            width: 65%;
-            padding-bottom: 2px;
-            border-bottom: 1px dotted #777;
-            min-height: 1.2em;
-            font-size: 11pt;
+            width: 100%;
+            min-height: auto;
+            font-size: 13px;
+            word-break: break-word;
         }
 
         .letter-statement {
             text-align: justify;
-            margin: 0.4cm 0;
-            text-indent: 40px;
+            margin: 15px 0;
             line-height: 1.5;
-            font-size: 11pt;
+            font-size: 13px;
         }
 
         .letter-statement-field {
-            margin-top: 1cm;
-            padding-bottom: 2px;
+            margin-top: 15px;
+            padding-bottom: 5px;
             text-align: center;
+            font-size: 12px;
+            line-height: 1.4;
         }
 
         .letter-date-place {
-            margin-top: 1cm;
+            margin-top: 20px;
             text-align: left;
             margin-bottom: 0;
-            font-size: 11pt;
+            font-size: 13px;
         }
 
         .letter-signature {
             text-align: left;
-            margin-top: 0.1cm;
-            font-size: 12pt;
+            margin-top: 30px;
+            font-size: 13px;
         }
 
         .letter-signature-name {
-            margin-top: 3cm;
+            margin-top: 60px;
             text-decoration: underline;
             font-weight: bold;
-            font-size: 12pt;
+            font-size: 14px;
+            margin-bottom: 5px;
         }
 
         /* Action Buttons */
         .action-buttons {
             display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            justify-content: center;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
         }
 
         .btn {
-            padding: 15px 30px;
+            padding: 16px;
             border: none;
             border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            text-align: center;
         }
 
         .btn-primary {
@@ -314,10 +387,10 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover, .btn-primary:active {
             background: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
         }
 
         .btn-success {
@@ -325,10 +398,10 @@
             color: white;
         }
 
-        .btn-success:hover {
+        .btn-success:hover, .btn-success:active {
             background: #219653;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(39, 174, 96, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.2);
         }
 
         .btn-warning {
@@ -336,9 +409,9 @@
             color: white;
         }
 
-        .btn-warning:hover {
+        .btn-warning:hover, .btn-warning:active {
             background: #e67e22;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         /* Error Message */
@@ -348,10 +421,21 @@
             margin-top: 10px;
             text-align: center;
             display: none;
+            padding: 10px;
+            background: #ffeaea;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
         }
 
         .error-message.active {
             display: block;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
 
         /* Loading */
@@ -361,7 +445,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             display: none;
             align-items: center;
             justify-content: center;
@@ -388,63 +472,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Back Button */
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            padding: 10px 20px;
-            background: #f39c12;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-button:hover {
-            background: #e67e22;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                margin: 10px;
-                border-radius: 15px;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .letter-template {
-                width: 100%;
-                padding: 1.5cm;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header {
-                padding: 20px;
-            }
-
-            .search-section {
-                padding: 20px;
-            }
-        }
-
         /* Info Box */
         .info-box {
             background: #d1ecf1;
@@ -457,25 +484,301 @@
         .info-box h4 {
             color: #0c5460;
             margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .info-box p {
             color: #0c5460;
-            font-size: 14px;
+            font-size: 13px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .info-box p:before {
+            content: "•";
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        /* Data Info */
+        .data-info-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .data-info-container h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .data-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+        }
+
+        .data-item small {
+            color: #666;
+            font-size: 11px;
+            display: block;
             margin-bottom: 5px;
+        }
+
+        .data-item strong {
+            color: #333;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #27ae60;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            max-width: 90%;
+            animation: toastSlideIn 0.5s ease forwards;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        @keyframes toastSlideIn {
+            to {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Responsive untuk Tablet dan Desktop */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 90%;
+                margin: 20px auto;
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+                min-height: auto;
+            }
+
+            .header {
+                padding: 25px 30px;
+            }
+
+            .logo {
+                font-size: 42px;
+            }
+
+            .title h1 {
+                font-size: 22px;
+            }
+
+            .title p {
+                font-size: 14px;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            .search-section {
+                padding: 25px;
+            }
+
+            .search-title {
+                font-size: 20px;
+            }
+
+            .letter-template {
+                width: 210mm;
+                min-height: 297mm;
+                padding: 25mm;
+                font-size: 11pt;
+            }
+
+            .letter-title {
+                font-size: 14pt;
+            }
+
+            .letter-title:nth-of-type(2) {
+                font-size: 12pt;
+            }
+
+            .letter-no {
+                font-size: 10pt;
+            }
+
+            .data-row {
+                flex-direction: row;
+                align-items: flex-start;
+                margin-bottom: 5px;
+            }
+
+            .data-label {
+                width: 35%;
+                font-size: 11pt;
+                margin-bottom: 0;
+            }
+
+            .data-value {
+                width: 65%;
+                font-size: 11pt;
+            }
+
+            .letter-statement {
+                font-size: 11pt;
+            }
+
+            .letter-statement-field {
+                font-size: 11pt;
+            }
+
+            .letter-date-place {
+                font-size: 11pt;
+            }
+
+            .letter-signature {
+                font-size: 11pt;
+            }
+
+            .letter-signature-name {
+                font-size: 12pt;
+            }
+
+            .action-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: 200px;
+                max-width: 300px;
+            }
+
+            .data-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1000px;
+            }
+            
+            .action-buttons {
+                justify-content: space-between;
+            }
+            
+            .btn {
+                flex: 1;
+                max-width: none;
+            }
+        }
+
+        /* Landscape Mode */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .header {
+                padding: 15px;
+                position: relative;
+            }
+            
+            .logo {
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+            
+            .title h1 {
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .search-section {
+                padding: 15px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            .letter-template, .letter-template * {
+                visibility: visible;
+            }
+            
+            .letter-template {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .action-buttons, .back-button-mobile, .header, .search-section {
+                display: none !important;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Back Button -->
-    <a href="index.html" class="back-button">
-        ← Kembali ke Form
+    <!-- Back Button Mobile -->
+    <a href="index.html" class="back-button-mobile" title="Kembali ke Form">
+        <i class="fas fa-arrow-left"></i>
     </a>
 
     <!-- Loading -->
     <div class="loading" id="loading">
         <div class="spinner"></div>
         <p style="color: #3498db; font-weight: 600; margin-top: 10px;">Memproses...</p>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operasi berhasil!</span>
     </div>
 
     <div class="container">
@@ -493,7 +796,9 @@
         <div class="content">
             <!-- Search Section -->
             <div class="search-section">
-                <h2 class="search-title">🔍 Cari Data Packlaring</h2>
+                <h2 class="search-title">
+                    <i class="fas fa-search"></i> Cari Data Packlaring
+                </h2>
                 <div class="search-box">
                     <input type="text" 
                            id="ktpInput" 
@@ -502,8 +807,8 @@
                            maxlength="19"
                            oninput="formatKTPInput(this)">
                     
-                    <button class="search-btn" onclick="searchData()">
-                        🔎 Cari dan Download Surat
+                    <button class="search-btn" onclick="searchData()" id="searchBtn">
+                        <i class="fas fa-search"></i> Cari dan Download Surat
                     </button>
                     
                     <span class="help-text">
@@ -515,11 +820,11 @@
 
                 <!-- Info Box -->
                 <div class="info-box">
-                    <h4>📋 Informasi Penting:</h4>
-                    <p>• Pastikan Anda sudah mengisi form packlaring sebelumnya</p>
-                    <p>• Masukkan nomor KTP yang sama dengan yang didaftarkan</p>
-                    <p>• Surat hanya dapat didownload jika status sudah "Selesai"</p>
-                    <p>• Hubungi Admin jika mengalami kendala: 081383796300</p>
+                    <h4><i class="fas fa-info-circle"></i> Informasi Penting:</h4>
+                    <p>Pastikan Anda sudah mengisi form packlaring sebelumnya</p>
+                    <p>Masukkan nomor KTP yang sama dengan yang didaftarkan</p>
+                    <p>Surat hanya dapat didownload jika status sudah "Selesai"</p>
+                    <p>Hubungi Admin jika mengalami kendala: 081383796300</p>
                 </div>
             </div>
 
@@ -625,20 +930,20 @@
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button class="btn btn-success" onclick="downloadPDF()">
-                        📥 Download PDF
+                        <i class="fas fa-download"></i> Download PDF
                     </button>
                     <button class="btn btn-primary" onclick="printLetter()">
-                        🖨️ Cetak Surat
+                        <i class="fas fa-print"></i> Cetak Surat
                     </button>
                     <button class="btn btn-warning" onclick="searchAnother()">
-                        🔍 Cari Lagi
+                        <i class="fas fa-search"></i> Cari Lagi
                     </button>
                 </div>
 
                 <!-- Data Info -->
-                <div style="margin-top: 30px; padding: 20px; background: white; border-radius: 12px;">
-                    <h4>📋 Informasi Data:</h4>
-                    <div id="dataInfo" style="margin-top: 10px;">
+                <div class="data-info-container">
+                    <h4><i class="fas fa-info-circle"></i> Informasi Data:</h4>
+                    <div class="data-grid" id="dataInfo">
                         <!-- Data info akan ditampilkan di sini -->
                     </div>
                 </div>
@@ -699,11 +1004,29 @@
             document.getElementById('loading').classList.toggle('active', show);
         }
 
+        // Show Toast Message
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = 'toast';
+            toast.classList.add(isError ? 'error' : 'success');
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         // Show Error
         function showError(message) {
             const errorElement = document.getElementById('errorMessage');
             errorElement.textContent = message;
             errorElement.classList.add('active');
+            
+            // Juga tampilkan toast untuk mobile
+            showToast(message, true);
         }
 
         // Hide Error
@@ -716,6 +1039,7 @@
         async function searchData() {
             const ktpInput = document.getElementById('ktpInput');
             const ktpValue = ktpInput.value.trim();
+            const searchBtn = document.getElementById('searchBtn');
             
             // Reset
             hideError();
@@ -724,13 +1048,19 @@
             // Validate
             if (!ktpValue) {
                 showError('Silakan masukkan nomor KTP');
+                ktpInput.focus();
                 return;
             }
             
             if (!validateKTP(ktpValue)) {
                 showError('Nomor KTP harus 16 digit angka');
+                ktpInput.focus();
                 return;
             }
+            
+            // Disable button selama proses
+            searchBtn.disabled = true;
+            searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mencari...';
             
             showLoading(true);
             
@@ -742,8 +1072,8 @@
                     .get();
                 
                 if (snapshot.empty) {
-                    showLoading(false);
                     showError('Data tidak ditemukan. Pastikan nomor KTP sudah terdaftar.');
+                    ktpInput.focus();
                     return;
                 }
                 
@@ -761,7 +1091,6 @@
                 
                 // Check status
                 if (currentData.status !== 'completed') {
-                    showLoading(false);
                     showError(`Status surat masih "${getStatusText(currentData.status)}". Silakan hubungi Admin.`);
                     return;
                 }
@@ -776,9 +1105,12 @@
                 document.getElementById('letterContainer').classList.add('active');
                 
                 // Scroll to letter
-                document.getElementById('letterContainer').scrollIntoView({
-                    behavior: 'smooth'
-                });
+                setTimeout(() => {
+                    document.getElementById('letterContainer').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 300);
                 
                 // Log analytics
                 analytics.logEvent('download_letter_searched', {
@@ -787,11 +1119,17 @@
                     status: currentData.status
                 });
                 
+                // Show success toast
+                showToast('Data ditemukan! Surat siap didownload.');
+                
             } catch (error) {
                 console.error('Error searching data:', error);
                 showError('Terjadi kesalahan saat mencari data: ' + error.message);
             } finally {
                 showLoading(false);
+                // Reset button
+                searchBtn.disabled = false;
+                searchBtn.innerHTML = '<i class="fas fa-search"></i> Cari dan Download Surat';
             }
         }
 
@@ -841,23 +1179,21 @@
             // Update data info
             const dataInfo = document.getElementById('dataInfo');
             dataInfo.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <div>
-                        <small style="color: #888;">Nomor Surat</small>
-                        <div><strong>${currentData.noSurat || '-'}</strong></div>
-                    </div>
-                    <div>
-                        <small style="color: #888;">Jabatan</small>
-                        <div><strong>${currentData.jabatan || '-'}</strong></div>
-                    </div>
-                    <div>
-                        <small style="color: #888;">Wilayah</small>
-                        <div><strong>${currentData.wilayahArea || '-'}</strong></div>
-                    </div>
-                    <div>
-                        <small style="color: #888;">Status</small>
-                        <div><strong>${getStatusText(currentData.status)}</strong></div>
-                    </div>
+                <div class="data-item">
+                    <small>Nomor Surat</small>
+                    <strong>${currentData.noSurat || '-'}</strong>
+                </div>
+                <div class="data-item">
+                    <small>Jabatan</small>
+                    <strong>${currentData.jabatan || '-'}</strong>
+                </div>
+                <div class="data-item">
+                    <small>Wilayah</small>
+                    <strong>${currentData.wilayahArea || '-'}</strong>
+                </div>
+                <div class="data-item">
+                    <small>Status</small>
+                    <strong>${getStatusText(currentData.status)}</strong>
                 </div>
             `;
         }
@@ -934,13 +1270,26 @@
                 // Get the letter template
                 const element = document.getElementById('letterTemplate');
                 
+                // Set temporary style for PDF generation
+                const originalWidth = element.style.width;
+                element.style.width = '210mm';
+                
                 // Convert to canvas with higher quality
                 const canvas = await html2canvas(element, {
                     scale: 2,
                     backgroundColor: '#ffffff',
                     useCORS: true,
-                    logging: false
+                    logging: false,
+                    onclone: (clonedDoc) => {
+                        // Pastikan elemen yang diklone memiliki lebar yang tepat
+                        const clonedElement = clonedDoc.getElementById('letterTemplate');
+                        clonedElement.style.width = '210mm';
+                        clonedElement.style.padding = '25mm';
+                    }
                 });
+                
+                // Restore original width
+                element.style.width = originalWidth;
                 
                 // Get image data
                 const imgData = canvas.toDataURL('image/png');
@@ -971,11 +1320,11 @@
                 });
                 
                 // Show success message
-                alert('✅ PDF berhasil didownload!');
+                showToast('✅ PDF berhasil didownload!');
                 
             } catch (error) {
                 console.error('Error downloading PDF:', error);
-                alert('❌ Gagal download PDF: ' + error.message);
+                showToast('❌ Gagal download PDF: ' + error.message, true);
             } finally {
                 showLoading(false);
             }
@@ -996,15 +1345,45 @@
 
         // Print Letter
         function printLetter() {
-            const printContent = document.getElementById('letterTemplate').innerHTML;
-            const originalContent = document.body.innerHTML;
+            // Clone the letter template for printing
+            const printContent = document.getElementById('letterTemplate').cloneNode(true);
             
-            document.body.innerHTML = printContent;
-            window.print();
-            document.body.innerHTML = originalContent;
+            // Adjust for printing
+            printContent.style.width = '210mm';
+            printContent.style.padding = '25mm';
+            printContent.style.margin = '0';
+            printContent.style.boxShadow = 'none';
+            printContent.style.border = 'none';
             
-            // Restore letter container
-            document.getElementById('letterContainer').classList.add('active');
+            // Create a new window for printing
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Cetak Surat Packlaring - ${currentData.namaLengkap || ''}</title>
+                    <style>
+                        body { margin: 0; padding: 0; }
+                        @media print {
+                            @page { margin: 0; size: A4; }
+                            body { margin: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.outerHTML}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function() {
+                                window.close();
+                            }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
             
             // Log analytics
             analytics.logEvent('letter_printed', {
@@ -1019,23 +1398,81 @@
             document.getElementById('ktpInput').value = '';
             document.getElementById('ktpInput').focus();
             hideError();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            showToast('Silakan masukkan nomor KTP lain');
+        }
+
+        // Handle keyboard shortcuts
+        function handleKeyPress(e) {
+            // Ctrl + F untuk fokus ke search input
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('ktpInput').focus();
+                document.getElementById('ktpInput').select();
+            }
+            
+            // Esc untuk reset
+            if (e.key === 'Escape') {
+                searchAnother();
+            }
+        }
+
+        // Handle orientation change
+        function handleOrientationChange() {
+            // Force reflow untuk memastikan layout update
+            setTimeout(() => {
+                if (currentData) {
+                    populateLetterTemplate();
+                }
+            }, 100);
         }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             // Focus on KTP input
-            document.getElementById('ktpInput').focus();
+            const ktpInput = document.getElementById('ktpInput');
+            ktpInput.focus();
             
             // Enter key to search
-            document.getElementById('ktpInput').addEventListener('keypress', function(e) {
+            ktpInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     searchData();
                 }
             });
             
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyPress);
+            
+            // Orientation change
+            window.addEventListener('orientationchange', handleOrientationChange);
+            window.addEventListener('resize', handleOrientationChange);
+            
             // Log page view
             analytics.logEvent('download_page_visited');
+            
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const ktpFromUrl = urlParams.get('ktp');
+            if (ktpFromUrl) {
+                ktpInput.value = ktpFromUrl;
+                // Auto search after a short delay
+                setTimeout(() => {
+                    searchData();
+                }, 500);
+            }
         });
+
+        // PWA features
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+            });
+        }
     </script>
 </body>
 </html>
