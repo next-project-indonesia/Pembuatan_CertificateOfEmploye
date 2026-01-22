@@ -1193,6 +1193,7 @@ body {
     display: flex;
     gap: 10px;
     margin-top: 15px;
+    flex-wrap: wrap;
 }
 
 .copy-btn {
@@ -1462,8 +1463,18 @@ body {
             📋 Copy Link
           </button>
           <a href="#" id="whatsappShareBtn" class="whatsapp-btn" target="_blank">
-            💬 Share via WhatsApp
+            💬 Share ke User
           </a>
+          <button class="copy-btn" onclick="sendToAdminWhatsApp()" style="background: #3498db;">
+            📱 Kirim ke Admin
+          </button>
+        </div>
+        
+        <div style="margin-top: 15px; padding: 10px; background: #f1f8ff; border-radius: 8px; border-left: 4px solid #3498db;">
+          <h5 style="color: #1a56db; margin-bottom: 8px;">ℹ️ Format WhatsApp:</h5>
+          <p style="color: #1a56db; font-size: 12px; margin: 0;">
+            <strong>0812/0813/0851/0852/0853</strong> → otomatis diubah ke <strong>62812/62813/62851/62852/62853</strong>
+          </p>
         </div>
         
         <div class="share-info">
@@ -1476,12 +1487,15 @@ body {
         
         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
           <h4 style="margin-bottom: 10px; color: #333;">⚙️ Opsi Tambahan</h4>
-          <div style="display: flex; gap: 10px;">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button class="btn btn-success btn-small" onclick="markAsCompleted()">
               ✅ Tandai Selesai
             </button>
             <button class="btn btn-warning btn-small" onclick="sendWhatsAppNotification()">
-              📱 Kirim Notifikasi
+              📱 Notifikasi User
+            </button>
+            <button class="btn btn-info btn-small" onclick="sendTestLink()">
+              🔗 Test Link
             </button>
           </div>
         </div>
@@ -1707,6 +1721,9 @@ body {
               <button class="btn btn-danger" onclick="deleteMultiple()">
                 🗑️ Hapus Multiple
               </button>
+              <button class="btn btn-info" onclick="loadAllData()">
+                📥 Muat Semua Data
+              </button>
             </div>
           </div>
           
@@ -1764,6 +1781,15 @@ body {
                   Berikutnya ▶
                 </button>
               </div>
+              <div style="margin-left: auto; display: flex; gap: 10px; align-items: center;">
+                <select id="pageSizeSelect" onchange="changePageSize()" style="padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                  <option value="10">10 per halaman</option>
+                  <option value="20" selected>20 per halaman</option>
+                  <option value="50">50 per halaman</option>
+                  <option value="100">100 per halaman</option>
+                  <option value="0">Semua Data</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -1786,7 +1812,7 @@ body {
               <button class="btn btn-warning" onclick="printLetter()">
                 🖨️ Cetak Surat
               </button>
-              <button class="btn btn-info" onclick="generateShareLink()">
+              <button class="btn btn-info" onclick="generateLink(selectedDocId)">
                 🔗 Generate Link
               </button>
               <button class="btn btn-danger" onclick="closePreview()">
@@ -1879,11 +1905,6 @@ body {
               <div class="letter-signature-name" id="fieldTandaTangan">M. Fajrian Noor</div>
               <span id="fieldJabatanTTD">Direktur</span>
             </div>
-
-            <!-- Informasi WhatsApp di footer -->
-            <!-- <div class="letter-footer" style="text-align: center; font-size: 10pt; margin-top: 2cm;">
-              <p>Untuk informasi lebih lanjut, hubungi WhatsApp: <span id="fieldWhatsappFooter">081383796300</span></p>
-            </div> -->
           </div>
         </div>
       </div>
@@ -1992,7 +2013,7 @@ body {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
               <div>
                 <small style="color: #888;">Versi Sistem</small>
-                <div><strong>v2.5.0</strong></div>
+                <div><strong>v2.6.0</strong></div>
               </div>
               <div>
                 <small style="color: #888;">Terakhir Update</small>
@@ -2108,6 +2129,255 @@ body {
   // Variables for share modal
   let shareData = null;
 
+  // ==================== FUNGSI UTAMA YANG DIPERBAIKI ====================
+
+  // Fungsi untuk format nomor WhatsApp agar kompatibel
+  function formatWhatsAppNumber(phone) {
+    if (!phone) return '628138796300'; // Default admin number
+    
+    // Hilangkan semua karakter non-digit
+    let cleanNumber = phone.replace(/\D/g, '');
+    
+    // Jika nomor kosong, return default
+    if (cleanNumber.length === 0) return '628138796300';
+    
+    // Jika nomor dimulai dengan 0, ganti dengan 62
+    if (cleanNumber.startsWith('0')) {
+        cleanNumber = '62' + cleanNumber.substring(1);
+    }
+    
+    // Jika nomor dimulai dengan 8 (tanpa 0), tambahkan 62
+    else if (cleanNumber.startsWith('8')) {
+        cleanNumber = '62' + cleanNumber;
+    }
+    
+    // Jika sudah dimulai dengan 62, biarkan saja
+    // Periksa apakah nomor sudah memiliki kode negara
+    else if (!cleanNumber.startsWith('62') && cleanNumber.length >= 10) {
+        // Anggap sebagai nomor Indonesia dan tambahkan 62
+        cleanNumber = '62' + cleanNumber;
+    }
+    
+    // Pastikan panjang minimal 10 digit
+    if (cleanNumber.length < 10) {
+        return '628138796300'; // Fallback to admin
+    }
+    
+    return cleanNumber;
+  }
+
+  // Fungsi untuk memuat semua data dari Firebase (tidak terbatas)
+  async function loadAllData() {
+    showLoading(true);
+    showNotification('Memuat semua data... Harap tunggu', 'info');
+    
+    try {
+      // Dapatkan semua data tanpa limit
+      const snapshot = await db.collection('packlaring')
+        .orderBy('createdAt', 'desc')
+        .get();
+      
+      allData = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        data.id = doc.id;
+        
+        // Convert Firestore timestamps to Date objects
+        if (data.createdAt && data.createdAt.toDate) {
+          data.createdAt = data.createdAt.toDate();
+        }
+        if (data.updatedAt && data.updatedAt.toDate) {
+          data.updatedAt = data.updatedAt.toDate();
+        }
+        if (data.downloadedAt && data.downloadedAt.toDate) {
+          data.downloadedAt = data.downloadedAt.toDate();
+        }
+        if (data.lastDownloadedAt && data.lastDownloadedAt.toDate) {
+          data.lastDownloadedAt = data.lastDownloadedAt.toDate();
+        }
+        
+        allData.push(data);
+      });
+      
+      // Apply sorting
+      sortData();
+      
+      filteredData = [...allData];
+      renderDataTable();
+      updateStats();
+      updateRecentList();
+      updateDashboard();
+      updateSystemInfo();
+      updateFirebaseStorageInfo();
+      
+      const connectionStatus = document.getElementById('connectionStatus');
+      if (connectionStatus) connectionStatus.textContent = '✅ Terhubung';
+      
+      const lastUpdate = document.getElementById('lastUpdate');
+      if (lastUpdate) lastUpdate.textContent = new Date().toLocaleTimeString('id-ID');
+      
+      showNotification(`Berhasil memuat ${allData.length} data`, 'success');
+      
+    } catch (error) {
+      console.error('Error loading all data:', error);
+      showNotification('Gagal memuat data: ' + error.message, 'error');
+      const connectionStatus = document.getElementById('connectionStatus');
+      if (connectionStatus) connectionStatus.textContent = '❌ Gagal';
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  // Perbaikan fungsi generateLink
+  function generateLink(docId) {
+    const data = allData.find(d => d.id === docId);
+    if (!data) {
+      showNotification('Data tidak ditemukan', 'error');
+      return;
+    }
+    
+    shareData = data;
+    
+    // Update modal content
+    document.getElementById('shareNama').textContent = data.namaLengkap || '-';
+    document.getElementById('shareNIP').textContent = data.nip || '-';
+    document.getElementById('shareKTP').textContent = formatNomorKTPDisplay(data.nomorKTP || '-');
+    document.getElementById('shareStatus').textContent = getStatusText(data.status);
+    
+    // Generate download link dengan parameter ID dan KTP untuk verifikasi
+    const baseUrl = window.location.origin + window.location.pathname;
+    const downloadUrl = `${baseUrl.replace('admin.html', 'download-letter.html')}?id=${docId}&ktp=${data.nomorKTP || ''}`;
+    
+    // Update link input
+    const linkInput = document.getElementById('shareLinkInput');
+    linkInput.value = downloadUrl;
+    
+    // Format nomor WhatsApp user
+    const userWhatsApp = data.whatsapp || '';
+    const formattedUserPhone = formatWhatsAppNumber(userWhatsApp);
+    
+    // Update WhatsApp share button untuk user
+    const whatsappBtn = document.getElementById('whatsappShareBtn');
+    const message = `Halo ${data.namaLengkap || 'Karyawan'},
+
+📋 *SURAT PACKLARING SUDAH SIAP*
+
+Surat keterangan kerja Anda sudah siap untuk didownload.
+
+🔗 *Link Download:*
+${downloadUrl}
+
+📝 *Informasi:*
+• Nama: ${data.namaLengkap || '-'}
+• NIP: ${data.nip || '-'}
+• No. Surat: ${data.noSurat || '-'}
+
+📋 *Cara Download:*
+1. Buka link di atas
+2. Masukkan nomor KTP: *${data.nomorKTP || '-'}*
+3. Download surat dalam format PDF
+
+⏱️ *Masa Aktif Link:* 30 hari
+📞 *Bantuan:* 081383796300
+
+Terima kasih,
+Admin NEXT Cargo Logistics`;
+
+    const encodedMessage = encodeURIComponent(message);
+    whatsappBtn.href = `https://wa.me/${formattedUserPhone}?text=${encodedMessage}`;
+    
+    // Set title untuk tombol
+    whatsappBtn.title = `Kirim ke ${userWhatsApp || 'User'}`;
+    
+    // Show modal
+    const shareModal = document.getElementById('shareModal');
+    if (shareModal) shareModal.classList.add('active');
+  }
+
+  // Fungsi untuk mengirim link ke admin WhatsApp
+  function sendToAdminWhatsApp() {
+    if (!shareData) return;
+    
+    const baseUrl = window.location.origin + window.location.pathname;
+    const downloadUrl = `${baseUrl.replace('admin.html', 'download-letter.html')}?id=${shareData.id}&ktp=${shareData.nomorKTP || ''}`;
+    
+    const message = `📋 *LINK PACKLARING UNTUK USER*
+
+🔗 *Link Download:*
+${downloadUrl}
+
+📝 *Data User:*
+• Nama: ${shareData.namaLengkap || '-'}
+• NIP: ${shareData.nip || '-'}
+• No. KTP: ${shareData.nomorKTP || '-'}
+• WhatsApp: ${shareData.whatsapp || '-'}
+• Status: ${getStatusText(shareData.status)}
+
+⏱️ *Dibuat:* ${new Date().toLocaleString('id-ID')}
+📊 *Total Download:* ${shareData.downloadCount || 0}x
+
+*Note:* Link ini untuk user ${shareData.namaLengkap || 'tersebut'}`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const adminNumber = '628138796300'; // Admin number
+    
+    window.open(`https://wa.me/${adminNumber}?text=${encodedMessage}`, '_blank');
+    showNotification('Link dibuka di WhatsApp Admin', 'success');
+  }
+
+  // Fungsi untuk test link
+  function sendTestLink() {
+    if (!shareData) return;
+    
+    const baseUrl = window.location.origin + window.location.pathname;
+    const downloadUrl = `${baseUrl.replace('admin.html', 'download-letter.html')}?id=${shareData.id}&ktp=${shareData.nomorKTP || ''}`;
+    
+    // Buka link di tab baru untuk testing
+    window.open(downloadUrl, '_blank');
+    showNotification('Link dibuka di tab baru untuk testing', 'info');
+  }
+
+  // Fungsi untuk mengubah ukuran halaman
+  function changePageSize() {
+    const pageSizeSelect = document.getElementById('pageSizeSelect');
+    if (!pageSizeSelect) return;
+    
+    const newSize = parseInt(pageSizeSelect.value);
+    if (newSize === 0) {
+      // Tampilkan semua data
+      itemsPerPage = filteredData.length;
+    } else {
+      itemsPerPage = newSize;
+    }
+    
+    currentPage = 1;
+    renderDataTable();
+    
+    if (newSize === 0) {
+      showNotification(`Menampilkan semua ${filteredData.length} data`, 'info');
+    } else {
+      showNotification(`Diubah ke ${itemsPerPage} data per halaman`, 'success');
+    }
+  }
+
+  // Fungsi untuk muat semua data dengan pagination khusus
+  function loadAllDataWithPagination() {
+    // Set items per page ke jumlah total data
+    itemsPerPage = filteredData.length;
+    currentPage = 1;
+    
+    // Update select box
+    const pageSizeSelect = document.getElementById('pageSizeSelect');
+    if (pageSizeSelect) {
+      pageSizeSelect.value = "0";
+    }
+    
+    renderDataTable();
+    showNotification(`Menampilkan semua ${filteredData.length} data`, 'success');
+  }
+
+  // ==================== FUNGSI YANG TIDAK BERUBAH ====================
+
   // Format tanggal Indonesia
   function formatDate(dateString) {
     if (!dateString) return '-';
@@ -2212,6 +2482,9 @@ body {
     } else if (type === 'warning') {
       icon.textContent = '⚠️';
       title.textContent = 'Peringatan';
+    } else if (type === 'info') {
+      icon.textContent = 'ℹ️';
+      title.textContent = 'Informasi';
     }
     
     text.textContent = message;
@@ -2230,13 +2503,14 @@ body {
     }
   }
 
-  // Load Data from Firebase
+  // Load Data from Firebase (default dengan pagination)
   async function loadData() {
     showLoading(true);
     
     try {
       const snapshot = await db.collection('packlaring')
         .orderBy('createdAt', 'desc')
+        .limit(1000) // Batasi untuk performa
         .get();
       
       allData = [];
@@ -3611,67 +3885,6 @@ body {
     renderDataTable();
   }
 
-  // Generate Link for User Download
-  function generateLink(docId) {
-    const data = allData.find(d => d.id === docId);
-    if (!data) {
-      showNotification('Data tidak ditemukan', 'error');
-      return;
-    }
-    
-    shareData = data;
-    
-    // Update modal content
-    document.getElementById('shareNama').textContent = data.namaLengkap || '-';
-    document.getElementById('shareNIP').textContent = data.nip || '-';
-    document.getElementById('shareKTP').textContent = formatNomorKTPDisplay(data.nomorKTP || '-');
-    document.getElementById('shareStatus').textContent = getStatusText(data.status);
-    
-    // Generate download link
-    const baseUrl = window.location.origin + window.location.pathname;
-    const downloadUrl = baseUrl.replace('admin.html', 'download-letter.html');
-    const linkInput = document.getElementById('shareLinkInput');
-    linkInput.value = downloadUrl;
-    
-    // Update WhatsApp share button
-    const whatsappBtn = document.getElementById('whatsappShareBtn');
-    const message = `Halo ${data.namaLengkap || 'Karyawan'},
-
-Surat Packlaring Anda sudah siap untuk didownload.
-
-🔗 Link Download: ${downloadUrl}
-
-📋 Informasi:
-- Nama: ${data.namaLengkap || '-'}
-- NIP: ${data.nip || '-'}
-- No. Surat: ${data.noSurat || '-'}
-
-📝 Cara Download:
-1. Buka link di atas
-2. Masukkan nomor KTP: ${data.nomorKTP || '-'}
-3. Download surat dalam format PDF
-
-Jika ada kendala, hubungi Admin di 081383796300.
-
-Terima kasih,
-Admin NEXT Logistics`;
-
-    const encodedMessage = encodeURIComponent(message);
-    const phone = data.whatsapp ? data.whatsapp.replace(/\D/g, '') : '628138796300';
-    whatsappBtn.href = `https://wa.me/${phone}?text=${encodedMessage}`;
-    
-    // Show modal
-    const shareModal = document.getElementById('shareModal');
-    if (shareModal) shareModal.classList.add('active');
-  }
-
-  // Close Share Modal
-  function closeShareModal() {
-    const shareModal = document.getElementById('shareModal');
-    if (shareModal) shareModal.classList.remove('active');
-    shareData = null;
-  }
-
   // Copy Share Link
   function copyShareLink() {
     const linkInput = document.getElementById('shareLinkInput');
@@ -3740,10 +3953,17 @@ Terima kasih,
 Admin NEXT Logistics`;
 
     const encodedMessage = encodeURIComponent(message);
-    const phone = shareData.whatsapp ? shareData.whatsapp.replace(/\D/g, '') : '628138796300';
+    const phone = formatWhatsAppNumber(shareData.whatsapp);
     window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
     
     showNotification('Notifikasi WhatsApp dibuka di tab baru', 'success');
+  }
+
+  // Close Share Modal
+  function closeShareModal() {
+    const shareModal = document.getElementById('shareModal');
+    if (shareModal) shareModal.classList.remove('active');
+    shareData = null;
   }
 
   // View Letter
@@ -3806,13 +4026,6 @@ Admin NEXT Logistics`;
     }
   }
 
-  // Generate Share Link from Preview
-  function generateShareLink() {
-    if (selectedData) {
-      generateLink(selectedDocId);
-    }
-  }
-
   // Populate Letter Template
   function populateLetterTemplate(data) {
     // Format tanggal untuk Indonesia
@@ -3856,7 +4069,6 @@ Admin NEXT Logistics`;
     const fieldTempatTanggal = document.getElementById('fieldTempatTanggal');
     const fieldTandaTangan = document.getElementById('fieldTandaTangan');
     const fieldJabatanTTD = document.getElementById('fieldJabatanTTD');
-    const fieldWhatsappFooter = document.getElementById('fieldWhatsappFooter');
     
     if (letterNo) letterNo.textContent = `NO : ${data.noSurat || '02/SK-HRD/NEXT/I/25'}`;
     if (fieldPenandatangan) fieldPenandatangan.textContent = data.namaPenandatangan || settings.defaultPenandatangan;
@@ -3872,7 +4084,6 @@ Admin NEXT Logistics`;
     if (fieldTempatTanggal) fieldTempatTanggal.textContent = `${settings.kotaTandaTangan}, ${formatLetterDate(data.tanggalSurat || new Date())}`;
     if (fieldTandaTangan) fieldTandaTangan.textContent = data.namaPenandatangan || settings.defaultPenandatangan;
     if (fieldJabatanTTD) fieldJabatanTTD.textContent = data.jabatanPenandatangan || settings.defaultJabatan;
-    if (fieldWhatsappFooter) fieldWhatsappFooter.textContent = data.whatsapp || '081383796300';
   }
 
   // Close Preview
@@ -4023,12 +4234,7 @@ Admin NEXT Logistics`;
   // Show All Data (without pagination)
   function showAllData() {
     // Show all filtered data in one page
-    const oldItemsPerPage = itemsPerPage;
-    itemsPerPage = filteredData.length;
-    renderDataTable();
-    itemsPerPage = oldItemsPerPage;
-    
-    showNotification(`Menampilkan semua ${filteredData.length} data`, 'success');
+    loadAllDataWithPagination();
   }
 
   // Refresh Data
@@ -4075,6 +4281,12 @@ Admin NEXT Logistics`;
     itemsPerPage = parseInt(settings.maxData) || 20;
     currentPage = 1;
     
+    // Update page size select
+    const pageSizeSelect = document.getElementById('pageSizeSelect');
+    if (pageSizeSelect) {
+      pageSizeSelect.value = itemsPerPage.toString();
+    }
+    
     // Setup auto refresh
     setupAutoRefresh();
   }
@@ -4117,6 +4329,12 @@ Admin NEXT Logistics`;
     // Update items per page
     itemsPerPage = parseInt(settings.maxData) || 20;
     currentPage = 1;
+    
+    // Update page size select
+    const pageSizeSelect = document.getElementById('pageSizeSelect');
+    if (pageSizeSelect) {
+      pageSizeSelect.value = itemsPerPage.toString();
+    }
     
     if (document.getElementById('tab-data') && document.getElementById('tab-data').classList.contains('active')) {
       renderDataTable();
