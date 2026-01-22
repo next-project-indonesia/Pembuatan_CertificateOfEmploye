@@ -1169,6 +1169,87 @@ body {
 .province-color-7 { background: #c0392b; }
 .province-color-8 { background: #16a085; }
 .province-color-9 { background: #8e44ad; }
+
+/* Share Link Modal */
+.share-link-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.share-link-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    font-family: monospace;
+    margin-bottom: 10px;
+}
+
+.share-link-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.copy-btn {
+    padding: 10px 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.copy-btn:hover {
+    background: #2980b9;
+}
+
+.whatsapp-btn {
+    padding: 10px 20px;
+    background: #25D366;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.whatsapp-btn:hover {
+    background: #128C7E;
+}
+
+.share-info {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff3cd;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+}
+
+.share-info h4 {
+    color: #856404;
+    margin-bottom: 5px;
+}
+
+.share-info p {
+    color: #856404;
+    font-size: 12px;
+    margin: 0;
+}
 </style>
 <body>
 
@@ -1344,6 +1425,71 @@ body {
   </div>
 </div>
 
+<!-- Modal Generate Link -->
+<div class="modal" id="shareModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>🔗 Generate Link Download</h3>
+      <button class="modal-close" onclick="closeShareModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="share-link-container">
+        <h4 style="margin-bottom: 15px; color: #333;">📋 Informasi Data</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+          <div>
+            <small style="color: #888;">Nama</small>
+            <div><strong id="shareNama">-</strong></div>
+          </div>
+          <div>
+            <small style="color: #888;">NIP</small>
+            <div><strong id="shareNIP">-</strong></div>
+          </div>
+          <div>
+            <small style="color: #888;">Nomor KTP</small>
+            <div><strong id="shareKTP">-</strong></div>
+          </div>
+          <div>
+            <small style="color: #888;">Status</small>
+            <div><strong id="shareStatus">-</strong></div>
+          </div>
+        </div>
+        
+        <h4 style="margin-bottom: 10px; color: #333;">🔗 Link Download</h4>
+        <input type="text" id="shareLinkInput" class="share-link-input" readonly value="https://example.com/download-letter.html">
+        
+        <div class="share-link-actions">
+          <button class="copy-btn" onclick="copyShareLink()">
+            📋 Copy Link
+          </button>
+          <a href="#" id="whatsappShareBtn" class="whatsapp-btn" target="_blank">
+            💬 Share via WhatsApp
+          </a>
+        </div>
+        
+        <div class="share-info">
+          <h4>ℹ️ Cara Penggunaan:</h4>
+          <p>1. Copy link di atas atau share via WhatsApp</p>
+          <p>2. User akan diarahkan ke halaman download</p>
+          <p>3. User harus memasukkan nomor KTP untuk verifikasi</p>
+          <p>4. Status akan otomatis berubah menjadi "Selesai" saat user download</p>
+        </div>
+        
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+          <h4 style="margin-bottom: 10px; color: #333;">⚙️ Opsi Tambahan</h4>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-success btn-small" onclick="markAsCompleted()">
+              ✅ Tandai Selesai
+            </button>
+            <button class="btn btn-warning btn-small" onclick="sendWhatsAppNotification()">
+              📱 Kirim Notifikasi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Main Admin Container -->
 <div class="admin-container">
   <!-- Header -->
@@ -1500,6 +1646,47 @@ body {
             </div>
           </div>
         </div>
+
+        <!-- Download Statistics -->
+        <div style="background: white; border-radius: 15px; padding: 25px; margin-top: 30px;">
+          <h3 style="margin-bottom: 20px; color: #333;">📊 Statistik Download</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div class="card">
+              <div class="card-icon">📥</div>
+              <div class="card-title">Total Download</div>
+              <div class="card-value" id="totalDownloads">0</div>
+              <div class="card-change">Hari ini: <span id="todayDownloads">0</span></div>
+            </div>
+            
+            <div class="card">
+              <div class="card-icon">🔗</div>
+              <div class="card-title">Link Dibagikan</div>
+              <div class="card-value" id="totalLinks">0</div>
+              <div class="card-change">Bulan ini: <span id="monthLinks">0</span></div>
+            </div>
+            
+            <div class="card">
+              <div class="card-icon">⏰</div>
+              <div class="card-title">Rata-rata Waktu</div>
+              <div class="card-value" id="avgTime">0h</div>
+              <div class="card-change">Pending ke Selesai</div>
+            </div>
+            
+            <div class="card">
+              <div class="card-icon">📈</div>
+              <div class="card-title">Konversi</div>
+              <div class="card-value" id="conversionRate">0%</div>
+              <div class="card-change">Download/Request</div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 30px;">
+            <h4 style="margin-bottom: 15px; color: #333;">📋 Download Terakhir (7 Hari)</h4>
+            <div id="recentDownloads" style="max-height: 200px; overflow-y: auto;">
+              <p style="text-align: center; color: #666; padding: 20px;">Memuat data download...</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Data List Tab -->
@@ -1553,7 +1740,7 @@ body {
                   <th data-sort="noSurat">No. Surat</th>
                   <th data-sort="tanggalSurat">Tanggal</th>
                   <th data-sort="status">Status</th>
-                  <th>Aksi</th>
+                  <th width="250">Aksi</th>
                 </tr>
               </thead>
               <tbody id="dataTableBody">
@@ -1598,6 +1785,9 @@ body {
               </button>
               <button class="btn btn-warning" onclick="printLetter()">
                 🖨️ Cetak Surat
+              </button>
+              <button class="btn btn-info" onclick="generateShareLink()">
+                🔗 Generate Link
               </button>
               <button class="btn btn-danger" onclick="closePreview()">
                 ✖️ Tutup Preview
@@ -1802,7 +1992,7 @@ body {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
               <div>
                 <small style="color: #888;">Versi Sistem</small>
-                <div><strong>v2.4.0</strong></div>
+                <div><strong>v2.5.0</strong></div>
               </div>
               <div>
                 <small style="color: #888;">Terakhir Update</small>
@@ -1914,6 +2104,9 @@ body {
   // Variables for multi-select
   let selectedIds = new Set();
   let deleteDataToDelete = null;
+  
+  // Variables for share modal
+  let shareData = null;
 
   // Format tanggal Indonesia
   function formatDate(dateString) {
@@ -2057,6 +2250,12 @@ body {
         }
         if (data.updatedAt && data.updatedAt.toDate) {
           data.updatedAt = data.updatedAt.toDate();
+        }
+        if (data.downloadedAt && data.downloadedAt.toDate) {
+          data.downloadedAt = data.downloadedAt.toDate();
+        }
+        if (data.lastDownloadedAt && data.lastDownloadedAt.toDate) {
+          data.lastDownloadedAt = data.lastDownloadedAt.toDate();
         }
         
         allData.push(data);
@@ -2214,6 +2413,24 @@ body {
       // Cek jika jabatan adalah teknisi untuk menampilkan data khusus
       const isTeknisi = data.jabatan && data.jabatan.toLowerCase().includes('teknisi');
       
+      // Hitung waktu dari pending ke completed
+      let processingTime = '-';
+      if (data.status === 'completed' && data.createdAt && data.downloadedAt) {
+        const created = data.createdAt;
+        const downloaded = data.downloadedAt;
+        const diffMs = downloaded - created;
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffDays > 0) {
+          processingTime = `${diffDays} hari`;
+        } else if (diffHours > 0) {
+          processingTime = `${diffHours} jam`;
+        } else {
+          processingTime = '< 1 jam';
+        }
+      }
+      
       row.innerHTML = `
         <td>
           <input type="checkbox" class="data-checkbox" data-id="${data.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelect('${data.id}')" style="width: 18px; height: 18px;">
@@ -2233,20 +2450,24 @@ body {
           <span class="status-badge status-${data.status || 'pending'}">
             ${getStatusText(data.status)}
           </span>
+          ${data.downloadCount ? `<br><small>📥 ${data.downloadCount}x</small>` : ''}
         </td>
         <td>
           <div class="action-buttons">
-            <button class="btn btn-info btn-small" onclick="showDetail('${data.id}')">
-              📋 Detail
+            <button class="btn btn-info btn-small" onclick="showDetail('${data.id}')" title="Detail">
+              📋
             </button>
-            <button class="btn btn-primary btn-small" onclick="viewLetter('${data.id}')">
-              👁️ Surat
+            <button class="btn btn-primary btn-small" onclick="viewLetter('${data.id}')" title="Lihat Surat">
+              👁️
             </button>
-            <button class="btn btn-success btn-small" onclick="editData('${data.id}')">
-              ✏️ Edit
+            <button class="btn btn-warning btn-small" onclick="generateLink('${data.id}')" title="Generate Link">
+              🔗
             </button>
-            <button class="btn btn-danger btn-small" onclick="confirmDeleteData('${data.id}')">
-              🗑️ Hapus
+            <button class="btn btn-success btn-small" onclick="editData('${data.id}')" title="Edit">
+              ✏️
+            </button>
+            <button class="btn btn-danger btn-small" onclick="confirmDeleteData('${data.id}')" title="Hapus">
+              🗑️
             </button>
           </div>
         </td>
@@ -2495,6 +2716,7 @@ body {
           <span class="status-badge status-${data.status || 'pending'}" style="font-size: 10px; padding: 2px 8px;">
             ${getStatusText(data.status)}
           </span>
+          ${data.downloadCount ? `<small style="display: block; color: #666; margin-top: 2px;">📥 ${data.downloadCount}x download</small>` : ''}
         </div>
       `;
       recentList.appendChild(li);
@@ -2505,6 +2727,24 @@ body {
   function showDetail(docId) {
     const data = allData.find(d => d.id === docId);
     if (!data) return;
+    
+    // Hitung waktu processing
+    let processingTime = '-';
+    if (data.status === 'completed' && data.createdAt && data.downloadedAt) {
+      const created = data.createdAt;
+      const downloaded = data.downloadedAt;
+      const diffMs = downloaded - created;
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+      
+      if (diffDays > 0) {
+        processingTime = `${diffDays} hari ${diffHours % 24} jam`;
+      } else if (diffHours > 0) {
+        processingTime = `${diffHours} jam`;
+      } else {
+        processingTime = '< 1 jam';
+      }
+    }
     
     const detailHTML = `
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
@@ -2553,7 +2793,7 @@ body {
         </div>
         
         <div>
-          <h4 style="margin-bottom: 15px; color: #333;">📅 Masa Kerja</h4>
+          <h4 style="margin-bottom: 15px; color: #333;">📅 Masa Kerja & Status</h4>
           <div class="detail-item">
             <strong>Tanggal Mulai:</strong> ${formatDate(data.tanggalMulai)}
           </div>
@@ -2563,10 +2803,21 @@ body {
           <div class="detail-item">
             <strong>Alasan Berhenti:</strong> ${data.alasanBerhenti || '-'}
           </div>
+          <div class="detail-item">
+            <strong>Status:</strong> <span class="status-badge status-${data.status || 'pending'}">
+              ${getStatusText(data.status)}
+            </span>
+          </div>
+          <div class="detail-item">
+            <strong>Waktu Processing:</strong> ${processingTime}
+          </div>
+          <div class="detail-item">
+            <strong>Total Download:</strong> ${data.downloadCount || 0} kali
+          </div>
         </div>
         
         <div>
-          <h4 style="margin-bottom: 15px; color: #333;">📞 Kontak & Status</h4>
+          <h4 style="margin-bottom: 15px; color: #333;">📞 Kontak & Log</h4>
           <div class="detail-item">
             <strong>WhatsApp:</strong> ${formatWhatsAppDisplay(data.whatsapp || '-')}
           </div>
@@ -2574,23 +2825,27 @@ body {
             <strong>Email:</strong> ${data.email || '-'}
           </div>
           <div class="detail-item">
-            <strong>Status:</strong> <span class="status-badge status-${data.status || 'pending'}">
-              ${getStatusText(data.status)}
-            </span>
-          </div>
-          <div class="detail-item">
             <strong>Tanggal Input:</strong> ${formatDate(data.createdAt)}
           </div>
           <div class="detail-item">
             <strong>Terakhir Update:</strong> ${formatDate(data.updatedAt || data.createdAt)}
           </div>
+          <div class="detail-item">
+            <strong>Terakhir Download:</strong> ${data.lastDownloadedAt ? formatDate(data.lastDownloadedAt) : '-'}
+          </div>
+          <div class="detail-item">
+            <strong>Download oleh:</strong> ${data.lastDownloadedBy || '-'}
+          </div>
         </div>
       </div>
       
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-        <div style="display: flex; gap: 15px; justify-content: flex-end;">
+        <div style="display: flex; gap: 15px; justify-content: flex-end; flex-wrap: wrap;">
           <button class="btn btn-primary" onclick="viewLetter('${data.id}')">
             👁️ Lihat Surat
+          </button>
+          <button class="btn btn-info" onclick="generateLink('${data.id}')">
+            🔗 Generate Link
           </button>
           <button class="btn btn-success" onclick="editData('${data.id}')">
             ✏️ Edit Data
@@ -2957,6 +3212,9 @@ body {
         'Data bulan lalu tidak tersedia';
     }
     
+    // Update download statistics
+    updateDownloadStats();
+    
     // Update chart
     updateChart();
     
@@ -2965,6 +3223,90 @@ body {
     
     // Update province stats
     updateProvinceStats();
+  }
+
+  // Update Download Statistics
+  function updateDownloadStats() {
+    // Total downloads
+    const totalDownloads = allData.reduce((sum, data) => sum + (data.downloadCount || 0), 0);
+    
+    // Today's downloads
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayDownloads = allData.filter(d => {
+      const downloadDate = d.lastDownloadedAt ? new Date(d.lastDownloadedAt) : null;
+      if (!downloadDate) return false;
+      downloadDate.setHours(0, 0, 0, 0);
+      return downloadDate.getTime() === today.getTime();
+    }).length;
+    
+    // Average processing time
+    const completedData = allData.filter(d => d.status === 'completed');
+    let totalHours = 0;
+    completedData.forEach(data => {
+      if (data.createdAt && data.downloadedAt) {
+        const diffMs = data.downloadedAt - data.createdAt;
+        totalHours += diffMs / 3600000;
+      }
+    });
+    const avgTime = completedData.length > 0 ? (totalHours / completedData.length).toFixed(1) : 0;
+    
+    // Conversion rate
+    const conversionRate = allData.length > 0 ? ((completed / allData.length) * 100).toFixed(1) : 0;
+    
+    // Update UI
+    document.getElementById('totalDownloads').textContent = totalDownloads;
+    document.getElementById('todayDownloads').textContent = todayDownloads;
+    document.getElementById('avgTime').textContent = `${avgTime}h`;
+    document.getElementById('conversionRate').textContent = `${conversionRate}%`;
+    
+    // Update recent downloads
+    updateRecentDownloads();
+  }
+
+  // Update Recent Downloads
+  function updateRecentDownloads() {
+    const recentDownloads = document.getElementById('recentDownloads');
+    if (!recentDownloads) return;
+    
+    // Get downloads from last 7 days
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const recentData = allData.filter(d => {
+      const downloadDate = d.lastDownloadedAt ? new Date(d.lastDownloadedAt) : null;
+      return downloadDate && downloadDate >= sevenDaysAgo;
+    }).sort((a, b) => {
+      const dateA = a.lastDownloadedAt || new Date(0);
+      const dateB = b.lastDownloadedAt || new Date(0);
+      return dateB - dateA;
+    }).slice(0, 10);
+    
+    if (recentData.length === 0) {
+      recentDownloads.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Belum ada download dalam 7 hari terakhir</p>';
+      return;
+    }
+    
+    let html = '';
+    recentData.forEach(data => {
+      const date = data.lastDownloadedAt ? formatDate(data.lastDownloadedAt) : '-';
+      const time = data.lastDownloadedAt ? new Date(data.lastDownloadedAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-';
+      
+      html += `
+        <div class="activity-item">
+          <div class="activity-icon">📥</div>
+          <div class="activity-content">
+            <strong>${data.namaLengkap || 'Tanpa Nama'}</strong><br>
+            <small style="color: #666;">${data.nip || 'No NIP'} • ${date} ${time}</small>
+            <div style="margin-top: 5px;">
+              <small style="color: #3498db;">Total: ${data.downloadCount || 0}x download</small>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    
+    recentDownloads.innerHTML = html;
   }
 
   // Update Chart
@@ -2980,7 +3322,7 @@ body {
     // Prepare monthly data
     const now = new Date();
     const months = [];
-    const monthData = { pending: [], processed: [], completed: [] };
+    const monthData = { pending: [], processed: [], completed: [], downloads: [] };
     
     // Get last 6 months
     for (let i = 5; i >= 0; i--) {
@@ -2995,9 +3337,14 @@ body {
                dataDate.getFullYear() === date.getFullYear();
       });
       
+      // Count by status
       monthData.pending.push(monthDataFiltered.filter(d => d.status === 'pending').length);
       monthData.processed.push(monthDataFiltered.filter(d => d.status === 'processed').length);
       monthData.completed.push(monthDataFiltered.filter(d => d.status === 'completed').length);
+      
+      // Count downloads
+      const monthDownloads = monthDataFiltered.reduce((sum, d) => sum + (d.downloadCount || 0), 0);
+      monthData.downloads.push(monthDownloads);
     }
     
     // Create new chart
@@ -3026,6 +3373,16 @@ body {
             backgroundColor: '#28a745',
             borderColor: '#28a745',
             borderWidth: 1
+          },
+          {
+            label: 'Downloads',
+            data: monthData.downloads,
+            backgroundColor: '#e74c3c',
+            borderColor: '#e74c3c',
+            borderWidth: 1,
+            type: 'line',
+            fill: false,
+            yAxisID: 'y1'
           }
         ]
       },
@@ -3045,6 +3402,24 @@ body {
             beginAtZero: true,
             ticks: {
               stepSize: 1
+            },
+            title: {
+              display: true,
+              text: 'Jumlah Surat'
+            }
+          },
+          y1: {
+            beginAtZero: true,
+            position: 'right',
+            ticks: {
+              stepSize: 1
+            },
+            title: {
+              display: true,
+              text: 'Jumlah Download'
+            },
+            grid: {
+              drawOnChartArea: false
             }
           }
         }
@@ -3081,6 +3456,7 @@ body {
           <div class="activity-content">
             <strong>${data.namaLengkap || 'Tanpa Nama'}</strong><br>
             <small style="color: #666;">${data.wilayahArea || 'Tidak ada wilayah'} • ${timeAgo}</small>
+            ${data.downloadCount ? `<div style="margin-top: 5px;"><small style="color: #3498db;">📥 ${data.downloadCount}x download</small></div>` : ''}
           </div>
         </div>
       `;
@@ -3235,6 +3611,141 @@ body {
     renderDataTable();
   }
 
+  // Generate Link for User Download
+  function generateLink(docId) {
+    const data = allData.find(d => d.id === docId);
+    if (!data) {
+      showNotification('Data tidak ditemukan', 'error');
+      return;
+    }
+    
+    shareData = data;
+    
+    // Update modal content
+    document.getElementById('shareNama').textContent = data.namaLengkap || '-';
+    document.getElementById('shareNIP').textContent = data.nip || '-';
+    document.getElementById('shareKTP').textContent = formatNomorKTPDisplay(data.nomorKTP || '-');
+    document.getElementById('shareStatus').textContent = getStatusText(data.status);
+    
+    // Generate download link
+    const baseUrl = window.location.origin + window.location.pathname;
+    const downloadUrl = baseUrl.replace('admin.html', 'download-letter.html');
+    const linkInput = document.getElementById('shareLinkInput');
+    linkInput.value = downloadUrl;
+    
+    // Update WhatsApp share button
+    const whatsappBtn = document.getElementById('whatsappShareBtn');
+    const message = `Halo ${data.namaLengkap || 'Karyawan'},
+
+Surat Packlaring Anda sudah siap untuk didownload.
+
+🔗 Link Download: ${downloadUrl}
+
+📋 Informasi:
+- Nama: ${data.namaLengkap || '-'}
+- NIP: ${data.nip || '-'}
+- No. Surat: ${data.noSurat || '-'}
+
+📝 Cara Download:
+1. Buka link di atas
+2. Masukkan nomor KTP: ${data.nomorKTP || '-'}
+3. Download surat dalam format PDF
+
+Jika ada kendala, hubungi Admin di 081383796300.
+
+Terima kasih,
+Admin NEXT Logistics`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const phone = data.whatsapp ? data.whatsapp.replace(/\D/g, '') : '628138796300';
+    whatsappBtn.href = `https://wa.me/${phone}?text=${encodedMessage}`;
+    
+    // Show modal
+    const shareModal = document.getElementById('shareModal');
+    if (shareModal) shareModal.classList.add('active');
+  }
+
+  // Close Share Modal
+  function closeShareModal() {
+    const shareModal = document.getElementById('shareModal');
+    if (shareModal) shareModal.classList.remove('active');
+    shareData = null;
+  }
+
+  // Copy Share Link
+  function copyShareLink() {
+    const linkInput = document.getElementById('shareLinkInput');
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999);
+    
+    try {
+      navigator.clipboard.writeText(linkInput.value);
+      showNotification('Link berhasil disalin ke clipboard!', 'success');
+    } catch (error) {
+      // Fallback for older browsers
+      document.execCommand('copy');
+      showNotification('Link berhasil disalin!', 'success');
+    }
+  }
+
+  // Mark as Completed
+  async function markAsCompleted() {
+    if (!shareData) return;
+    
+    showLoading(true);
+    
+    try {
+      await db.collection('packlaring').doc(shareData.id).update({
+        status: 'completed',
+        downloadedAt: new Date(),
+        downloadedBy: 'Admin',
+        updatedAt: new Date()
+      });
+      
+      showNotification('Status berhasil diubah menjadi Selesai!', 'success');
+      closeShareModal();
+      loadData();
+      
+    } catch (error) {
+      console.error('Error updating status:', error);
+      showNotification('Gagal mengubah status: ' + error.message, 'error');
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  // Send WhatsApp Notification
+  function sendWhatsAppNotification() {
+    if (!shareData) return;
+    
+    const message = `Halo ${shareData.namaLengkap || 'Karyawan'},
+
+Surat Packlaring Anda sudah siap untuk didownload.
+
+🔗 Link Download: ${document.getElementById('shareLinkInput').value}
+
+📋 Informasi:
+- Nama: ${shareData.namaLengkap || '-'}
+- NIP: ${shareData.nip || '-'}
+- No. Surat: ${shareData.noSurat || '-'}
+
+📝 Cara Download:
+1. Buka link di atas
+2. Masukkan nomor KTP: ${shareData.nomorKTP || '-'}
+3. Download surat dalam format PDF
+
+Jika ada kendala, hubungi Admin di 081383796300.
+
+Terima kasih,
+Admin NEXT Logistics`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const phone = shareData.whatsapp ? shareData.whatsapp.replace(/\D/g, '') : '628138796300';
+    window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
+    
+    showNotification('Notifikasi WhatsApp dibuka di tab baru', 'success');
+  }
+
   // View Letter
   async function viewLetter(docId) {
     showLoading(true);
@@ -3292,6 +3803,13 @@ body {
       showNotification('Gagal memuat surat: ' + error.message, 'error');
     } finally {
       showLoading(false);
+    }
+  }
+
+  // Generate Share Link from Preview
+  function generateShareLink() {
+    if (selectedData) {
+      generateLink(selectedDocId);
     }
   }
 
@@ -3408,7 +3926,10 @@ body {
         await db.collection('packlaring').doc(selectedDocId).update({
           status: 'completed',
           downloadedAt: new Date(),
-          downloadedBy: 'Admin'
+          downloadedBy: 'Admin',
+          downloadCount: (selectedData.downloadCount || 0) + 1,
+          lastDownloadedAt: new Date(),
+          lastDownloadedBy: 'Admin'
         });
         
         // Reload data
@@ -3467,7 +3988,10 @@ body {
       'Tujuan Surat': data.tujuanSurat || '',
       'Email': data.email || '',
       'Tanggal Input': formatShortDate(data.createdAt),
-      'Terakhir Update': formatShortDate(data.updatedAt || data.createdAt)
+      'Terakhir Update': formatShortDate(data.updatedAt || data.createdAt),
+      'Total Download': data.downloadCount || 0,
+      'Terakhir Download': data.lastDownloadedAt ? formatShortDate(data.lastDownloadedAt) : '',
+      'Download oleh': data.lastDownloadedBy || ''
     }));
     
     // Create worksheet
@@ -3479,7 +4003,7 @@ body {
       {wch: 15}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 15},
       {wch: 20}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15},
       {wch: 15}, {wch: 20}, {wch: 15}, {wch: 15}, {wch: 25},
-      {wch: 25}, {wch: 15}, {wch: 15}
+      {wch: 25}, {wch: 15}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 15}
     ];
     ws['!cols'] = wscols;
     
@@ -3700,6 +4224,7 @@ body {
         closeModal();
         closeDetailModal();
         closeDeleteModal();
+        closeShareModal();
         closePreview();
       }
       
