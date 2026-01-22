@@ -246,18 +246,36 @@
             box-sizing: border-box;
             position: relative;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            background: url('./template/next2.png');
-            filter: brightness(1.1);
-            background-size: 100% 100%;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: scroll;
-            background-origin: padding-box;
-            background-clip: padding-box;
             font-size: 11pt;
             line-height: 1.5;
             color: #333333;
             display: none; /* Sembunyikan, hanya untuk PDF */
+            
+            /* Background dengan aspect ratio yang benar */
+            background-image: url('./template/next2.png');
+            background-color: white; /* Fallback color */
+            background-size: contain; /* Menjaga aspect ratio */
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: local;
+            background-origin: content-box;
+            background-clip: content-box;
+            
+            /* Overlay untuk brightness */
+            position: relative;
+        }
+
+        /* Overlay untuk brightness */
+        .letter-template-print::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* Template Surat PREVIEW - untuk Tampilan Mobile */
@@ -268,18 +286,43 @@
             padding: 20mm;
             box-sizing: border-box;
             position: relative;
-            background: url('./template/next2.png');
-            filter: brightness(1.1);
-            background-size: 100% 100%;
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-attachment: scroll;
-            background-origin: padding-box;
-            background-clip: padding-box;
             font-size: 11pt;
             line-height: 1.5;
             color: #333333;
             transform-origin: top left;
+            
+            /* Background dengan aspect ratio yang benar */
+            background-image: url('./template/next2.png');
+            background-color: white; /* Fallback color */
+            background-size: contain; /* Menjaga aspect ratio */
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: local;
+            background-origin: content-box;
+            background-clip: content-box;
+            
+            /* Overlay untuk brightness */
+            position: relative;
+        }
+
+        /* Overlay untuk brightness preview */
+        .letter-template-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Konten surat harus di atas overlay */
+        .letter-template-print > *,
+        .letter-template-preview > * {
+            position: relative;
+            z-index: 1;
         }
 
         /* Styling untuk konten surat (sama untuk print dan preview) */
@@ -1376,7 +1419,7 @@
             }
             
             try {
-                // Coba parse tanggal dari string
+                // Coba parse tanggal dari berbagai format
                 let date;
                 
                 // Cek jika dateString adalah timestamp Firebase
