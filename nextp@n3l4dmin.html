@@ -2013,7 +2013,7 @@ body {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
               <div>
                 <small style="color: #888;">Versi Sistem</small>
-                <div><strong>v2.6.0</strong></div>
+                <div><strong>v2.7.0</strong></div>
               </div>
               <div>
                 <small style="color: #888;">Terakhir Update</small>
@@ -2228,7 +2228,7 @@ body {
     }
   }
 
-  // Perbaikan fungsi generateLink
+  // PERBAIKAN BESAR: Fungsi generateLink yang benar dengan link ke download-letter.html
   function generateLink(docId) {
     const data = allData.find(d => d.id === docId);
     if (!data) {
@@ -2244,9 +2244,23 @@ body {
     document.getElementById('shareKTP').textContent = formatNomorKTPDisplay(data.nomorKTP || '-');
     document.getElementById('shareStatus').textContent = getStatusText(data.status);
     
-    // Generate download link dengan parameter ID dan KTP untuk verifikasi
-    const baseUrl = window.location.origin + window.location.pathname;
-    const downloadUrl = `${baseUrl.replace('admin.html', 'download-letter.html')}?id=${docId}&ktp=${data.nomorKTP || ''}`;
+    // FIX: Generate download link yang benar ke download-letter.html
+    // Dapatkan base URL yang benar
+    const currentUrl = window.location.href;
+    let baseUrl = currentUrl;
+    
+    // Jika kita di admin.html, ubah ke download-letter.html
+    if (currentUrl.includes('admin.html')) {
+      baseUrl = currentUrl.replace('admin.html', 'download-letter.html');
+    } else {
+      // Jika tidak, buat URL dasar
+      const url = new URL(currentUrl);
+      url.pathname = url.pathname.replace(/\/[^\/]*$/, '/download-letter.html');
+      baseUrl = url.toString();
+    }
+    
+    // Tambahkan parameter
+    const downloadUrl = `${baseUrl.split('?')[0]}?id=${docId}&ktp=${encodeURIComponent(data.nomorKTP || '')}`;
     
     // Update link input
     const linkInput = document.getElementById('shareLinkInput');
@@ -2256,7 +2270,7 @@ body {
     const userWhatsApp = data.whatsapp || '';
     const formattedUserPhone = formatWhatsAppNumber(userWhatsApp);
     
-    // Update WhatsApp share button untuk user
+    // Update WhatsApp share button untuk user dengan pesan yang benar
     const whatsappBtn = document.getElementById('whatsappShareBtn');
     const message = `Halo ${data.namaLengkap || 'Karyawan'},
 
@@ -2298,8 +2312,19 @@ Admin NEXT Cargo Logistics`;
   function sendToAdminWhatsApp() {
     if (!shareData) return;
     
-    const baseUrl = window.location.origin + window.location.pathname;
-    const downloadUrl = `${baseUrl.replace('admin.html', 'download-letter.html')}?id=${shareData.id}&ktp=${shareData.nomorKTP || ''}`;
+    // Dapatkan link yang sama seperti di atas
+    const currentUrl = window.location.href;
+    let baseUrl = currentUrl;
+    
+    if (currentUrl.includes('admin.html')) {
+      baseUrl = currentUrl.replace('admin.html', 'download-letter.html');
+    } else {
+      const url = new URL(currentUrl);
+      url.pathname = url.pathname.replace(/\/[^\/]*$/, '/download-letter.html');
+      baseUrl = url.toString();
+    }
+    
+    const downloadUrl = `${baseUrl.split('?')[0]}?id=${shareData.id}&ktp=${encodeURIComponent(shareData.nomorKTP || '')}`;
     
     const message = `📋 *LINK PACKLARING UNTUK USER*
 
@@ -2329,8 +2354,19 @@ ${downloadUrl}
   function sendTestLink() {
     if (!shareData) return;
     
-    const baseUrl = window.location.origin + window.location.pathname;
-    const downloadUrl = `${baseUrl.replace('admin.html', 'download-letter.html')}?id=${shareData.id}&ktp=${shareData.nomorKTP || ''}`;
+    // Dapatkan link yang sama
+    const currentUrl = window.location.href;
+    let baseUrl = currentUrl;
+    
+    if (currentUrl.includes('admin.html')) {
+      baseUrl = currentUrl.replace('admin.html', 'download-letter.html');
+    } else {
+      const url = new URL(currentUrl);
+      url.pathname = url.pathname.replace(/\/[^\/]*$/, '/download-letter.html');
+      baseUrl = url.toString();
+    }
+    
+    const downloadUrl = `${baseUrl.split('?')[0]}?id=${shareData.id}&ktp=${encodeURIComponent(shareData.nomorKTP || '')}`;
     
     // Buka link di tab baru untuk testing
     window.open(downloadUrl, '_blank');
@@ -2425,7 +2461,7 @@ ${downloadUrl}
     return wa;
   }
 
-  // Tab Navigation
+  // Tab Navigation - DIPERBAIKI untuk memanggil updateDashboard()
   function showTab(tabName) {
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(content => {
@@ -2445,7 +2481,11 @@ ${downloadUrl}
     
     // Load data if needed
     if (tabName === 'dashboard') {
-      updateDashboard();
+      // PASTIKAN dashboard diupdate
+      setTimeout(() => {
+        updateDashboard();
+        updateChart(); // Tambahkan ini untuk memastikan chart terupdate
+      }, 100);
     } else if (tabName === 'data') {
       renderDataTable();
     } else if (tabName === 'settings') {
@@ -2503,7 +2543,7 @@ ${downloadUrl}
     }
   }
 
-  // Load Data from Firebase (default dengan pagination)
+  // Load Data from Firebase (default dengan pagination) - DIPERBAIKI untuk update dashboard
   async function loadData() {
     showLoading(true);
     
@@ -2542,9 +2582,13 @@ ${downloadUrl}
       renderDataTable();
       updateStats();
       updateRecentList();
-      updateDashboard();
-      updateSystemInfo();
-      updateFirebaseStorageInfo();
+      
+      // PASTIKAN dashboard diupdate setelah data dimuat
+      setTimeout(() => {
+        updateDashboard();
+        updateSystemInfo();
+        updateFirebaseStorageInfo();
+      }, 100);
       
       const connectionStatus = document.getElementById('connectionStatus');
       if (connectionStatus) connectionStatus.textContent = '✅ Terhubung';
@@ -3426,12 +3470,32 @@ ${downloadUrl}
     );
   }
 
-  // Update Dashboard
+  // PERBAIKAN BESAR: Fungsi updateDashboard yang benar
   function updateDashboard() {
+    console.log('updateDashboard dipanggil, total data:', allData.length);
+    
     // Update card values
     const total = allData.length;
     const pending = allData.filter(d => d.status === 'pending').length;
     const completed = allData.filter(d => d.status === 'completed').length;
+    
+    // Update basic stats di header
+    const totalDataElement = document.getElementById('totalData');
+    const pendingDataElement = document.getElementById('pendingData');
+    const completedDataElement = document.getElementById('completedData');
+    
+    if (totalDataElement) totalDataElement.textContent = total;
+    if (pendingDataElement) pendingDataElement.textContent = pending;
+    if (completedDataElement) completedDataElement.textContent = completed;
+    
+    // Update dashboard cards
+    const cardTotal = document.getElementById('cardTotal');
+    const cardPending = document.getElementById('cardPending');
+    const cardCompleted = document.getElementById('cardCompleted');
+    
+    if (cardTotal) cardTotal.textContent = total;
+    if (cardPending) cardPending.textContent = pending;
+    if (cardCompleted) cardCompleted.textContent = completed;
     
     // This month data
     const now = new Date();
@@ -3439,6 +3503,7 @@ ${downloadUrl}
     const thisYear = now.getFullYear();
     const thisMonthData = allData.filter(d => {
       const date = d.tanggalSurat ? new Date(d.tanggalSurat) : d.createdAt;
+      if (!date) return false;
       return date.getMonth() === thisMonth && date.getFullYear() === thisYear;
     });
     
@@ -3447,56 +3512,52 @@ ${downloadUrl}
     const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
     const lastMonthData = allData.filter(d => {
       const date = d.tanggalSurat ? new Date(d.tanggalSurat) : d.createdAt;
+      if (!date) return false;
       return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
     });
     
     // Calculate changes
     const totalChange = lastMonthData.length > 0 ? 
       (((thisMonthData.length - lastMonthData.length) / lastMonthData.length) * 100).toFixed(1) : 0;
-    const completedChange = allData.length > 0 ? 
-      ((completed / allData.length) * 100).toFixed(1) : 0;
+    const completedChange = total > 0 ? 
+      ((completed / total) * 100).toFixed(1) : 0;
     
-    // Update cards
-    const cardTotal = document.getElementById('cardTotal');
-    const cardPending = document.getElementById('cardPending');
-    const cardCompleted = document.getElementById('cardCompleted');
-    const cardThisMonth = document.getElementById('cardThisMonth');
+    // Update change cards
     const cardChange = document.getElementById('cardChange');
     const cardCompletedChange = document.getElementById('cardCompletedChange');
-    const cardMonthChange = document.getElementById('cardMonthChange');
-    
-    if (cardTotal) cardTotal.textContent = total;
-    if (cardPending) cardPending.textContent = pending;
-    if (cardCompleted) cardCompleted.textContent = completed;
-    if (cardThisMonth) cardThisMonth.textContent = thisMonthData.length;
     
     if (cardChange) {
-      cardChange.textContent = 
-        `${totalChange >= 0 ? '+' : ''}${totalChange}% dari bulan lalu`;
-      cardChange.className = 
-        `card-change ${totalChange >= 0 ? '' : 'negative'}`;
+      const changeSign = totalChange >= 0 ? '+' : '';
+      cardChange.textContent = `${changeSign}${totalChange}% dari bulan lalu`;
+      cardChange.className = `card-change ${totalChange >= 0 ? '' : 'negative'}`;
     }
     
-    if (cardCompletedChange) cardCompletedChange.textContent = `${completedChange}% selesai`;
-    
-    if (cardMonthChange) {
-      cardMonthChange.textContent = 
-        lastMonthData.length > 0 ? 
-        `+${(thisMonthData.length - lastMonthData.length)} dari bulan lalu` : 
-        'Data bulan lalu tidak tersedia';
+    if (cardCompletedChange) {
+      cardCompletedChange.textContent = `${completedChange}% selesai`;
     }
     
     // Update download statistics
     updateDownloadStats();
     
-    // Update chart
-    updateChart();
+    // Update chart jika chart container ada
+    const chartContainer = document.getElementById('chartContainer');
+    if (chartContainer && chartContainer.offsetParent !== null) {
+      updateChart();
+    }
     
-    // Update activity list
-    updateActivityList();
+    // Update activity list jika elemen ada
+    const activityList = document.getElementById('activityList');
+    if (activityList) {
+      updateActivityList();
+    }
     
-    // Update province stats
-    updateProvinceStats();
+    // Update province stats jika elemen ada
+    const provinceStats = document.getElementById('provinceStats');
+    if (provinceStats) {
+      updateProvinceStats();
+    }
+    
+    console.log('Dashboard updated successfully');
   }
 
   // Update Download Statistics
@@ -3517,22 +3578,31 @@ ${downloadUrl}
     // Average processing time
     const completedData = allData.filter(d => d.status === 'completed');
     let totalHours = 0;
+    let countWithTime = 0;
+    
     completedData.forEach(data => {
       if (data.createdAt && data.downloadedAt) {
         const diffMs = data.downloadedAt - data.createdAt;
         totalHours += diffMs / 3600000;
+        countWithTime++;
       }
     });
-    const avgTime = completedData.length > 0 ? (totalHours / completedData.length).toFixed(1) : 0;
+    
+    const avgTime = countWithTime > 0 ? (totalHours / countWithTime).toFixed(1) : 0;
     
     // Conversion rate
-    const conversionRate = allData.length > 0 ? ((completed / allData.length) * 100).toFixed(1) : 0;
+    const conversionRate = allData.length > 0 ? ((completedData.length / allData.length) * 100).toFixed(1) : 0;
     
-    // Update UI
-    document.getElementById('totalDownloads').textContent = totalDownloads;
-    document.getElementById('todayDownloads').textContent = todayDownloads;
-    document.getElementById('avgTime').textContent = `${avgTime}h`;
-    document.getElementById('conversionRate').textContent = `${conversionRate}%`;
+    // Update UI jika elemen ada
+    const totalDownloadsEl = document.getElementById('totalDownloads');
+    const todayDownloadsEl = document.getElementById('todayDownloads');
+    const avgTimeEl = document.getElementById('avgTime');
+    const conversionRateEl = document.getElementById('conversionRate');
+    
+    if (totalDownloadsEl) totalDownloadsEl.textContent = totalDownloads;
+    if (todayDownloadsEl) todayDownloadsEl.textContent = todayDownloads;
+    if (avgTimeEl) avgTimeEl.textContent = `${avgTime}h`;
+    if (conversionRateEl) conversionRateEl.textContent = `${conversionRate}%`;
     
     // Update recent downloads
     updateRecentDownloads();
@@ -3607,6 +3677,7 @@ ${downloadUrl}
       // Filter data for this month
       const monthDataFiltered = allData.filter(d => {
         const dataDate = d.tanggalSurat ? new Date(d.tanggalSurat) : d.createdAt;
+        if (!dataDate) return false;
         return dataDate.getMonth() === date.getMonth() && 
                dataDate.getFullYear() === date.getFullYear();
       });
@@ -3622,83 +3693,87 @@ ${downloadUrl}
     }
     
     // Create new chart
-    statsChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: months,
-        datasets: [
-          {
-            label: 'Pending',
-            data: monthData.pending,
-            backgroundColor: '#ffc107',
-            borderColor: '#ffc107',
-            borderWidth: 1
-          },
-          {
-            label: 'Diproses',
-            data: monthData.processed,
-            backgroundColor: '#17a2b8',
-            borderColor: '#17a2b8',
-            borderWidth: 1
-          },
-          {
-            label: 'Selesai',
-            data: monthData.completed,
-            backgroundColor: '#28a745',
-            borderColor: '#28a745',
-            borderWidth: 1
-          },
-          {
-            label: 'Downloads',
-            data: monthData.downloads,
-            backgroundColor: '#e74c3c',
-            borderColor: '#e74c3c',
-            borderWidth: 1,
-            type: 'line',
-            fill: false,
-            yAxisID: 'y1'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'top',
-          },
-          title: {
-            display: true,
-            text: 'Statistik Packlaring 6 Bulan Terakhir'
-          }
+    try {
+      statsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: months,
+          datasets: [
+            {
+              label: 'Pending',
+              data: monthData.pending,
+              backgroundColor: '#ffc107',
+              borderColor: '#ffc107',
+              borderWidth: 1
+            },
+            {
+              label: 'Diproses',
+              data: monthData.processed,
+              backgroundColor: '#17a2b8',
+              borderColor: '#17a2b8',
+              borderWidth: 1
+            },
+            {
+              label: 'Selesai',
+              data: monthData.completed,
+              backgroundColor: '#28a745',
+              borderColor: '#28a745',
+              borderWidth: 1
+            },
+            {
+              label: 'Downloads',
+              data: monthData.downloads,
+              backgroundColor: '#e74c3c',
+              borderColor: '#e74c3c',
+              borderWidth: 1,
+              type: 'line',
+              fill: false,
+              yAxisID: 'y1'
+            }
+          ]
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              stepSize: 1
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
             },
             title: {
               display: true,
-              text: 'Jumlah Surat'
+              text: 'Statistik Packlaring 6 Bulan Terakhir'
             }
           },
-          y1: {
-            beginAtZero: true,
-            position: 'right',
-            ticks: {
-              stepSize: 1
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              },
+              title: {
+                display: true,
+                text: 'Jumlah Surat'
+              }
             },
-            title: {
-              display: true,
-              text: 'Jumlah Download'
-            },
-            grid: {
-              drawOnChartArea: false
+            y1: {
+              beginAtZero: true,
+              position: 'right',
+              ticks: {
+                stepSize: 1
+              },
+              title: {
+                display: true,
+                text: 'Jumlah Download'
+              },
+              grid: {
+                drawOnChartArea: false
+              }
             }
           }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error('Error creating chart:', error);
+    }
   }
 
   // Update Activity List
@@ -3708,8 +3783,8 @@ ${downloadUrl}
     
     // Sort by date (newest first) and take 10
     const sortedData = [...allData].sort((a, b) => {
-      const dateA = a.updatedAt || a.createdAt;
-      const dateB = b.updatedAt || b.createdAt;
+      const dateA = a.updatedAt || a.createdAt || new Date(0);
+      const dateB = b.updatedAt || b.createdAt || new Date(0);
       return dateB - dateA;
     }).slice(0, 10);
     
@@ -3786,7 +3861,7 @@ ${downloadUrl}
     let provinceHTML = '';
     
     sortedProvinces.forEach(([province, count], index) => {
-      const percentage = ((count / totalData) * 100).toFixed(1);
+      const percentage = totalData > 0 ? ((count / totalData) * 100).toFixed(1) : 0;
       const colorClass = `province-color-${index % 10}`;
       const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
       
@@ -3834,7 +3909,7 @@ ${downloadUrl}
       // Filter by month
       if (bulanFilter !== 'all') {
         const date = data.tanggalSurat ? new Date(data.tanggalSurat) : data.createdAt;
-        if (date && (date.getMonth() + 1) !== parseInt(bulanFilter)) {
+        if (!date || (date.getMonth() + 1) !== parseInt(bulanFilter)) {
           return false;
         }
       }
@@ -3843,7 +3918,7 @@ ${downloadUrl}
       if (dariFilter) {
         const dariDate = new Date(dariFilter);
         const dataDate = data.tanggalSurat ? new Date(data.tanggalSurat) : data.createdAt;
-        if (dataDate && dataDate < dariDate) {
+        if (!dataDate || dataDate < dariDate) {
           return false;
         }
       }
@@ -3852,7 +3927,7 @@ ${downloadUrl}
         const sampaiDate = new Date(sampaiFilter);
         sampaiDate.setHours(23, 59, 59);
         const dataDate = data.tanggalSurat ? new Date(data.tanggalSurat) : data.createdAt;
-        if (dataDate && dataDate > sampaiDate) {
+        if (!dataDate || dataDate > sampaiDate) {
           return false;
         }
       }
@@ -3931,11 +4006,25 @@ ${downloadUrl}
   function sendWhatsAppNotification() {
     if (!shareData) return;
     
+    // Gunakan link yang sama seperti di generateLink
+    const currentUrl = window.location.href;
+    let baseUrl = currentUrl;
+    
+    if (currentUrl.includes('admin.html')) {
+      baseUrl = currentUrl.replace('admin.html', 'download-letter.html');
+    } else {
+      const url = new URL(currentUrl);
+      url.pathname = url.pathname.replace(/\/[^\/]*$/, '/download-letter.html');
+      baseUrl = url.toString();
+    }
+    
+    const downloadUrl = `${baseUrl.split('?')[0]}?id=${shareData.id}&ktp=${encodeURIComponent(shareData.nomorKTP || '')}`;
+    
     const message = `Halo ${shareData.namaLengkap || 'Karyawan'},
 
 Surat Packlaring Anda sudah siap untuk didownload.
 
-🔗 Link Download: ${document.getElementById('shareLinkInput').value}
+🔗 Link Download: ${downloadUrl}
 
 📋 Informasi:
 - Nama: ${shareData.namaLengkap || '-'}
@@ -4388,7 +4477,7 @@ Admin NEXT Logistics`;
     }
   }
 
-  // Initialize Admin Panel
+  // Initialize Admin Panel - DIPERBAIKI untuk auto update dashboard
   document.addEventListener('DOMContentLoaded', function() {
     // Set default dates for filter
     const today = new Date();
@@ -4421,6 +4510,14 @@ Admin NEXT Logistics`;
     
     // Setup auto refresh
     setupAutoRefresh();
+    
+    // Auto update dashboard setiap 10 detik jika di tab dashboard
+    setInterval(() => {
+      const dashboardTab = document.getElementById('tab-dashboard');
+      if (dashboardTab && dashboardTab.classList.contains('active')) {
+        updateDashboard();
+      }
+    }, 10000);
     
     // Add keyboard shortcuts
     document.addEventListener('keydown', function(e) {
