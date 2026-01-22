@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Download Surat Packlaring - NEXT Logistics</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <!-- jsPDF untuk download PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- html2canvas untuk konversi ke gambar -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #1a237e 0%, #311b92 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #f7a01e 70%, #f10707 100%);
+            color: white;
+            padding: 25px 40px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .title h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .title p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        /* Content */
+        .content {
+            padding: 40px;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .search-title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .search-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .help-text {
+            display: block;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Letter Container */
+        .letter-container {
+            display: none;
+            background: #f5f5f5;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .letter-container.active {
+            display: block;
+        }
+
+        .letter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .letter-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .letter-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Template Styling */
+        .letter-template {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 20mm;
+            box-sizing: border-box;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            background: url('next2.png');
+            filter: brightness(1.1);
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #333333;
+        }
+
+        .letter-title {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0 0 0.1cm 0;
+            text-transform: uppercase;
+            color: #000000;
+            line-height: 1;
+        }
+
+        .letter-title:nth-of-type(2) {
+            font-size: 12pt;
+            margin-bottom: 0.1cm;
+        }
+
+        .letter-no {
+            text-align: center;
+            font-size: 10pt;
+            margin-bottom: 0.8cm;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .letter-data-section {
+            margin-bottom: 0.2cm;
+        }
+
+        .data-row {
+            display: flex;
+            margin-bottom: 3px;
+            align-items: flex-start;
+            min-height: 22px;
+        }
+
+        .data-label {
+            width: 35%;
+            font-weight: bold;
+            padding-right: 10px;
+            white-space: nowrap;
+            font-size: 11pt;
+        }
+
+        .data-value {
+            width: 65%;
+            padding-bottom: 2px;
+            border-bottom: 1px dotted #777;
+            min-height: 1.2em;
+            font-size: 11pt;
+        }
+
+        .letter-statement {
+            text-align: justify;
+            margin: 0.4cm 0;
+            text-indent: 40px;
+            line-height: 1.5;
+            font-size: 11pt;
+        }
+
+        .letter-statement-field {
+            margin-top: 1cm;
+            padding-bottom: 2px;
+            text-align: center;
+        }
+
+        .letter-date-place {
+            margin-top: 1cm;
+            text-align: left;
+            margin-bottom: 0;
+            font-size: 11pt;
+        }
+
+        .letter-signature {
+            text-align: left;
+            margin-top: 0.1cm;
+            font-size: 12pt;
+        }
+
+        .letter-signature-name {
+            margin-top: 3cm;
+            text-decoration: underline;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #219653;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(39, 174, 96, 0.2);
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        /* Error Message */
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: #e67e22;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .letter-template {
+                width: 100%;
+                padding: 1.5cm;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 20px;
+            }
+
+            .search-section {
+                padding: 20px;
+            }
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .info-box h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            color: #0c5460;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="index.html" class="back-button">
+        ← Kembali ke Form
+    </a>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="color: #3498db; font-weight: 600; margin-top: 10px;">Memproses...</p>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">NEXT</div>
+            <div class="title">
+                <h1>DOWNLOAD SURAT PACKLARING</h1>
+                <p>NEXT Cargo Logistics • Packlaring Certificate Download</p>
+                <div class="badge">Karyawan & Teknisi</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Search Section -->
+            <div class="search-section">
+                <h2 class="search-title">🔍 Cari Data Packlaring</h2>
+                <div class="search-box">
+                    <input type="text" 
+                           id="ktpInput" 
+                           class="search-input" 
+                           placeholder="MASUKKAN NOMOR KTP (16 digit)"
+                           maxlength="19"
+                           oninput="formatKTPInput(this)">
+                    
+                    <button class="search-btn" onclick="searchData()">
+                        🔎 Cari dan Download Surat
+                    </button>
+                    
+                    <span class="help-text">
+                        Masukkan 16 digit nomor KTP yang sudah terdaftar untuk mendownload surat
+                    </span>
+                    
+                    <div class="error-message" id="errorMessage"></div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="info-box">
+                    <h4>📋 Informasi Penting:</h4>
+                    <p>• Pastikan Anda sudah mengisi form packlaring sebelumnya</p>
+                    <p>• Masukkan nomor KTP yang sama dengan yang didaftarkan</p>
+                    <p>• Surat hanya dapat didownload jika status sudah "Selesai"</p>
+                    <p>• Hubungi Admin jika mengalami kendala: 081383796300</p>
+                </div>
+            </div>
+
+            <!-- Letter Container -->
+            <div class="letter-container" id="letterContainer">
+                <div class="letter-header">
+                    <div class="letter-info">
+                        <h3 id="letterTitle">Surat Packlaring</h3>
+                        <p id="letterSubtitle">
+                            <span id="letterNIP">NIP: -</span> • 
+                            <span id="letterWhatsapp">WhatsApp: -</span> • 
+                            <span id="letterDate">Tanggal: -</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Template Surat -->
+                <div id="letterTemplate" class="letter-template">
+                    <div class="letter-title">SURAT KETERANGAN KERJA</div>
+                    <div class="letter-title">CERTIFICATE OF EMPLOYMENT</div>
+                    <div class="letter-no" id="letterNo">
+                        NO : 02/SK-HRD/NEXT/I/25
+                    </div>
+
+                    <div class="letter-statement">
+                        Yang bertanda tangan di bawah ini:<br>
+                        <em>The undersigned below:</em>
+                    </div>
+
+                    <div class="letter-data-section">
+                        <div class="data-row">
+                            <div class="data-label">Nama</div>
+                            <div class="data-value">: <span id="fieldPenandatangan">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Jabatan</div>
+                            <div class="data-value">: <span id="fieldJabatanPenandatangan">..............................................................</span></div>
+                        </div>
+                    </div>
+
+                    <div class="letter-statement" style="margin-top:0.6cm;">
+                        Dengan ini menerangkan bahwa:<br>
+                        <em>Hereby certifies that:</em>
+                    </div>
+
+                    <div class="letter-data-section">
+                        <div class="data-row">
+                            <div class="data-label">Nama Lengkap</div>
+                            <div class="data-value">: <span id="fieldNamaLengkap">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Tempat/Tgl Lahir</div>
+                            <div class="data-value">: <span id="fieldTTL">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Jabatan Terakhir</div>
+                            <div class="data-value">: <span id="fieldJabatan">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Nomor Identitas</div>
+                            <div class="data-value">: <span id="fieldNIP">..............................................................</span></div>
+                        </div>
+                    </div>
+
+                    <div class="letter-statement" style="margin-top:0.6cm;">
+                        Adalah benar pernah bekerja di perusahaan kami sejak:<br>
+                        <em>Was employed at our company starting from:</em>
+                    </div>
+
+                    <div class="letter-data-section">
+                        <div class="data-row">
+                            <div class="data-label">Start Contract</div>
+                            <div class="data-value">: <span id="fieldTanggalMasuk">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">End Contract</div>
+                            <div class="data-value">: <span id="fieldTanggalKeluar">..............................................................</span></div>
+                        </div>
+                    </div>
+
+                    <div class="letter-statement-field">
+                        Alasan berhenti kerja : <span id="fieldAlasanBerhenti">Mengundurkan diri secara baik-baik / kontrak kerja berakhir</span><br>
+                        <em>Reason for leaving : <span id="fieldAlasanBerhentiEn">Resigned in good standing / end of contract</span></em>
+                    </div>
+
+                    <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
+                        Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.
+                    </div>
+
+                    <div class="letter-date-place" id="fieldTempatTanggal">
+                        Bekasi, 1 Desember 2025
+                    </div>
+
+                    <div class="letter-signature">
+                        Hormat kami,<br>
+                        <em>Sincerely,</em><br>
+
+                        <div class="letter-signature-name" id="fieldTandaTangan">M. Fajrian Noor</div>
+                        <span id="fieldJabatanTTD">Direktur</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="downloadPDF()">
+                        📥 Download PDF
+                    </button>
+                    <button class="btn btn-primary" onclick="printLetter()">
+                        🖨️ Cetak Surat
+                    </button>
+                    <button class="btn btn-warning" onclick="searchAnother()">
+                        🔍 Cari Lagi
+                    </button>
+                </div>
+
+                <!-- Data Info -->
+                <div style="margin-top: 30px; padding: 20px; background: white; border-radius: 12px;">
+                    <h4>📋 Informasi Data:</h4>
+                    <div id="dataInfo" style="margin-top: 10px;">
+                        <!-- Data info akan ditampilkan di sini -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAEvDR-h0hkgs1xAawra7u3jo9Sc3lCbpo",
+            authDomain: "next-packlaring.firebaseapp.com",
+            projectId: "next-packlaring",
+            storageBucket: "next-packlaring.firebasestorage.app",
+            messagingSenderId: "400584486436",
+            appId: "1:400584486436:web:99067d2c6dc6d87ef7b2b1",
+            measurementId: "G-KRFXBYN663"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const analytics = firebase.analytics();
+
+        // Global Variables
+        let currentData = null;
+
+        // Format KTP Input
+        function formatKTPInput(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = value.substring(0, 16);
+            
+            let formattedValue = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += '-';
+                }
+                formattedValue += value[i];
+            }
+            
+            input.value = formattedValue;
+        }
+
+        // Validate KTP
+        function validateKTP(ktp) {
+            const cleanKTP = ktp.replace(/\D/g, '');
+            if (cleanKTP.length !== 16) {
+                return false;
+            }
+            if (!/^\d+$/.test(cleanKTP)) {
+                return false;
+            }
+            return true;
+        }
+
+        // Show Loading
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
+        // Show Error
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('active');
+        }
+
+        // Hide Error
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.classList.remove('active');
+        }
+
+        // Search Data
+        async function searchData() {
+            const ktpInput = document.getElementById('ktpInput');
+            const ktpValue = ktpInput.value.trim();
+            
+            // Reset
+            hideError();
+            document.getElementById('letterContainer').classList.remove('active');
+            
+            // Validate
+            if (!ktpValue) {
+                showError('Silakan masukkan nomor KTP');
+                return;
+            }
+            
+            if (!validateKTP(ktpValue)) {
+                showError('Nomor KTP harus 16 digit angka');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Search in Firestore
+                const snapshot = await db.collection('packlaring')
+                    .where('nomorKTP', '==', ktpValue.toUpperCase())
+                    .limit(1)
+                    .get();
+                
+                if (snapshot.empty) {
+                    showLoading(false);
+                    showError('Data tidak ditemukan. Pastikan nomor KTP sudah terdaftar.');
+                    return;
+                }
+                
+                const doc = snapshot.docs[0];
+                currentData = doc.data();
+                currentData.id = doc.id;
+                
+                // Convert timestamps
+                if (currentData.createdAt && currentData.createdAt.toDate) {
+                    currentData.createdAt = currentData.createdAt.toDate();
+                }
+                if (currentData.updatedAt && currentData.updatedAt.toDate) {
+                    currentData.updatedAt = currentData.updatedAt.toDate();
+                }
+                
+                // Check status
+                if (currentData.status !== 'completed') {
+                    showLoading(false);
+                    showError(`Status surat masih "${getStatusText(currentData.status)}". Silakan hubungi Admin.`);
+                    return;
+                }
+                
+                // Update letter info
+                updateLetterInfo();
+                
+                // Populate letter template
+                populateLetterTemplate();
+                
+                // Show letter container
+                document.getElementById('letterContainer').classList.add('active');
+                
+                // Scroll to letter
+                document.getElementById('letterContainer').scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // Log analytics
+                analytics.logEvent('download_letter_searched', {
+                    ktp: ktpValue,
+                    nama: currentData.namaLengkap,
+                    status: currentData.status
+                });
+                
+            } catch (error) {
+                console.error('Error searching data:', error);
+                showError('Terjadi kesalahan saat mencari data: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Get Status Text
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': '⏳ Pending',
+                'processed': '🔄 Diproses',
+                'completed': '✅ Selesai'
+            };
+            return statusMap[status] || '⏳ Pending';
+        }
+
+        // Format Date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+        // Format WhatsApp
+        function formatWhatsApp(wa) {
+            if (!wa || wa === '-') return '-';
+            const cleanWA = wa.replace(/\D/g, '');
+            if (cleanWA.length < 10) return wa;
+            
+            if (cleanWA.startsWith('62')) {
+                return `+62 ${cleanWA.substring(2, 5)}-${cleanWA.substring(5, 9)}-${cleanWA.substring(9)}`;
+            } else if (cleanWA.startsWith('0')) {
+                return `0${cleanWA.substring(1, 5)}-${cleanWA.substring(5, 9)}-${cleanWA.substring(9)}`;
+            }
+            return wa;
+        }
+
+        // Update Letter Info
+        function updateLetterInfo() {
+            document.getElementById('letterTitle').textContent = 
+                `Surat Packlaring - ${currentData.namaLengkap || 'Tidak Ada Nama'}`;
+            
+            document.getElementById('letterNIP').textContent = `NIP: ${currentData.nip || '-'}`;
+            document.getElementById('letterWhatsapp').textContent = 
+                `WhatsApp: ${formatWhatsApp(currentData.whatsapp || '-')}`;
+            document.getElementById('letterDate').textContent = 
+                `Tanggal: ${formatDate(currentData.tanggalSurat)}`;
+            
+            // Update data info
+            const dataInfo = document.getElementById('dataInfo');
+            dataInfo.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div>
+                        <small style="color: #888;">Nomor Surat</small>
+                        <div><strong>${currentData.noSurat || '-'}</strong></div>
+                    </div>
+                    <div>
+                        <small style="color: #888;">Jabatan</small>
+                        <div><strong>${currentData.jabatan || '-'}</strong></div>
+                    </div>
+                    <div>
+                        <small style="color: #888;">Wilayah</small>
+                        <div><strong>${currentData.wilayahArea || '-'}</strong></div>
+                    </div>
+                    <div>
+                        <small style="color: #888;">Status</small>
+                        <div><strong>${getStatusText(currentData.status)}</strong></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Populate Letter Template
+        function populateLetterTemplate() {
+            // Format tanggal untuk Indonesia
+            function formatLetterDate(dateString) {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
+            }
+            
+            // Format TTL
+            const tempatLahir = currentData.tempatLahir || '-';
+            const tglLahir = currentData.tanggalLahir ? formatLetterDate(currentData.tanggalLahir) : '-';
+            
+            // Format alasan berhenti dalam dua bahasa
+            const alasanBerhentiMap = {
+                'KONTRAK BERAKHIR': { id: 'Kontrak kerja berakhir', en: 'End of contract' },
+                'PHK': { id: 'Pemutusan Hubungan Kerja', en: 'Termination of employment' },
+                'PENGUNDURAN DIRI': { id: 'Mengundurkan diri secara baik-baik', en: 'Resigned in good standing' },
+                'PENSIUN': { id: 'Pensiun', en: 'Retirement' },
+                'MENINGGAL DUNIA': { id: 'Meninggal dunia', en: 'Deceased' }
+            };
+            
+            const alasanBerhenti = alasanBerhentiMap[currentData.alasanBerhenti] || 
+                                  { id: currentData.alasanBerhenti || 'Kontrak kerja berakhir', 
+                                    en: currentData.alasanBerhenti || 'End of contract' };
+            
+            // Settings
+            const settings = {
+                kotaTandaTangan: 'Bekasi',
+                defaultPenandatangan: 'M. Fajrian Noor',
+                defaultJabatan: 'Direktur'
+            };
+            
+            // Load from localStorage if available
+            const savedSettings = localStorage.getItem('packlaringAdminSettings');
+            if (savedSettings) {
+                const adminSettings = JSON.parse(savedSettings);
+                if (adminSettings.kotaTandaTangan) settings.kotaTandaTangan = adminSettings.kotaTandaTangan;
+                if (adminSettings.defaultPenandatangan) settings.defaultPenandatangan = adminSettings.defaultPenandatangan;
+                if (adminSettings.defaultJabatan) settings.defaultJabatan = adminSettings.defaultJabatan;
+            }
+            
+            // Set values
+            document.getElementById('letterNo').textContent = `NO : ${currentData.noSurat || '02/SK-HRD/NEXT/I/25'}`;
+            document.getElementById('fieldPenandatangan').textContent = currentData.namaPenandatangan || settings.defaultPenandatangan;
+            document.getElementById('fieldJabatanPenandatangan').textContent = currentData.jabatanPenandatangan || settings.defaultJabatan;
+            document.getElementById('fieldNamaLengkap').textContent = currentData.namaLengkap || '.................................................';
+            document.getElementById('fieldTTL').textContent = `${tempatLahir}, ${tglLahir}`;
+            document.getElementById('fieldJabatan').textContent = currentData.jabatan || '.................................................';
+            document.getElementById('fieldNIP').textContent = currentData.nip || '.................................................';
+            document.getElementById('fieldTanggalMasuk').textContent = currentData.tanggalMulai ? formatLetterDate(currentData.tanggalMulai) : '.................................................';
+            document.getElementById('fieldTanggalKeluar').textContent = currentData.tanggalBerakhir ? formatLetterDate(currentData.tanggalBerakhir) : '.................................................';
+            document.getElementById('fieldAlasanBerhenti').textContent = alasanBerhenti.id;
+            document.getElementById('fieldAlasanBerhentiEn').textContent = alasanBerhenti.en;
+            document.getElementById('fieldTempatTanggal').textContent = `${settings.kotaTandaTangan}, ${formatLetterDate(currentData.tanggalSurat || new Date())}`;
+            document.getElementById('fieldTandaTangan').textContent = currentData.namaPenandatangan || settings.defaultPenandatangan;
+            document.getElementById('fieldJabatanTTD').textContent = currentData.jabatanPenandatangan || settings.defaultJabatan;
+        }
+
+        // Download PDF
+        async function downloadPDF() {
+            showLoading(true);
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                // Get the letter template
+                const element = document.getElementById('letterTemplate');
+                
+                // Convert to canvas with higher quality
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    useCORS: true,
+                    logging: false
+                });
+                
+                // Get image data
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Calculate dimensions
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = pdfWidth - 20;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                // Add image to PDF
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                
+                // Generate filename
+                const fileName = `Packlaring_${currentData.nip || 'NoNIP'}_${currentData.namaLengkap?.replace(/\s+/g, '_') || 'NoName'}_${new Date().getTime()}.pdf`;
+                
+                // Save PDF
+                pdf.save(fileName);
+                
+                // Update download count in Firestore
+                await updateDownloadCount();
+                
+                // Log analytics
+                analytics.logEvent('letter_downloaded', {
+                    documentId: currentData.id,
+                    nama: currentData.namaLengkap,
+                    nip: currentData.nip
+                });
+                
+                // Show success message
+                alert('✅ PDF berhasil didownload!');
+                
+            } catch (error) {
+                console.error('Error downloading PDF:', error);
+                alert('❌ Gagal download PDF: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Update Download Count
+        async function updateDownloadCount() {
+            try {
+                await db.collection('packlaring').doc(currentData.id).update({
+                    downloadCount: (currentData.downloadCount || 0) + 1,
+                    lastDownloadedAt: new Date(),
+                    lastDownloadedBy: 'User'
+                });
+            } catch (error) {
+                console.error('Error updating download count:', error);
+            }
+        }
+
+        // Print Letter
+        function printLetter() {
+            const printContent = document.getElementById('letterTemplate').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            
+            // Restore letter container
+            document.getElementById('letterContainer').classList.add('active');
+            
+            // Log analytics
+            analytics.logEvent('letter_printed', {
+                documentId: currentData.id,
+                nama: currentData.namaLengkap
+            });
+        }
+
+        // Search Another
+        function searchAnother() {
+            document.getElementById('letterContainer').classList.remove('active');
+            document.getElementById('ktpInput').value = '';
+            document.getElementById('ktpInput').focus();
+            hideError();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on KTP input
+            document.getElementById('ktpInput').focus();
+            
+            // Enter key to search
+            document.getElementById('ktpInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchData();
+                }
+            });
+            
+            // Log page view
+            analytics.logEvent('download_page_visited');
+        });
+    </script>
+</body>
+</html>
