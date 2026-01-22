@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
     <title>Download Surat Packlaring - NEXT Logistics</title>
     
     <!-- Firebase SDK -->
@@ -101,6 +101,8 @@
         /* Content */
         .content {
             padding: 20px 15px;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         /* Search Section Mobile */
@@ -111,6 +113,7 @@
             margin-bottom: 20px;
             text-align: center;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            max-width: 100%;
         }
 
         .search-title {
@@ -121,6 +124,8 @@
 
         .search-box {
             width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .search-input {
@@ -179,9 +184,11 @@
         .letter-container {
             display: none;
             background: #f5f5f5;
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             margin-top: 20px;
+            width: 100%;
+            overflow-x: auto;
         }
 
         .letter-container.active {
@@ -215,17 +222,23 @@
             line-height: 1.4;
         }
 
-        /* Container untuk Surat agar Responsif */
-        .letter-scroll-container {
+        /* Container untuk Surat - SCROLLABLE untuk Mobile */
+        .letter-preview-container {
             width: 100%;
             overflow-x: auto;
+            overflow-y: hidden;
             margin: 0 auto;
             padding: 10px 0;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-x pan-y;
+            background: #f0f0f0;
+            border-radius: 8px;
+            position: relative;
+            min-height: 300px;
         }
 
-        /* Template Surat - TIDAK DIUBAH */
-        .letter-template {
+        /* Template Surat ASLI - untuk Download */
+        .letter-template-print {
             width: 210mm;
             min-height: 297mm;
             margin: 0 auto;
@@ -233,17 +246,43 @@
             box-sizing: border-box;
             position: relative;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            background: url('next2.png');
+            background: url('./template/next2.png');
             filter: brightness(1.1);
             background-size: 100% 100%;
             background-position: center center;
             background-repeat: no-repeat;
+            background-attachment: scroll;
+            background-origin: padding-box;
+            background-clip: padding-box;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #333333;
+            display: none; /* Sembunyikan, hanya untuk PDF */
+        }
+
+        /* Template Surat PREVIEW - untuk Tampilan Mobile */
+        .letter-template-preview {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0;
+            padding: 20mm;
+            box-sizing: border-box;
+            position: relative;
+            background: url('./template/next2.png');
+            filter: brightness(1.1);
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            background-origin: padding-box;
+            background-clip: padding-box;
             font-size: 11pt;
             line-height: 1.5;
             color: #333333;
             transform-origin: top left;
         }
 
+        /* Styling untuk konten surat (sama untuk print dan preview) */
         .letter-title {
             text-align: center;
             font-size: 14pt;
@@ -328,12 +367,46 @@
             font-size: 12pt;
         }
 
+        /* Zoom Controls untuk Mobile */
+        .zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            display: none;
+        }
+
+        .zoom-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
         /* Action Buttons Mobile */
         .action-buttons {
             display: flex;
             flex-direction: column;
             gap: 12px;
             margin-top: 25px;
+            width: 100%;
         }
 
         .btn {
@@ -345,6 +418,7 @@
             cursor: pointer;
             transition: all 0.3s;
             text-align: center;
+            width: 100%;
         }
 
         .btn-primary {
@@ -459,6 +533,7 @@
             background: white;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            width: 100%;
         }
 
         .data-info-container h4 {
@@ -471,6 +546,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
+            width: 100%;
         }
 
         .data-item {
@@ -478,6 +554,7 @@
             padding: 12px;
             border-radius: 8px;
             border-left: 3px solid #3498db;
+            width: 100%;
         }
 
         .data-item small {
@@ -491,39 +568,6 @@
             color: #333;
             font-size: 14px;
             word-break: break-word;
-        }
-
-        /* Zoom Control untuk Mobile */
-        .zoom-controls {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            display: none;
-        }
-
-        .zoom-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #3498db;
-            color: white;
-            border: none;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .zoom-btn:hover {
-            background: #2980b9;
-            transform: scale(1.1);
         }
 
         /* Responsive untuk Tablet dan Desktop */
@@ -565,9 +609,15 @@
                 font-size: 20px;
             }
 
-            .letter-scroll-container {
+            .letter-preview-container {
                 overflow-x: visible;
                 padding: 0;
+                background: transparent;
+            }
+
+            .letter-template-preview {
+                margin: 0 auto;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             }
 
             .action-buttons {
@@ -606,28 +656,50 @@
             }
         }
 
-        /* Untuk layar kecil (mobile portrait) */
+        /* Untuk mobile portrait */
         @media (max-width: 767px) {
-            .letter-scroll-container {
+            .letter-preview-container {
                 -webkit-overflow-scrolling: touch;
                 touch-action: pan-x pan-y;
+                overflow-x: auto;
+                overflow-y: hidden;
             }
             
-            .letter-template {
-                transform: scale(0.6);
+            .letter-template-preview {
+                transform: scale(0.5);
                 transform-origin: top left;
                 margin-left: 0;
+                margin-top: 0;
             }
             
             .zoom-controls {
                 display: flex;
             }
+            
+            /* Indikator scroll untuk mobile */
+            .letter-preview-container::-webkit-scrollbar {
+                height: 8px;
+            }
+            
+            .letter-preview-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 4px;
+            }
+            
+            .letter-preview-container::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+            }
+            
+            .letter-preview-container::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
         }
 
         /* Untuk landscape mode */
         @media (max-width: 767px) and (orientation: landscape) {
-            .letter-template {
-                transform: scale(0.7);
+            .letter-template-preview {
+                transform: scale(0.6);
             }
             
             .header {
@@ -660,11 +732,11 @@
                 visibility: hidden;
             }
             
-            .letter-template, .letter-template * {
+            .letter-template-print, .letter-template-print * {
                 visibility: visible;
             }
             
-            .letter-template {
+            .letter-template-print {
                 position: absolute;
                 left: 0;
                 top: 0;
@@ -674,11 +746,39 @@
                 padding: 0;
                 margin: 0;
                 transform: none !important;
+                display: block !important;
             }
             
-            .action-buttons, .back-button-mobile, .header, .search-section, .zoom-controls {
+            .action-buttons, .back-button-mobile, .header, .search-section, .zoom-controls, .letter-preview-container {
                 display: none !important;
             }
+        }
+
+        /* Guide untuk Mobile */
+        .mobile-guide {
+            background: #f8f9fa;
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .mobile-guide.active {
+            display: block;
+        }
+
+        .guide-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .guide-icon {
+            font-size: 24px;
+            color: #3498db;
         }
     </style>
 </head>
@@ -737,6 +837,17 @@
                     <p>• Surat hanya dapat didownload jika status sudah "Selesai"</p>
                     <p>• Hubungi Admin jika mengalami kendala: 081383796300</p>
                 </div>
+
+                <!-- Mobile Guide -->
+                <div class="mobile-guide" id="mobileGuide">
+                    <div class="guide-content">
+                        <div class="guide-icon">↔️</div>
+                        <div>
+                            <strong>Tips untuk Mobile:</strong> Geser ke kanan/kiri untuk melihat seluruh surat. 
+                            Gunakan tombol + / - untuk zoom.
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Letter Container -->
@@ -752,13 +863,13 @@
                     </div>
                 </div>
                 
-                <!-- Scroll Container untuk Surat -->
-                <div class="letter-scroll-container" id="letterScrollContainer">
-                    <!-- Template Surat - TIDAK DIUBAH -->
-                    <div id="letterTemplate" class="letter-template">
+                <!-- Template untuk PREVIEW (Mobile) -->
+                <div class="letter-preview-container" id="letterPreviewContainer">
+                    <div id="letterTemplatePreview" class="letter-template-preview">
+                        <!-- Konten surat akan diisi oleh JavaScript -->
                         <div class="letter-title">SURAT KETERANGAN KERJA</div>
                         <div class="letter-title">CERTIFICATE OF EMPLOYMENT</div>
-                        <div class="letter-no" id="letterNo">
+                        <div class="letter-no" id="letterNoPreview">
                             NO : 02/SK-HRD/NEXT/I/25
                         </div>
 
@@ -770,11 +881,11 @@
                         <div class="letter-data-section">
                             <div class="data-row">
                                 <div class="data-label">Nama</div>
-                                <div class="data-value">: <span id="fieldPenandatangan">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldPenandatanganPreview">..............................................................</span></div>
                             </div>
                             <div class="data-row">
                                 <div class="data-label">Jabatan</div>
-                                <div class="data-value">: <span id="fieldJabatanPenandatangan">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldJabatanPenandatanganPreview">..............................................................</span></div>
                             </div>
                         </div>
 
@@ -786,19 +897,19 @@
                         <div class="letter-data-section">
                             <div class="data-row">
                                 <div class="data-label">Nama Lengkap</div>
-                                <div class="data-value">: <span id="fieldNamaLengkap">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldNamaLengkapPreview">..............................................................</span></div>
                             </div>
                             <div class="data-row">
                                 <div class="data-label">Tempat/Tgl Lahir</div>
-                                <div class="data-value">: <span id="fieldTTL">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldTTLPreview">..............................................................</span></div>
                             </div>
                             <div class="data-row">
                                 <div class="data-label">Jabatan Terakhir</div>
-                                <div class="data-value">: <span id="fieldJabatan">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldJabatanPreview">..............................................................</span></div>
                             </div>
                             <div class="data-row">
                                 <div class="data-label">Nomor Identitas</div>
-                                <div class="data-value">: <span id="fieldNIP">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldNIPPreview">..............................................................</span></div>
                             </div>
                         </div>
 
@@ -810,24 +921,24 @@
                         <div class="letter-data-section">
                             <div class="data-row">
                                 <div class="data-label">Start Contract</div>
-                                <div class="data-value">: <span id="fieldTanggalMasuk">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldTanggalMasukPreview">..............................................................</span></div>
                             </div>
                             <div class="data-row">
                                 <div class="data-label">End Contract</div>
-                                <div class="data-value">: <span id="fieldTanggalKeluar">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldTanggalKeluarPreview">..............................................................</span></div>
                             </div>
                         </div>
 
                         <div class="letter-statement-field">
-                            Alasan berhenti kerja : <span id="fieldAlasanBerhenti">Mengundurkan diri secara baik-baik / kontrak kerja berakhir</span><br>
-                            <em>Reason for leaving : <span id="fieldAlasanBerhentiEn">Resigned in good standing / end of contract</span></em>
+                            Alasan berhenti kerja : <span id="fieldAlasanBerhentiPreview">Mengundurkan diri secara baik-baik / kontrak kerja berakhir</span><br>
+                            <em>Reason for leaving : <span id="fieldAlasanBerhentiEnPreview">Resigned in good standing / end of contract</span></em>
                         </div>
 
                         <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
                             Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.
                         </div>
 
-                        <div class="letter-date-place" id="fieldTempatTanggal">
+                        <div class="letter-date-place" id="fieldTempatTanggalPreview">
                             Bekasi, 1 Desember 2025
                         </div>
 
@@ -835,26 +946,113 @@
                             Hormat kami,<br>
                             <em>Sincerely,</em><br>
 
-                            <div class="letter-signature-name" id="fieldTandaTangan">M. Fajrian Noor</div>
-                            <span id="fieldJabatanTTD">Direktur</span>
+                            <div class="letter-signature-name" id="fieldTandaTanganPreview">M. Fajrian Noor</div>
+                            <span id="fieldJabatanTTDPreview">Direktur</span>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Template untuk PRINT/PDF (tersembunyi) -->
+                <div id="letterTemplatePrint" class="letter-template-print">
+                    <!-- Konten surat akan diisi oleh JavaScript -->
+                    <div class="letter-title">SURAT KETERANGAN KERJA</div>
+                    <div class="letter-title">CERTIFICATE OF EMPLOYMENT</div>
+                    <div class="letter-no" id="letterNoPrint">
+                        NO : 02/SK-HRD/NEXT/I/25
+                    </div>
+
+                    <div class="letter-statement">
+                        Yang bertanda tangan di bawah ini:<br>
+                        <em>The undersigned below:</em>
+                    </div>
+
+                    <div class="letter-data-section">
+                        <div class="data-row">
+                            <div class="data-label">Nama</div>
+                            <div class="data-value">: <span id="fieldPenandatanganPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Jabatan</div>
+                            <div class="data-value">: <span id="fieldJabatanPenandatanganPrint">..............................................................</span></div>
+                        </div>
+                    </div>
+
+                    <div class="letter-statement" style="margin-top:0.6cm;">
+                        Dengan ini menerangkan bahwa:<br>
+                        <em>Hereby certifies that:</em>
+                    </div>
+
+                    <div class="letter-data-section">
+                        <div class="data-row">
+                            <div class="data-label">Nama Lengkap</div>
+                            <div class="data-value">: <span id="fieldNamaLengkapPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Tempat/Tgl Lahir</div>
+                            <div class="data-value">: <span id="fieldTTLPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Jabatan Terakhir</div>
+                            <div class="data-value">: <span id="fieldJabatanPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Nomor Identitas</div>
+                            <div class="data-value">: <span id="fieldNIPPrint">..............................................................</span></div>
+                        </div>
+                    </div>
+
+                    <div class="letter-statement" style="margin-top:0.6cm;">
+                        Adalah benar pernah bekerja di perusahaan kami sejak:<br>
+                        <em>Was employed at our company starting from:</em>
+                    </div>
+
+                    <div class="letter-data-section">
+                        <div class="data-row">
+                            <div class="data-label">Start Contract</div>
+                            <div class="data-value">: <span id="fieldTanggalMasukPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">End Contract</div>
+                            <div class="data-value">: <span id="fieldTanggalKeluarPrint">..............................................................</span></div>
+                        </div>
+                    </div>
+
+                    <div class="letter-statement-field">
+                        Alasan berhenti kerja : <span id="fieldAlasanBerhentiPrint">Mengundurkan diri secara baik-baik / kontrak kerja berakhir</span><br>
+                        <em>Reason for leaving : <span id="fieldAlasanBerhentiEnPrint">Resigned in good standing / end of contract</span></em>
+                    </div>
+
+                    <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
+                        Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.
+                    </div>
+
+                    <div class="letter-date-place" id="fieldTempatTanggalPrint">
+                        Bekasi, 1 Desember 2025
+                    </div>
+
+                    <div class="letter-signature">
+                        Hormat kami,<br>
+                        <em>Sincerely,</em><br>
+
+                        <div class="letter-signature-name" id="fieldTandaTanganPrint">M. Fajrian Noor</div>
+                        <span id="fieldJabatanTTDPrint">Direktur</span>
                     </div>
                 </div>
 
                 <!-- Zoom Controls untuk Mobile -->
                 <div class="zoom-controls" id="zoomControls">
-                    <button class="zoom-btn" onclick="zoomIn()">+</button>
-                    <button class="zoom-btn" onclick="zoomOut()">-</button>
-                    <button class="zoom-btn" onclick="resetZoom()">⟲</button>
+                    <button class="zoom-btn" onclick="zoomIn()" title="Perbesar">+</button>
+                    <button class="zoom-btn" onclick="zoomOut()" title="Perkecil">-</button>
+                    <button class="zoom-btn" onclick="resetZoom()" title="Reset">⟲</button>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button class="btn btn-success" onclick="downloadPDF()">
-                        📥 Download PDF
+                        📥 Download PDF (A4)
                     </button>
                     <button class="btn btn-primary" onclick="printLetter()">
-                        🖨️ Cetak Surat
+                        🖨️ Cetak Surat (A4)
                     </button>
                     <button class="btn btn-warning" onclick="searchAnother()">
                         🔍 Cari Lagi
@@ -891,7 +1089,7 @@
 
         // Global Variables
         let currentData = null;
-        let currentZoom = 0.6; // Default zoom untuk mobile
+        let currentZoom = 0.5; // Default zoom untuk mobile portrait
 
         // Format KTP Input
         function formatKTPInput(input) {
@@ -939,9 +1137,9 @@
             errorElement.classList.remove('active');
         }
 
-        // Zoom Functions
+        // Zoom Functions untuk Mobile
         function zoomIn() {
-            if (currentZoom < 1.2) {
+            if (currentZoom < 1.0) {
                 currentZoom += 0.1;
                 updateZoom();
             }
@@ -955,14 +1153,27 @@
         }
 
         function resetZoom() {
-            currentZoom = 0.6;
+            // Set zoom berdasarkan orientasi
+            if (window.innerWidth <= 767) {
+                currentZoom = window.innerHeight < window.innerWidth ? 0.6 : 0.5;
+            } else {
+                currentZoom = 1.0;
+            }
             updateZoom();
         }
 
         function updateZoom() {
-            const letterTemplate = document.getElementById('letterTemplate');
-            if (letterTemplate) {
-                letterTemplate.style.transform = `scale(${currentZoom})`;
+            const preview = document.getElementById('letterTemplatePreview');
+            if (preview) {
+                preview.style.transform = `scale(${currentZoom})`;
+                
+                // Scroll ke tengah setelah zoom
+                setTimeout(() => {
+                    const container = document.getElementById('letterPreviewContainer');
+                    if (container) {
+                        container.scrollLeft = (container.scrollWidth - container.clientWidth) / 2;
+                    }
+                }, 100);
             }
         }
 
@@ -1029,8 +1240,8 @@
                 // Update letter info
                 updateLetterInfo();
                 
-                // Populate letter template
-                populateLetterTemplate();
+                // Populate BOTH templates
+                populateLetterTemplates();
                 
                 // Show letter container
                 document.getElementById('letterContainer').classList.add('active');
@@ -1038,7 +1249,11 @@
                 // Tampilkan zoom controls di mobile
                 if (window.innerWidth <= 767) {
                     document.getElementById('zoomControls').style.display = 'flex';
+                    document.getElementById('mobileGuide').classList.add('active');
                 }
+                
+                // Set zoom awal
+                resetZoom();
                 
                 // Scroll to letter
                 setTimeout(() => {
@@ -1136,8 +1351,8 @@
             `;
         }
 
-        // Populate Letter Template - TIDAK DIUBAH
-        function populateLetterTemplate() {
+        // Populate BOTH Letter Templates
+        function populateLetterTemplates() {
             // Format tanggal untuk Indonesia
             function formatLetterDate(dateString) {
                 if (!dateString) return '-';
@@ -1180,29 +1395,58 @@
                 if (adminSettings.defaultJabatan) settings.defaultJabatan = adminSettings.defaultJabatan;
             }
             
-            // Set values
-            document.getElementById('letterNo').textContent = `NO : ${currentData.noSurat || '02/SK-HRD/NEXT/I/25'}`;
-            document.getElementById('fieldPenandatangan').textContent = currentData.namaPenandatangan || settings.defaultPenandatangan;
-            document.getElementById('fieldJabatanPenandatangan').textContent = currentData.jabatanPenandatangan || settings.defaultJabatan;
-            document.getElementById('fieldNamaLengkap').textContent = currentData.namaLengkap || '.................................................';
-            document.getElementById('fieldTTL').textContent = `${tempatLahir}, ${tglLahir}`;
-            document.getElementById('fieldJabatan').textContent = currentData.jabatan || '.................................................';
-            document.getElementById('fieldNIP').textContent = currentData.nip || '.................................................';
-            document.getElementById('fieldTanggalMasuk').textContent = currentData.tanggalMulai ? formatLetterDate(currentData.tanggalMulai) : '.................................................';
-            document.getElementById('fieldTanggalKeluar').textContent = currentData.tanggalBerakhir ? formatLetterDate(currentData.tanggalBerakhir) : '.................................................';
-            document.getElementById('fieldAlasanBerhenti').textContent = alasanBerhenti.id;
-            document.getElementById('fieldAlasanBerhentiEn').textContent = alasanBerhenti.en;
-            document.getElementById('fieldTempatTanggal').textContent = `${settings.kotaTandaTangan}, ${formatLetterDate(currentData.tanggalSurat || new Date())}`;
-            document.getElementById('fieldTandaTangan').textContent = currentData.namaPenandatangan || settings.defaultPenandatangan;
-            document.getElementById('fieldJabatanTTD').textContent = currentData.jabatanPenandatangan || settings.defaultJabatan;
+            // Data untuk kedua template
+            const templateData = {
+                noSurat: currentData.noSurat || '02/SK-HRD/NEXT/I/25',
+                penandatangan: currentData.namaPenandatangan || settings.defaultPenandatangan,
+                jabatanPenandatangan: currentData.jabatanPenandatangan || settings.defaultJabatan,
+                namaLengkap: currentData.namaLengkap || '.................................................',
+                ttl: `${tempatLahir}, ${tglLahir}`,
+                jabatan: currentData.jabatan || '.................................................',
+                nip: currentData.nip || '.................................................',
+                tanggalMasuk: currentData.tanggalMulai ? formatLetterDate(currentData.tanggalMulai) : '.................................................',
+                tanggalKeluar: currentData.tanggalBerakhir ? formatLetterDate(currentData.tanggalBerakhir) : '.................................................',
+                alasanBerhentiId: alasanBerhenti.id,
+                alasanBerhentiEn: alasanBerhenti.en,
+                tempatTanggal: `${settings.kotaTandaTangan}, ${formatLetterDate(currentData.tanggalSurat || new Date())}`,
+                tandaTangan: currentData.namaPenandatangan || settings.defaultPenandatangan,
+                jabatanTTD: currentData.jabatanPenandatangan || settings.defaultJabatan
+            };
             
-            // Apply zoom untuk mobile
-            if (window.innerWidth <= 767) {
-                document.getElementById('letterTemplate').style.transform = `scale(${currentZoom})`;
-            }
+            // Update PREVIEW template
+            document.getElementById('letterNoPreview').textContent = `NO : ${templateData.noSurat}`;
+            document.getElementById('fieldPenandatanganPreview').textContent = templateData.penandatangan;
+            document.getElementById('fieldJabatanPenandatanganPreview').textContent = templateData.jabatanPenandatangan;
+            document.getElementById('fieldNamaLengkapPreview').textContent = templateData.namaLengkap;
+            document.getElementById('fieldTTLPreview').textContent = templateData.ttl;
+            document.getElementById('fieldJabatanPreview').textContent = templateData.jabatan;
+            document.getElementById('fieldNIPPreview').textContent = templateData.nip;
+            document.getElementById('fieldTanggalMasukPreview').textContent = templateData.tanggalMasuk;
+            document.getElementById('fieldTanggalKeluarPreview').textContent = templateData.tanggalKeluar;
+            document.getElementById('fieldAlasanBerhentiPreview').textContent = templateData.alasanBerhentiId;
+            document.getElementById('fieldAlasanBerhentiEnPreview').textContent = templateData.alasanBerhentiEn;
+            document.getElementById('fieldTempatTanggalPreview').textContent = templateData.tempatTanggal;
+            document.getElementById('fieldTandaTanganPreview').textContent = templateData.tandaTangan;
+            document.getElementById('fieldJabatanTTDPreview').textContent = templateData.jabatanTTD;
+            
+            // Update PRINT template
+            document.getElementById('letterNoPrint').textContent = `NO : ${templateData.noSurat}`;
+            document.getElementById('fieldPenandatanganPrint').textContent = templateData.penandatangan;
+            document.getElementById('fieldJabatanPenandatanganPrint').textContent = templateData.jabatanPenandatangan;
+            document.getElementById('fieldNamaLengkapPrint').textContent = templateData.namaLengkap;
+            document.getElementById('fieldTTLPrint').textContent = templateData.ttl;
+            document.getElementById('fieldJabatanPrint').textContent = templateData.jabatan;
+            document.getElementById('fieldNIPPrint').textContent = templateData.nip;
+            document.getElementById('fieldTanggalMasukPrint').textContent = templateData.tanggalMasuk;
+            document.getElementById('fieldTanggalKeluarPrint').textContent = templateData.tanggalKeluar;
+            document.getElementById('fieldAlasanBerhentiPrint').textContent = templateData.alasanBerhentiId;
+            document.getElementById('fieldAlasanBerhentiEnPrint').textContent = templateData.alasanBerhentiEn;
+            document.getElementById('fieldTempatTanggalPrint').textContent = templateData.tempatTanggal;
+            document.getElementById('fieldTandaTanganPrint').textContent = templateData.tandaTangan;
+            document.getElementById('fieldJabatanTTDPrint').textContent = templateData.jabatanTTD;
         }
 
-        // Download PDF
+        // Download PDF (menggunakan template PRINT)
         async function downloadPDF() {
             showLoading(true);
             
@@ -1210,40 +1454,34 @@
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 
-                // Get the letter template
-                const element = document.getElementById('letterTemplate');
+                // Gunakan template PRINT untuk PDF
+                const element = document.getElementById('letterTemplatePrint');
                 
-                // Simpan transformasi asli
-                const originalTransform = element.style.transform;
-                const originalWidth = element.style.width;
+                // Tampilkan template print sementara
+                element.style.display = 'block';
                 
-                // Reset transform untuk PDF
-                element.style.transform = 'none';
-                element.style.width = '210mm';
-                
-                // Convert to canvas with higher quality
+                // Convert to canvas dengan kualitas tinggi
                 const canvas = await html2canvas(element, {
-                    scale: 2,
+                    scale: 3, // Kualitas tinggi untuk PDF
                     backgroundColor: '#ffffff',
                     useCORS: true,
-                    logging: false
+                    logging: false,
+                    windowWidth: 210 * 3, // 210mm dalam pixel
+                    windowHeight: 297 * 3  // 297mm dalam pixel
                 });
                 
-                // Restore original transform
-                element.style.transform = originalTransform;
-                element.style.width = originalWidth;
+                // Sembunyikan kembali
+                element.style.display = 'none';
                 
                 // Get image data
                 const imgData = canvas.toDataURL('image/png');
                 
-                // Calculate dimensions
+                // Calculate dimensions untuk A4
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
-                const imgWidth = pdfWidth - 20;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 
-                // Add image to PDF
-                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                // Add image ke PDF, penuh halaman
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 
                 // Generate filename
                 const fileName = `Packlaring_${currentData.nip || 'NoNIP'}_${currentData.namaLengkap?.replace(/\s+/g, '_') || 'NoName'}_${new Date().getTime()}.pdf`;
@@ -1262,7 +1500,7 @@
                 });
                 
                 // Show success message
-                alert('✅ PDF berhasil didownload!');
+                alert('✅ PDF berhasil didownload dalam format A4!');
                 
             } catch (error) {
                 console.error('Error downloading PDF:', error);
@@ -1285,71 +1523,29 @@
             }
         }
 
-        // Print Letter
+        // Print Letter (menggunakan template PRINT)
         function printLetter() {
-            // Simpan transformasi asli
-            const element = document.getElementById('letterTemplate');
-            const originalTransform = element.style.transform;
+            // Tampilkan template print
+            const printTemplate = document.getElementById('letterTemplatePrint');
+            printTemplate.style.display = 'block';
             
-            // Reset transform untuk print
-            element.style.transform = 'none';
+            // Simpan konten asli body
+            const originalContent = document.body.innerHTML;
             
-            // Create print window
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Cetak Surat Packlaring - ${currentData.namaLengkap || ''}</title>
-                    <style>
-                        body { 
-                            margin: 0; 
-                            padding: 0; 
-                            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-                        }
-                        @media print {
-                            @page { 
-                                margin: 0; 
-                                size: A4; 
-                            }
-                            body { 
-                                margin: 0; 
-                            }
-                        }
-                        .letter-template {
-                            width: 210mm;
-                            min-height: 297mm;
-                            padding: 20mm;
-                            box-sizing: border-box;
-                            background: url('next2.png');
-                            background-size: 100% 100%;
-                            background-position: center center;
-                            background-repeat: no-repeat;
-                            font-size: 11pt;
-                            line-height: 1.5;
-                            color: #333333;
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${element.outerHTML}
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                            setTimeout(function() {
-                                window.close();
-                            }, 500);
-                        };
-                    <\/script>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
+            // Set body hanya berisi template print
+            document.body.innerHTML = printTemplate.outerHTML;
             
-            // Restore transform
-            setTimeout(() => {
-                element.style.transform = originalTransform;
-            }, 1000);
+            // Print
+            window.print();
+            
+            // Restore konten asli
+            document.body.innerHTML = originalContent;
+            
+            // Sembunyikan template print
+            printTemplate.style.display = 'none';
+            
+            // Restore tampilan
+            document.getElementById('letterContainer').classList.add('active');
             
             // Log analytics
             analytics.logEvent('letter_printed', {
@@ -1363,6 +1559,7 @@
             document.getElementById('letterContainer').classList.remove('active');
             document.getElementById('ktpInput').value = '';
             document.getElementById('ktpInput').focus();
+            document.getElementById('mobileGuide').classList.remove('active');
             hideError();
             
             // Hide zoom controls
@@ -1378,18 +1575,15 @@
             if (letterContainer.classList.contains('active') && currentData) {
                 // Reset zoom berdasarkan ukuran layar
                 if (window.innerWidth <= 767) {
-                    // Mobile portrait
-                    currentZoom = 0.6;
-                    if (window.innerHeight < window.innerWidth) {
-                        // Landscape
-                        currentZoom = 0.7;
-                    }
-                    updateZoom();
+                    // Mobile
                     document.getElementById('zoomControls').style.display = 'flex';
+                    document.getElementById('mobileGuide').classList.add('active');
+                    resetZoom();
                 } else {
                     // Tablet/Desktop
                     document.getElementById('zoomControls').style.display = 'none';
-                    document.getElementById('letterTemplate').style.transform = 'none';
+                    document.getElementById('mobileGuide').classList.remove('active');
+                    document.getElementById('letterTemplatePreview').style.transform = 'none';
                 }
             }
         }
