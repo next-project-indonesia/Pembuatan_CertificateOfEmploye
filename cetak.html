@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"/>
+    <title>Download Surat Packlaring - NEXT Logistics</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <!-- jsPDF untuk download PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- html2canvas untuk konversi ke gambar -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #1a237e 0%, #311b92 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header Mobile */
+        .header {
+            background: linear-gradient(135deg, #f7a01e 70%, #f10707 100%);
+            color: white;
+            padding: 20px 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .title h1 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .title p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        /* Back Button Mobile */
+        .back-button-mobile {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 101;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        /* Content */
+        .content {
+            padding: 20px 15px;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Search Section Mobile */
+        .search-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            max-width: 100%;
+        }
+
+        .search-title {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+            letter-spacing: 1px;
+            font-family: monospace;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .search-btn {
+            padding: 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .search-btn:hover, .search-btn:active {
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .help-text {
+            display: block;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Letter Container */
+        .letter-container {
+            display: none;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .letter-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .letter-header {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .letter-info h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 18px;
+            line-height: 1.3;
+        }
+
+        .letter-info p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        /* Container untuk Surat - SCROLLABLE untuk Mobile */
+        .letter-preview-container {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            margin: 0 auto;
+            padding: 10px 0;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-x pan-y;
+            background: #f0f0f0;
+            border-radius: 8px;
+            position: relative;
+            min-height: 300px;
+        }
+
+        /* Template Surat ASLI - untuk Download */
+        .letter-template-print {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 20mm;
+            box-sizing: border-box;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            background: url('./template/next2.png');
+            filter: brightness(1.1);
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            background-origin: padding-box;
+            background-clip: padding-box;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #333333;
+            display: none; /* Sembunyikan, hanya untuk PDF */
+        }
+
+        /* Template Surat PREVIEW - untuk Tampilan Mobile */
+        .letter-template-preview {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0;
+            padding: 20mm;
+            box-sizing: border-box;
+            position: relative;
+            background: url('./template/next2.png');
+            filter: brightness(1.1);
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            background-origin: padding-box;
+            background-clip: padding-box;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #333333;
+            transform-origin: top left;
+        }
+
+        /* Styling untuk konten surat (sama untuk print dan preview) */
+        .letter-title {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0 0 0.1cm 0;
+            text-transform: uppercase;
+            color: #000000;
+            line-height: 1;
+        }
+
+        .letter-title:nth-of-type(2) {
+            font-size: 12pt;
+            margin-bottom: 0.1cm;
+        }
+
+        .letter-no {
+            text-align: center;
+            font-size: 10pt;
+            margin-bottom: 0.8cm;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .letter-data-section {
+            margin-bottom: 0.2cm;
+        }
+
+        .data-row {
+            display: flex;
+            margin-bottom: 3px;
+            align-items: flex-start;
+            min-height: 22px;
+        }
+
+        .data-label {
+            width: 35%;
+            font-weight: bold;
+            padding-right: 10px;
+            white-space: nowrap;
+            font-size: 11pt;
+        }
+
+        .data-value {
+            width: 65%;
+            padding-bottom: 2px;
+            border-bottom: 1px dotted #777;
+            min-height: 1.2em;
+            font-size: 11pt;
+        }
+
+        .letter-statement {
+            text-align: justify;
+            margin: 0.4cm 0;
+            text-indent: 40px;
+            line-height: 1.5;
+            font-size: 11pt;
+        }
+
+        .letter-statement-field {
+            margin-top: 1cm;
+            padding-bottom: 2px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .letter-date-place {
+            margin-top: 1cm;
+            text-align: left;
+            margin-bottom: 0;
+            font-size: 11pt;
+        }
+
+        .letter-signature {
+            text-align: left;
+            margin-top: 0.1cm;
+            font-size: 12pt;
+        }
+
+        .letter-signature-name {
+            margin-top: 3cm;
+            text-decoration: underline;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+
+        /* Zoom Controls untuk Mobile */
+        .zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            display: none;
+        }
+
+        .zoom-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            border: none;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        /* Action Buttons Mobile */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+            width: 100%;
+        }
+
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover, .btn-primary:active {
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover, .btn-success:active {
+            background: #219653;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.2);
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover, .btn-warning:active {
+            background: #e67e22;
+            transform: translateY(-1px);
+        }
+
+        /* Error Message */
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+            padding: 10px;
+            background: #ffeaea;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        /* Loading */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Info Box Mobile */
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .info-box h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-box p {
+            color: #0c5460;
+            font-size: 13px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        /* Data Info Mobile */
+        .data-info-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            width: 100%;
+        }
+
+        .data-info-container h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+
+        .data-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid #3498db;
+            width: 100%;
+        }
+
+        .data-item small {
+            color: #666;
+            font-size: 11px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .data-item strong {
+            color: #333;
+            font-size: 14px;
+            word-break: break-word;
+        }
+
+        /* Responsive untuk Tablet dan Desktop */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 90%;
+                margin: 20px auto;
+                border-radius: 15px;
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+                min-height: auto;
+            }
+
+            .header {
+                padding: 25px 30px;
+            }
+
+            .logo {
+                font-size: 42px;
+            }
+
+            .title h1 {
+                font-size: 22px;
+            }
+
+            .title p {
+                font-size: 14px;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            .search-section {
+                padding: 25px;
+            }
+
+            .search-title {
+                font-size: 20px;
+            }
+
+            .letter-preview-container {
+                overflow-x: visible;
+                padding: 0;
+                background: transparent;
+            }
+
+            .letter-template-preview {
+                margin: 0 auto;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            }
+
+            .action-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: 200px;
+                max-width: 300px;
+            }
+
+            .data-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .zoom-controls {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1000px;
+            }
+            
+            .action-buttons {
+                justify-content: space-between;
+            }
+            
+            .btn {
+                flex: 1;
+                max-width: none;
+            }
+        }
+
+        /* Untuk mobile portrait */
+        @media (max-width: 767px) {
+            .letter-preview-container {
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-x pan-y;
+                overflow-x: auto;
+                overflow-y: hidden;
+            }
+            
+            .letter-template-preview {
+                transform: scale(0.5);
+                transform-origin: top left;
+                margin-left: 0;
+                margin-top: 0;
+            }
+            
+            .zoom-controls {
+                display: flex;
+            }
+            
+            /* Indikator scroll untuk mobile */
+            .letter-preview-container::-webkit-scrollbar {
+                height: 8px;
+            }
+            
+            .letter-preview-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 4px;
+            }
+            
+            .letter-preview-container::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+            }
+            
+            .letter-preview-container::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+        }
+
+        /* Untuk landscape mode */
+        @media (max-width: 767px) and (orientation: landscape) {
+            .letter-template-preview {
+                transform: scale(0.6);
+            }
+            
+            .header {
+                padding: 15px;
+                position: relative;
+            }
+            
+            .logo {
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+            
+            .title h1 {
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .search-section {
+                padding: 15px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            .letter-template-print, .letter-template-print * {
+                visibility: visible;
+            }
+            
+            .letter-template-print {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                margin: 0;
+                transform: none !important;
+                display: block !important;
+            }
+            
+            .action-buttons, .back-button-mobile, .header, .search-section, .zoom-controls, .letter-preview-container {
+                display: none !important;
+            }
+        }
+
+        /* Guide untuk Mobile */
+        .mobile-guide {
+            background: #f8f9fa;
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .mobile-guide.active {
+            display: block;
+        }
+
+        .guide-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .guide-icon {
+            font-size: 24px;
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button Mobile -->
+    <a href="index.html" class="back-button-mobile" title="Kembali ke Form">
+        ←
+    </a>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="color: #3498db; font-weight: 600; margin-top: 10px;">Memproses...</p>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">NEXT</div>
+            <div class="title">
+                <h1>DOWNLOAD SURAT PACKLARING</h1>
+                <p>NEXT Cargo Logistics • Packlaring Certificate Download</p>
+                <div class="badge">Karyawan & Teknisi</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <!-- Search Section -->
+            <div class="search-section">
+                <h2 class="search-title">🔍 Cari Data Packlaring</h2>
+                <div class="search-box">
+                    <input type="text" 
+                           id="ktpInput" 
+                           class="search-input" 
+                           placeholder="MASUKKAN NOMOR KTP (16 digit)"
+                           maxlength="19"
+                           oninput="formatKTPInput(this)">
+                    
+                    <button class="search-btn" onclick="searchData()" id="searchBtn">
+                        🔎 Cari dan Download Surat
+                    </button>
+                    
+                    <span class="help-text">
+                        Masukkan 16 digit nomor KTP yang sudah terdaftar untuk mendownload surat
+                    </span>
+                    
+                    <div class="error-message" id="errorMessage"></div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="info-box">
+                    <h4>📋 Informasi Penting:</h4>
+                    <p>• Pastikan Anda sudah mengisi form packlaring sebelumnya</p>
+                    <p>• Masukkan nomor KTP yang sama dengan yang didaftarkan</p>
+                    <p>• Surat hanya dapat didownload jika status sudah "Selesai"</p>
+                    <p>• Hubungi Admin jika mengalami kendala: 081383796300</p>
+                </div>
+
+                <!-- Mobile Guide -->
+                <div class="mobile-guide" id="mobileGuide">
+                    <div class="guide-content">
+                        <div class="guide-icon">↔️</div>
+                        <div>
+                            <strong>Tips untuk Mobile:</strong> Geser ke kanan/kiri untuk melihat seluruh surat. 
+                            Gunakan tombol + / - untuk zoom.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Letter Container -->
+            <div class="letter-container" id="letterContainer">
+                <div class="letter-header">
+                    <div class="letter-info">
+                        <h3 id="letterTitle">Surat Packlaring</h3>
+                        <p id="letterSubtitle">
+                            <span id="letterNIP">NIP: -</span> • 
+                            <span id="letterWhatsapp">WhatsApp: -</span> • 
+                            <span id="letterDate">Tanggal: -</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Template untuk PREVIEW (Mobile) -->
+                <div class="letter-preview-container" id="letterPreviewContainer">
+                    <div id="letterTemplatePreview" class="letter-template-preview">
+                        <!-- Konten surat akan diisi oleh JavaScript -->
+                        <div class="letter-title">SURAT KETERANGAN KERJA</div>
+                        <div class="letter-title">CERTIFICATE OF EMPLOYMENT</div>
+                        <div class="letter-no" id="letterNoPreview">
+                            NO : 02/SK-HRD/NEXT/I/25
+                        </div>
+
+                        <div class="letter-statement">
+                            Yang bertanda tangan di bawah ini:<br>
+                            <em>The undersigned below:</em>
+                        </div>
+
+                        <div class="letter-data-section">
+                            <div class="data-row">
+                                <div class="data-label">Nama</div>
+                                <div class="data-value">: <span id="fieldPenandatanganPreview">..............................................................</span></div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">Jabatan</div>
+                                <div class="data-value">: <span id="fieldJabatanPenandatanganPreview">..............................................................</span></div>
+                            </div>
+                        </div>
+
+                        <div class="letter-statement" style="margin-top:0.6cm;">
+                            Dengan ini menerangkan bahwa:<br>
+                            <em>Hereby certifies that:</em>
+                        </div>
+
+                        <div class="letter-data-section">
+                            <div class="data-row">
+                                <div class="data-label">Nama Lengkap</div>
+                                <div class="data-value">: <span id="fieldNamaLengkapPreview">..............................................................</span></div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">Tempat/Tgl Lahir</div>
+                                <div class="data-value">: <span id="fieldTTLPreview">..............................................................</span></div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">Jabatan Terakhir</div>
+                                <div class="data-value">: <span id="fieldJabatanPreview">..............................................................</span></div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">Nomor Identitas</div>
+                                <div class="data-value">: <span id="fieldNIPPreview">..............................................................</span></div>
+                            </div>
+                        </div>
+
+                        <div class="letter-statement" style="margin-top:0.6cm;">
+                            Adalah benar pernah bekerja di perusahaan kami sejak:<br>
+                            <em>Was employed at our company starting from:</em>
+                        </div>
+
+                        <div class="letter-data-section">
+                            <div class="data-row">
+                                <div class="data-label">Start Contract</div>
+                                <div class="data-value">: <span id="fieldTanggalMasukPreview">..............................................................</span></div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">End Contract</div>
+                                <div class="data-value">: <span id="fieldTanggalKeluarPreview">..............................................................</span></div>
+                            </div>
+                        </div>
+
+                        <div class="letter-statement-field">
+                            Alasan berhenti kerja : <span id="fieldAlasanBerhentiPreview">Mengundurkan diri secara baik-baik / kontrak kerja berakhir</span><br>
+                            <em>Reason for leaving : <span id="fieldAlasanBerhentiEnPreview">Resigned in good standing / end of contract</span></em>
+                        </div>
+
+                        <!-- PARAGRAF UCAPAN TERIMA KASIH DENGAN BAHASA INGGRIS -->
+                        <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
+                            Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.<br>
+                            <em style="font-weight: normal;">We would like to express our gratitude for your cooperation during your employment with us and we wish you success in your future career.</em>
+                        </div>
+
+                        <div class="letter-date-place" id="fieldTempatTanggalPreview">
+                            Bekasi, 1 Desember 2025
+                        </div>
+
+                        <div class="letter-signature">
+                            Hormat kami,<br>
+                            <em>Sincerely,</em><br>
+
+                            <div class="letter-signature-name" id="fieldTandaTanganPreview">M. Fajrian Noor</div>
+                            <span id="fieldJabatanTTDPreview">Direktur</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Template untuk PRINT/PDF (tersembunyi) -->
+                <div id="letterTemplatePrint" class="letter-template-print">
+                    <!-- Konten surat akan diisi oleh JavaScript -->
+                    <div class="letter-title">SURAT KETERANGAN KERJA</div>
+                    <div class="letter-title">CERTIFICATE OF EMPLOYMENT</div>
+                    <div class="letter-no" id="letterNoPrint">
+                        NO : 02/SK-HRD/NEXT/I/25
+                    </div>
+
+                    <div class="letter-statement">
+                        Yang bertanda tangan di bawah ini:<br>
+                        <em>The undersigned below:</em>
+                    </div>
+
+                    <div class="letter-data-section">
+                        <div class="data-row">
+                            <div class="data-label">Nama</div>
+                            <div class="data-value">: <span id="fieldPenandatanganPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Jabatan</div>
+                            <div class="data-value">: <span id="fieldJabatanPenandatanganPrint">..............................................................</span></div>
+                        </div>
+                    </div>
+
+                    <div class="letter-statement" style="margin-top:0.6cm;">
+                        Dengan ini menerangkan bahwa:<br>
+                        <em>Hereby certifies that:</em>
+                    </div>
+
+                    <div class="letter-data-section">
+                        <div class="data-row">
+                            <div class="data-label">Nama Lengkap</div>
+                            <div class="data-value">: <span id="fieldNamaLengkapPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Tempat/Tgl Lahir</div>
+                            <div class="data-value">: <span id="fieldTTLPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Jabatan Terakhir</div>
+                            <div class="data-value">: <span id="fieldJabatanPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Nomor Identitas</div>
+                            <div class="data-value">: <span id="fieldNIPPrint">..............................................................</span></div>
+                        </div>
+                    </div>
+
+                    <div class="letter-statement" style="margin-top:0.6cm;">
+                        Adalah benar pernah bekerja di perusahaan kami sejak:<br>
+                        <em>Was employed at our company starting from:</em>
+                    </div>
+
+                    <div class="letter-data-section">
+                        <div class="data-row">
+                            <div class="data-label">Start Contract</div>
+                            <div class="data-value">: <span id="fieldTanggalMasukPrint">..............................................................</span></div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">End Contract</div>
+                            <div class="data-value">: <span id="fieldTanggalKeluarPrint">..............................................................</span></div>
+                        </div>
+                    </div>
+
+                    <div class="letter-statement-field">
+                        Alasan berhenti kerja : <span id="fieldAlasanBerhentiPrint">Mengundurkan diri secara baik-baik / kontrak kerja berakhir</span><br>
+                        <em>Reason for leaving : <span id="fieldAlasanBerhentiEnPrint">Resigned in good standing / end of contract</span></em>
+                    </div>
+
+                    <!-- PARAGRAF UCAPAN TERIMA KASIH DENGAN BAHASA INGGRIS -->
+                    <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
+                        Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.<br>
+                        <em style="font-weight: normal;">We would like to express our gratitude for your cooperation during your employment with us and we wish you success in your future career.</em>
+                    </div>
+
+                    <div class="letter-date-place" id="fieldTempatTanggalPrint">
+                        Bekasi, 1 Desember 2025
+                    </div>
+
+                    <div class="letter-signature">
+                        Hormat kami,<br>
+                        <em>Sincerely,</em><br>
+
+                        <div class="letter-signature-name" id="fieldTandaTanganPrint">M. Fajrian Noor</div>
+                        <span id="fieldJabatanTTDPrint">Direktur</span>
+                    </div>
+                </div>
+
+                <!-- Zoom Controls untuk Mobile -->
+                <div class="zoom-controls" id="zoomControls">
+                    <button class="zoom-btn" onclick="zoomIn()" title="Perbesar">+</button>
+                    <button class="zoom-btn" onclick="zoomOut()" title="Perkecil">-</button>
+                    <button class="zoom-btn" onclick="resetZoom()" title="Reset">⟲</button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-success" onclick="downloadPDF()">
+                        📥 Download PDF (A4)
+                    </button>
+                    <button class="btn btn-primary" onclick="printLetter()">
+                        🖨️ Cetak Surat (A4)
+                    </button>
+                    <button class="btn btn-warning" onclick="searchAnother()">
+                        🔍 Cari Lagi
+                    </button>
+                </div>
+
+                <!-- Data Info -->
+                <div class="data-info-container">
+                    <h4>📋 Informasi Data:</h4>
+                    <div class="data-grid" id="dataInfo">
+                        <!-- Data info akan ditampilkan di sini -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAEvDR-h0hkgs1xAawra7u3jo9Sc3lCbpo",
+            authDomain: "next-packlaring.firebaseapp.com",
+            projectId: "next-packlaring",
+            storageBucket: "next-packlaring.firebasestorage.app",
+            messagingSenderId: "400584486436",
+            appId: "1:400584486436:web:99067d2c6dc6d87ef7b2b1",
+            measurementId: "G-KRFXBYN663"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const analytics = firebase.analytics();
+
+        // Global Variables
+        let currentData = null;
+        let currentZoom = 0.5; // Default zoom untuk mobile portrait
+
+        // Format KTP Input
+        function formatKTPInput(input) {
+            let value = input.value.replace(/\D/g, '');
+            value = value.substring(0, 16);
+            
+            let formattedValue = '';
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += '-';
+                }
+                formattedValue += value[i];
+            }
+            
+            input.value = formattedValue;
+        }
+
+        // Validate KTP
+        function validateKTP(ktp) {
+            const cleanKTP = ktp.replace(/\D/g, '');
+            if (cleanKTP.length !== 16) {
+                return false;
+            }
+            if (!/^\d+$/.test(cleanKTP)) {
+                return false;
+            }
+            return true;
+        }
+
+        // Show Loading
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
+        // Show Error
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('active');
+        }
+
+        // Hide Error
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.classList.remove('active');
+        }
+
+        // Zoom Functions untuk Mobile
+        function zoomIn() {
+            if (currentZoom < 1.0) {
+                currentZoom += 0.1;
+                updateZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > 0.3) {
+                currentZoom -= 0.1;
+                updateZoom();
+            }
+        }
+
+        function resetZoom() {
+            // Set zoom berdasarkan orientasi
+            if (window.innerWidth <= 767) {
+                currentZoom = window.innerHeight < window.innerWidth ? 0.6 : 0.5;
+            } else {
+                currentZoom = 1.0;
+            }
+            updateZoom();
+        }
+
+        function updateZoom() {
+            const preview = document.getElementById('letterTemplatePreview');
+            if (preview) {
+                preview.style.transform = `scale(${currentZoom})`;
+                
+                // Scroll ke tengah setelah zoom
+                setTimeout(() => {
+                    const container = document.getElementById('letterPreviewContainer');
+                    if (container) {
+                        container.scrollLeft = (container.scrollWidth - container.clientWidth) / 2;
+                    }
+                }, 100);
+            }
+        }
+
+        // Search Data
+        async function searchData() {
+            const ktpInput = document.getElementById('ktpInput');
+            const ktpValue = ktpInput.value.trim();
+            const searchBtn = document.getElementById('searchBtn');
+            
+            // Reset
+            hideError();
+            document.getElementById('letterContainer').classList.remove('active');
+            
+            // Validate
+            if (!ktpValue) {
+                showError('Silakan masukkan nomor KTP');
+                ktpInput.focus();
+                return;
+            }
+            
+            if (!validateKTP(ktpValue)) {
+                showError('Nomor KTP harus 16 digit angka');
+                ktpInput.focus();
+                return;
+            }
+            
+            // Disable button selama proses
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Mencari...';
+            
+            showLoading(true);
+            
+            try {
+                // Search in Firestore
+                const snapshot = await db.collection('packlaring')
+                    .where('nomorKTP', '==', ktpValue.toUpperCase())
+                    .limit(1)
+                    .get();
+                
+                if (snapshot.empty) {
+                    showError('Data tidak ditemukan. Pastikan nomor KTP sudah terdaftar.');
+                    ktpInput.focus();
+                    return;
+                }
+                
+                const doc = snapshot.docs[0];
+                currentData = doc.data();
+                currentData.id = doc.id;
+                
+                // Convert timestamps
+                if (currentData.createdAt && currentData.createdAt.toDate) {
+                    currentData.createdAt = currentData.createdAt.toDate();
+                }
+                if (currentData.updatedAt && currentData.updatedAt.toDate) {
+                    currentData.updatedAt = currentData.updatedAt.toDate();
+                }
+                
+                // Check status
+                if (currentData.status !== 'completed') {
+                    showError(`Status surat masih "${getStatusText(currentData.status)}". Silakan hubungi Admin.`);
+                    return;
+                }
+                
+                // Update letter info
+                updateLetterInfo();
+                
+                // Populate BOTH templates
+                populateLetterTemplates();
+                
+                // Show letter container
+                document.getElementById('letterContainer').classList.add('active');
+                
+                // Tampilkan zoom controls di mobile
+                if (window.innerWidth <= 767) {
+                    document.getElementById('zoomControls').style.display = 'flex';
+                    document.getElementById('mobileGuide').classList.add('active');
+                }
+                
+                // Set zoom awal
+                resetZoom();
+                
+                // Scroll to letter
+                setTimeout(() => {
+                    document.getElementById('letterContainer').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 300);
+                
+                // Log analytics
+                analytics.logEvent('download_letter_searched', {
+                    ktp: ktpValue,
+                    nama: currentData.namaLengkap,
+                    status: currentData.status
+                });
+                
+                // Show success message
+                setTimeout(() => {
+                    alert('✅ Data ditemukan! Surat siap didownload.');
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error searching data:', error);
+                showError('Terjadi kesalahan saat mencari data: ' + error.message);
+            } finally {
+                showLoading(false);
+                // Reset button
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔎 Cari dan Download Surat';
+            }
+        }
+
+        // Get Status Text
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': '⏳ Pending',
+                'processed': '🔄 Diproses',
+                'completed': '✅ Selesai'
+            };
+            return statusMap[status] || '⏳ Pending';
+        }
+
+        // Format Date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            try {
+                const date = new Date(dateString);
+                // Cek apakah date valid
+                if (isNaN(date.getTime())) {
+                    return '-';
+                }
+                const options = { day: 'numeric', month: 'long', year: 'numeric' };
+                return date.toLocaleDateString('id-ID', options);
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return '-';
+            }
+        }
+
+        // Format WhatsApp
+        function formatWhatsApp(wa) {
+            if (!wa || wa === '-') return '-';
+            const cleanWA = wa.replace(/\D/g, '');
+            if (cleanWA.length < 10) return wa;
+            
+            if (cleanWA.startsWith('62')) {
+                return `+62 ${cleanWA.substring(2, 5)}-${cleanWA.substring(5, 9)}-${cleanWA.substring(9)}`;
+            } else if (cleanWA.startsWith('0')) {
+                return `0${cleanWA.substring(1, 5)}-${cleanWA.substring(5, 9)}-${cleanWA.substring(9)}`;
+            }
+            return wa;
+        }
+
+        // Update Letter Info
+        function updateLetterInfo() {
+            document.getElementById('letterTitle').textContent = 
+                `Surat Packlaring - ${currentData.namaLengkap || 'Tidak Ada Nama'}`;
+            
+            document.getElementById('letterNIP').textContent = `NIP: ${currentData.nip || '-'}`;
+            document.getElementById('letterWhatsapp').textContent = 
+                `WhatsApp: ${formatWhatsApp(currentData.whatsapp || '-')}`;
+            document.getElementById('letterDate').textContent = 
+                `Tanggal: ${formatDate(currentData.tanggalSurat)}`;
+            
+            // Update data info
+            const dataInfo = document.getElementById('dataInfo');
+            dataInfo.innerHTML = `
+                <div class="data-item">
+                    <small>Nomor Surat</small>
+                    <strong>${currentData.noSurat || '-'}</strong>
+                </div>
+                <div class="data-item">
+                    <small>Jabatan</small>
+                    <strong>${currentData.jabatan || '-'}</strong>
+                </div>
+                <div class="data-item">
+                    <small>Wilayah</small>
+                    <strong>${currentData.wilayahArea || '-'}</strong>
+                </div>
+                <div class="data-item">
+                    <small>Status</small>
+                    <strong>${getStatusText(currentData.status)}</strong>
+                </div>
+            `;
+        }
+
+        // Format tanggal untuk surat (lebih robust)
+        function formatLetterDate(dateString) {
+            if (!dateString) {
+                // Jika tidak ada tanggal, gunakan tanggal hari ini
+                const today = new Date();
+                const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return `${today.getDate()} ${bulan[today.getMonth()]} ${today.getFullYear()}`;
+            }
+            
+            try {
+                // Coba parse tanggal dari string
+                let date;
+                
+                // Cek jika dateString adalah timestamp Firebase
+                if (dateString.toDate && typeof dateString.toDate === 'function') {
+                    date = dateString.toDate();
+                } else if (dateString.seconds) {
+                    // Jika format Firebase timestamp {seconds: ..., nanoseconds: ...}
+                    date = new Date(dateString.seconds * 1000);
+                } else {
+                    // Coba parse sebagai string tanggal biasa
+                    date = new Date(dateString);
+                }
+                
+                // Validasi tanggal
+                if (isNaN(date.getTime())) {
+                    throw new Error('Invalid date');
+                }
+                
+                const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                
+                return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
+            } catch (error) {
+                console.error('Error formatting letter date:', error, 'dateString:', dateString);
+                // Fallback ke tanggal hari ini
+                const today = new Date();
+                const bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                return `${today.getDate()} ${bulan[today.getMonth()]} ${today.getFullYear()}`;
+            }
+        }
+
+        // Populate BOTH Letter Templates
+        function populateLetterTemplates() {
+            // Format TTL
+            const tempatLahir = currentData.tempatLahir || '-';
+            const tglLahir = formatLetterDate(currentData.tanggalLahir);
+            
+            // Format alasan berhenti dalam dua bahasa
+            const alasanBerhentiMap = {
+                'KONTRAK BERAKHIR': { id: 'Kontrak kerja berakhir', en: 'End of contract' },
+                'PHK': { id: 'Pemutusan Hubungan Kerja', en: 'Termination of employment' },
+                'PENGUNDURAN DIRI': { id: 'Mengundurkan diri secara baik-baik', en: 'Resigned in good standing' },
+                'PENSIUN': { id: 'Pensiun', en: 'Retirement' },
+                'MENINGGAL DUNIA': { id: 'Meninggal dunia', en: 'Deceased' }
+            };
+            
+            const alasanBerhenti = alasanBerhentiMap[currentData.alasanBerhenti] || 
+                                  { id: currentData.alasanBerhenti || 'Kontrak kerja berakhir', 
+                                    en: currentData.alasanBerhenti || 'End of contract' };
+            
+            // Settings
+            const settings = {
+                kotaTandaTangan: 'Bekasi',
+                defaultPenandatangan: 'M. Fajrian Noor',
+                defaultJabatan: 'Direktur'
+            };
+            
+            // Load from localStorage if available
+            const savedSettings = localStorage.getItem('packlaringAdminSettings');
+            if (savedSettings) {
+                try {
+                    const adminSettings = JSON.parse(savedSettings);
+                    if (adminSettings.kotaTandaTangan) settings.kotaTandaTangan = adminSettings.kotaTandaTangan;
+                    if (adminSettings.defaultPenandatangan) settings.defaultPenandatangan = adminSettings.defaultPenandatangan;
+                    if (adminSettings.defaultJabatan) settings.defaultJabatan = adminSettings.defaultJabatan;
+                } catch (e) {
+                    console.error('Error parsing saved settings:', e);
+                }
+            }
+            
+            // Format tanggal surat - FIX untuk menghindari "undefined"
+            let tanggalSuratFormatted;
+            try {
+                tanggalSuratFormatted = formatLetterDate(currentData.tanggalSurat);
+            } catch (error) {
+                console.error('Error formatting tanggal surat:', error);
+                tanggalSuratFormatted = formatLetterDate(new Date()); // Fallback ke hari ini
+            }
+            
+            // Data untuk kedua template
+            const templateData = {
+                noSurat: currentData.noSurat || '02/SK-HRD/NEXT/I/25',
+                penandatangan: currentData.namaPenandatangan || settings.defaultPenandatangan,
+                jabatanPenandatangan: currentData.jabatanPenandatangan || settings.defaultJabatan,
+                namaLengkap: currentData.namaLengkap || '.................................................',
+                ttl: `${tempatLahir}, ${tglLahir}`,
+                jabatan: currentData.jabatan || '.................................................',
+                nip: currentData.nip || '.................................................',
+                tanggalMasuk: formatLetterDate(currentData.tanggalMulai),
+                tanggalKeluar: formatLetterDate(currentData.tanggalBerakhir),
+                alasanBerhentiId: alasanBerhenti.id,
+                alasanBerhentiEn: alasanBerhenti.en,
+                tempatTanggal: `${settings.kotaTandaTangan}, ${tanggalSuratFormatted}`, // FIXED: Tidak akan ada "undefined"
+                tandaTangan: currentData.namaPenandatangan || settings.defaultPenandatangan,
+                jabatanTTD: currentData.jabatanPenandatangan || settings.defaultJabatan
+            };
+            
+            // Debug log untuk memastikan data benar
+            console.log('Template data:', templateData);
+            
+            // Update PREVIEW template
+            document.getElementById('letterNoPreview').textContent = `NO : ${templateData.noSurat}`;
+            document.getElementById('fieldPenandatanganPreview').textContent = templateData.penandatangan;
+            document.getElementById('fieldJabatanPenandatanganPreview').textContent = templateData.jabatanPenandatangan;
+            document.getElementById('fieldNamaLengkapPreview').textContent = templateData.namaLengkap;
+            document.getElementById('fieldTTLPreview').textContent = templateData.ttl;
+            document.getElementById('fieldJabatanPreview').textContent = templateData.jabatan;
+            document.getElementById('fieldNIPPreview').textContent = templateData.nip;
+            document.getElementById('fieldTanggalMasukPreview').textContent = templateData.tanggalMasuk;
+            document.getElementById('fieldTanggalKeluarPreview').textContent = templateData.tanggalKeluar;
+            document.getElementById('fieldAlasanBerhentiPreview').textContent = templateData.alasanBerhentiId;
+            document.getElementById('fieldAlasanBerhentiEnPreview').textContent = templateData.alasanBerhentiEn;
+            document.getElementById('fieldTempatTanggalPreview').textContent = templateData.tempatTanggal;
+            document.getElementById('fieldTandaTanganPreview').textContent = templateData.tandaTangan;
+            document.getElementById('fieldJabatanTTDPreview').textContent = templateData.jabatanTTD;
+            
+            // Update PRINT template
+            document.getElementById('letterNoPrint').textContent = `NO : ${templateData.noSurat}`;
+            document.getElementById('fieldPenandatanganPrint').textContent = templateData.penandatangan;
+            document.getElementById('fieldJabatanPenandatanganPrint').textContent = templateData.jabatanPenandatangan;
+            document.getElementById('fieldNamaLengkapPrint').textContent = templateData.namaLengkap;
+            document.getElementById('fieldTTLPrint').textContent = templateData.ttl;
+            document.getElementById('fieldJabatanPrint').textContent = templateData.jabatan;
+            document.getElementById('fieldNIPPrint').textContent = templateData.nip;
+            document.getElementById('fieldTanggalMasukPrint').textContent = templateData.tanggalMasuk;
+            document.getElementById('fieldTanggalKeluarPrint').textContent = templateData.tanggalKeluar;
+            document.getElementById('fieldAlasanBerhentiPrint').textContent = templateData.alasanBerhentiId;
+            document.getElementById('fieldAlasanBerhentiEnPrint').textContent = templateData.alasanBerhentiEn;
+            document.getElementById('fieldTempatTanggalPrint').textContent = templateData.tempatTanggal;
+            document.getElementById('fieldTandaTanganPrint').textContent = templateData.tandaTangan;
+            document.getElementById('fieldJabatanTTDPrint').textContent = templateData.jabatanTTD;
+        }
+
+        // Download PDF (menggunakan template PRINT)
+        async function downloadPDF() {
+            showLoading(true);
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                // Gunakan template PRINT untuk PDF
+                const element = document.getElementById('letterTemplatePrint');
+                
+                // Tampilkan template print sementara
+                element.style.display = 'block';
+                
+                // Convert to canvas dengan kualitas tinggi
+                const canvas = await html2canvas(element, {
+                    scale: 3, // Kualitas tinggi untuk PDF
+                    backgroundColor: '#ffffff',
+                    useCORS: true,
+                    logging: false,
+                    windowWidth: 210 * 3, // 210mm dalam pixel
+                    windowHeight: 297 * 3  // 297mm dalam pixel
+                });
+                
+                // Sembunyikan kembali
+                element.style.display = 'none';
+                
+                // Get image data
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Calculate dimensions untuk A4
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                // Add image ke PDF, penuh halaman
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                
+                // Generate filename
+                const fileName = `Packlaring_${currentData.nip || 'NoNIP'}_${currentData.namaLengkap?.replace(/\s+/g, '_') || 'NoName'}_${new Date().getTime()}.pdf`;
+                
+                // Save PDF
+                pdf.save(fileName);
+                
+                // Update download count in Firestore
+                await updateDownloadCount();
+                
+                // Log analytics
+                analytics.logEvent('letter_downloaded', {
+                    documentId: currentData.id,
+                    nama: currentData.namaLengkap,
+                    nip: currentData.nip
+                });
+                
+                // Show success message
+                alert('✅ PDF berhasil didownload dalam format A4!');
+                
+            } catch (error) {
+                console.error('Error downloading PDF:', error);
+                alert('❌ Gagal download PDF: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Update Download Count
+        async function updateDownloadCount() {
+            try {
+                await db.collection('packlaring').doc(currentData.id).update({
+                    downloadCount: (currentData.downloadCount || 0) + 1,
+                    lastDownloadedAt: new Date(),
+                    lastDownloadedBy: 'User'
+                });
+            } catch (error) {
+                console.error('Error updating download count:', error);
+            }
+        }
+
+        // Print Letter (menggunakan template PRINT)
+        function printLetter() {
+            // Tampilkan template print
+            const printTemplate = document.getElementById('letterTemplatePrint');
+            printTemplate.style.display = 'block';
+            
+            // Simpan konten asli body
+            const originalContent = document.body.innerHTML;
+            
+            // Set body hanya berisi template print
+            document.body.innerHTML = printTemplate.outerHTML;
+            
+            // Print
+            window.print();
+            
+            // Restore konten asli
+            document.body.innerHTML = originalContent;
+            
+            // Sembunyikan template print
+            printTemplate.style.display = 'none';
+            
+            // Restore tampilan
+            document.getElementById('letterContainer').classList.add('active');
+            
+            // Log analytics
+            analytics.logEvent('letter_printed', {
+                documentId: currentData.id,
+                nama: currentData.namaLengkap
+            });
+        }
+
+        // Search Another
+        function searchAnother() {
+            document.getElementById('letterContainer').classList.remove('active');
+            document.getElementById('ktpInput').value = '';
+            document.getElementById('ktpInput').focus();
+            document.getElementById('mobileGuide').classList.remove('active');
+            hideError();
+            
+            // Hide zoom controls
+            document.getElementById('zoomControls').style.display = 'none';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Handle resize untuk mengatur ulang zoom
+        function handleResize() {
+            const letterContainer = document.getElementById('letterContainer');
+            if (letterContainer.classList.contains('active') && currentData) {
+                // Reset zoom berdasarkan ukuran layar
+                if (window.innerWidth <= 767) {
+                    // Mobile
+                    document.getElementById('zoomControls').style.display = 'flex';
+                    document.getElementById('mobileGuide').classList.add('active');
+                    resetZoom();
+                } else {
+                    // Tablet/Desktop
+                    document.getElementById('zoomControls').style.display = 'none';
+                    document.getElementById('mobileGuide').classList.remove('active');
+                    document.getElementById('letterTemplatePreview').style.transform = 'none';
+                }
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Focus on KTP input
+            const ktpInput = document.getElementById('ktpInput');
+            ktpInput.focus();
+            
+            // Enter key to search
+            ktpInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchData();
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', handleResize);
+            
+            // Handle orientation change
+            window.addEventListener('orientationchange', function() {
+                setTimeout(handleResize, 100);
+            });
+            
+            // Log page view
+            analytics.logEvent('download_page_visited');
+            
+            // Check for URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const ktpFromUrl = urlParams.get('ktp');
+            if (ktpFromUrl) {
+                ktpInput.value = ktpFromUrl;
+                // Auto search after a short delay
+                setTimeout(() => {
+                    searchData();
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>
