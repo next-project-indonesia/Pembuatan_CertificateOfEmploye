@@ -974,6 +974,10 @@ body {
     border-left: 5px solid #f39c12;
 }
 
+.notification.info {
+    border-left: 5px solid #3498db;
+}
+
 .notification-icon {
     font-size: 24px;
 }
@@ -988,6 +992,10 @@ body {
 
 .notification.warning .notification-icon {
     color: #f39c12;
+}
+
+.notification.info .notification-icon {
+    color: #3498db;
 }
 
 .notification-content h4 {
@@ -2095,7 +2103,6 @@ body {
                   <option value="200">200 data</option>
                   <option value="500">500 data</option>
                 </select>
-              </div>
             </div>
           </div>
           
@@ -2231,6 +2238,9 @@ body {
   
   // Variables for share modal
   let shareData = null;
+  
+  // Variable untuk menyimpan data asli sebelum diedit
+  let originalDataBeforeEdit = null;
 
   // ==================== FUNGSI UTAMA YANG DIPERBAIKI ====================
 
@@ -3314,7 +3324,7 @@ ${downloadUrl}
   // ==================== FUNGSI EDIT YANG DIPERBAIKI ====================
 
   // Toggle field lokasi untuk teknisi
-  function toggleLokasiField() {
+  function toggleLokasiFields() {
     const jabatan = document.getElementById('editJabatan').value;
     const lokasiFields = document.getElementById('lokasiTeknisiFields');
     
@@ -3337,13 +3347,16 @@ ${downloadUrl}
     const data = allData.find(d => d.id === docId);
     
     if (data) {
+      // Simpan data asli sebelum diedit
+      originalDataBeforeEdit = JSON.parse(JSON.stringify(data));
+      
       // Populate form dengan semua data
       document.getElementById('editNamaLengkap').value = data.namaLengkap || '';
       document.getElementById('editNIP').value = data.nip || '';
       document.getElementById('editNomorKTP').value = data.nomorKTP || '';
       document.getElementById('editTempatLahir').value = data.tempatLahir || '';
       
-      // DIPERBAIKI: Format tanggal untuk input type="date"
+      // DIPERBAIKI: Format tanggal untuk input type="date" - hanya jika ada data
       if (data.tanggalLahir) {
         const tglLahir = new Date(data.tanggalLahir);
         document.getElementById('editTanggalLahir').value = tglLahir.toISOString().split('T')[0];
@@ -3378,6 +3391,7 @@ ${downloadUrl}
         const tglSurat = new Date(data.tanggalSurat);
         document.getElementById('editTanggalSurat').value = tglSurat.toISOString().split('T')[0];
       } else {
+        // Jika tidak ada tanggal surat, gunakan tanggal hari ini
         document.getElementById('editTanggalSurat').value = new Date().toISOString().split('T')[0];
       }
       
@@ -3395,7 +3409,7 @@ ${downloadUrl}
       document.getElementById('editCatatan').value = data.catatanAdmin || '';
       
       // Toggle lokasi field berdasarkan jabatan
-      toggleLokasiField();
+      toggleLokasiFields();
       
       const editModal = document.getElementById('editModal');
       if (editModal) editModal.classList.add('active');
@@ -3405,31 +3419,24 @@ ${downloadUrl}
   function closeModal() {
     const editModal = document.getElementById('editModal');
     if (editModal) editModal.classList.remove('active');
+    originalDataBeforeEdit = null;
   }
 
-  // Update Data - REVISI LENGKAP
+  // Update Data - REVISI LENGKAP - FIX MASALAH TANGGAL
   async function updateData() {
     showLoading(true);
     
     try {
-      // Ambil semua nilai dari form
-      const updateData = {
+      // Ambil nilai dari form
+      const formData = {
         namaLengkap: document.getElementById('editNamaLengkap').value,
         nip: document.getElementById('editNIP').value,
         nomorKTP: document.getElementById('editNomorKTP').value,
         tempatLahir: document.getElementById('editTempatLahir').value,
-        tanggalLahir: document.getElementById('editTanggalLahir').value ? 
-          new Date(document.getElementById('editTanggalLahir').value) : null,
         jabatan: document.getElementById('editJabatan').value,
         deptKaryawan: document.getElementById('editDeptKaryawan').value,
-        tanggalMulai: document.getElementById('editTanggalMulai').value ? 
-          new Date(document.getElementById('editTanggalMulai').value) : null,
-        tanggalBerakhir: document.getElementById('editTanggalBerakhir').value ? 
-          new Date(document.getElementById('editTanggalBerakhir').value) : null,
         alasanBerhenti: document.getElementById('editAlasanBerhenti').value,
         noSurat: document.getElementById('editNoSurat').value,
-        tanggalSurat: document.getElementById('editTanggalSurat').value ? 
-          new Date(document.getElementById('editTanggalSurat').value) : new Date(),
         tujuanSurat: document.getElementById('editTujuanSurat').value,
         whatsapp: document.getElementById('editWhatsapp').value,
         email: document.getElementById('editEmail').value,
@@ -3443,40 +3450,77 @@ ${downloadUrl}
         updatedBy: 'Admin'
       };
       
+      // PERBAIKAN BESAR: Hanya update field tanggal jika diisi di form
+      // Tanggal Lahir
+      const tanggalLahirInput = document.getElementById('editTanggalLahir').value;
+      if (tanggalLahirInput) {
+        formData.tanggalLahir = new Date(tanggalLahirInput);
+      } else if (originalDataBeforeEdit && originalDataBeforeEdit.tanggalLahir) {
+        // Jika kosong di form, pertahankan nilai asli
+        formData.tanggalLahir = originalDataBeforeEdit.tanggalLahir;
+      }
+      
+      // Tanggal Mulai
+      const tanggalMulaiInput = document.getElementById('editTanggalMulai').value;
+      if (tanggalMulaiInput) {
+        formData.tanggalMulai = new Date(tanggalMulaiInput);
+      } else if (originalDataBeforeEdit && originalDataBeforeEdit.tanggalMulai) {
+        formData.tanggalMulai = originalDataBeforeEdit.tanggalMulai;
+      }
+      
+      // Tanggal Berakhir
+      const tanggalBerakhirInput = document.getElementById('editTanggalBerakhir').value;
+      if (tanggalBerakhirInput) {
+        formData.tanggalBerakhir = new Date(tanggalBerakhirInput);
+      } else if (originalDataBeforeEdit && originalDataBeforeEdit.tanggalBerakhir) {
+        formData.tanggalBerakhir = originalDataBeforeEdit.tanggalBerakhir;
+      }
+      
+      // Tanggal Surat
+      const tanggalSuratInput = document.getElementById('editTanggalSurat').value;
+      if (tanggalSuratInput) {
+        formData.tanggalSurat = new Date(tanggalSuratInput);
+      } else if (originalDataBeforeEdit && originalDataBeforeEdit.tanggalSurat) {
+        formData.tanggalSurat = originalDataBeforeEdit.tanggalSurat;
+      } else {
+        // Jika tidak ada, gunakan tanggal hari ini
+        formData.tanggalSurat = new Date();
+      }
+      
       // DIPERBAIKI: Cek apakah jabatan teknisi, jika ya tambahkan field lokasi
-      const isTeknisi = updateData.jabatan && (
-        updateData.jabatan.toLowerCase().includes('teknisi') || 
-        updateData.jabatan.toLowerCase().includes('koordinator') ||
-        updateData.jabatan.toLowerCase().includes('supervisor')
+      const isTeknisi = formData.jabatan && (
+        formData.jabatan.toLowerCase().includes('teknisi') || 
+        formData.jabatan.toLowerCase().includes('koordinator') ||
+        formData.jabatan.toLowerCase().includes('supervisor')
       );
       
       if (isTeknisi) {
-        updateData.wilayahArea = document.getElementById('editWilayah').value || '';
-        updateData.kabupaten = document.getElementById('editKabupaten').value || '';
-        updateData.koordinator = document.getElementById('editKoordinator').value || '';
+        formData.wilayahArea = document.getElementById('editWilayah').value || '';
+        formData.kabupaten = document.getElementById('editKabupaten').value || '';
+        formData.koordinator = document.getElementById('editKoordinator').value || '';
       } else {
-        updateData.wilayahArea = '';
-        updateData.kabupaten = '';
-        updateData.koordinator = '';
+        formData.wilayahArea = '';
+        formData.kabupaten = '';
+        formData.koordinator = '';
       }
       
       // Validasi data wajib
-      if (!updateData.namaLengkap || !updateData.nip || !updateData.nomorKTP) {
+      if (!formData.namaLengkap || !formData.nip || !formData.nomorKTP) {
         throw new Error('Nama, NIP, dan Nomor KTP wajib diisi');
       }
       
-      if (!updateData.jabatan || !updateData.tanggalMulai || !updateData.tanggalBerakhir) {
+      if (!formData.jabatan || !formData.tanggalMulai || !formData.tanggalBerakhir) {
         throw new Error('Jabatan dan tanggal kerja wajib diisi');
       }
       
-      if (!updateData.noSurat || !updateData.tanggalSurat) {
+      if (!formData.noSurat || !formData.tanggalSurat) {
         throw new Error('Nomor surat dan tanggal surat wajib diisi');
       }
       
       // Check for duplicate NIP
-      if (updateData.nip) {
+      if (formData.nip && originalDataBeforeEdit) {
         const duplicateNIP = allData.find(d => 
-          d.id !== selectedDocId && d.nip === updateData.nip
+          d.id !== selectedDocId && d.nip === formData.nip
         );
         
         if (duplicateNIP) {
@@ -3486,9 +3530,9 @@ ${downloadUrl}
       }
       
       // Check for duplicate No KTP
-      if (updateData.nomorKTP) {
+      if (formData.nomorKTP && originalDataBeforeEdit) {
         const duplicateKTP = allData.find(d => 
-          d.id !== selectedDocId && d.nomorKTP === updateData.nomorKTP
+          d.id !== selectedDocId && d.nomorKTP === formData.nomorKTP
         );
         
         if (duplicateKTP) {
@@ -3498,9 +3542,9 @@ ${downloadUrl}
       }
       
       // Check for duplicate No Surat
-      if (updateData.noSurat) {
+      if (formData.noSurat && originalDataBeforeEdit) {
         const duplicateNoSurat = allData.find(d => 
-          d.id !== selectedDocId && d.noSurat === updateData.noSurat
+          d.id !== selectedDocId && d.noSurat === formData.noSurat
         );
         
         if (duplicateNoSurat) {
@@ -3510,7 +3554,7 @@ ${downloadUrl}
       }
       
       // Update ke Firebase
-      await db.collection('packlaring').doc(selectedDocId).update(updateData);
+      await db.collection('packlaring').doc(selectedDocId).update(formData);
       
       closeModal();
       loadData();
@@ -3522,6 +3566,7 @@ ${downloadUrl}
       showNotification('Gagal update data: ' + error.message, 'error');
     } finally {
       showLoading(false);
+      originalDataBeforeEdit = null;
     }
   }
 
