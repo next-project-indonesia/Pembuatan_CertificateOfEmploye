@@ -245,15 +245,11 @@
             padding: 20mm;
             box-sizing: border-box;
             position: relative;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            background: url('./template/next2.png');
-            filter: brightness(1.1);
-            background-size: 100% 100%;
-            background-position: center center;
+            background-color: white;
+            background-image: url('./template/next2.png');
+            background-size: contain;
+            background-position: center;
             background-repeat: no-repeat;
-            background-attachment: scroll;
-            background-origin: padding-box;
-            background-clip: padding-box;
             font-size: 11pt;
             line-height: 1.5;
             color: #333333;
@@ -268,14 +264,11 @@
             padding: 20mm;
             box-sizing: border-box;
             position: relative;
-            background: url('./template/next2.png');
-            filter: brightness(1.1);
-            background-size: 100% 100%;
-            background-position: center center;
+            background-color: white;
+            background-image: url('./template/next2.png');
+            background-size: contain;
+            background-position: center;
             background-repeat: no-repeat;
-            background-attachment: scroll;
-            background-origin: padding-box;
-            background-clip: padding-box;
             font-size: 11pt;
             line-height: 1.5;
             color: #333333;
@@ -901,10 +894,6 @@
                                 <div class="data-value">: <span id="fieldNamaLengkapPreview">..............................................................</span></div>
                             </div>
                             <div class="data-row">
-                                <div class="data-label">Tempat/Tgl Lahir</div>
-                                <div class="data-value">: <span id="fieldTTLPreview">..............................................................</span></div>
-                            </div>
-                            <div class="data-row">
                                 <div class="data-label">Jabatan Terakhir</div>
                                 <div class="data-value">: <span id="fieldJabatanPreview">..............................................................</span></div>
                             </div>
@@ -991,10 +980,6 @@
                             <div class="data-value">: <span id="fieldNamaLengkapPrint">..............................................................</span></div>
                         </div>
                         <div class="data-row">
-                            <div class="data-label">Tempat/Tgl Lahir</div>
-                            <div class="data-value">: <span id="fieldTTLPrint">..............................................................</span></div>
-                        </div>
-                        <div class="data-row">
                             <div class="data-label">Jabatan Terakhir</div>
                             <div class="data-value">: <span id="fieldJabatanPrint">..............................................................</span></div>
                         </div>
@@ -1012,35 +997,36 @@
                     <div class="letter-data-section">
                         <div class="data-row">
                             <div class="data-label">Start Contract</div>
-                            <div class="data-value">: <span id="fieldTanggalMasukPrint">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldTanggalMasukPrint">..............................................................</span></div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">End Contract</div>
+                                <div class="data-value">: <span id="fieldTanggalKeluarPrint">..............................................................</span></div>
+                            </div>
                         </div>
-                        <div class="data-row">
-                            <div class="data-label">End Contract</div>
-                            <div class="data-value">: <span id="fieldTanggalKeluarPrint">..............................................................</span></div>
+
+                        <div class="letter-statement-field">
+                            Alasan berhenti kerja : <span id="fieldAlasanBerhentiPrint">Mengundurkan diri secara baik-baik / kontrak kerja berakhir</span><br>
+                            <em>Reason for leaving : <span id="fieldAlasanBerhentiEnPrint">Resigned in good standing / end of contract</span></em>
                         </div>
-                    </div>
 
-                    <div class="letter-statement-field">
-                        Alasan berhenti kerja : <span id="fieldAlasanBerhentiPrint">Mengundurkan diri secara baik-baik / kontrak kerja berakhir</span><br>
-                        <em>Reason for leaving : <span id="fieldAlasanBerhentiEnPrint">Resigned in good standing / end of contract</span></em>
-                    </div>
+                        <!-- PARAGRAF UCAPAN TERIMA KASIH DENGAN BAHASA INGGRIS -->
+                        <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
+                            Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.<br>
+                            <em style="font-weight: normal;">We would like to express our gratitude for your cooperation during your employment with us and we wish you success in your future career.</em>
+                        </div>
 
-                    <!-- PARAGRAF UCAPAN TERIMA KASIH DENGAN BAHASA INGGRIS -->
-                    <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
-                        Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.<br>
-                        <em style="font-weight: normal;">We would like to express our gratitude for your cooperation during your employment with us and we wish you success in your future career.</em>
-                    </div>
+                        <div class="letter-date-place" id="fieldTempatTanggalPrint">
+                            Bekasi, 1 Desember 2025
+                        </div>
 
-                    <div class="letter-date-place" id="fieldTempatTanggalPrint">
-                        Bekasi, 1 Desember 2025
-                    </div>
+                        <div class="letter-signature">
+                            Hormat kami,<br>
+                            <em>Sincerely,</em><br>
 
-                    <div class="letter-signature">
-                        Hormat kami,<br>
-                        <em>Sincerely,</em><br>
-
-                        <div class="letter-signature-name" id="fieldTandaTanganPrint">M. Fajrian Noor</div>
-                        <span id="fieldJabatanTTDPrint">Direktur</span>
+                            <div class="letter-signature-name" id="fieldTandaTanganPrint">M. Fajrian Noor</div>
+                            <span id="fieldJabatanTTDPrint">Direktur</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1409,12 +1395,8 @@
             }
         }
 
-        // Populate BOTH Letter Templates
+        // Populate BOTH Letter Templates (TANPA TANGGAL LAHIR)
         function populateLetterTemplates() {
-            // Format TTL
-            const tempatLahir = currentData.tempatLahir || '-';
-            const tglLahir = formatLetterDate(currentData.tanggalLahir);
-            
             // Format alasan berhenti dalam dua bahasa
             const alasanBerhentiMap = {
                 'KONTRAK BERAKHIR': { id: 'Kontrak kerja berakhir', en: 'End of contract' },
@@ -1448,42 +1430,38 @@
                 }
             }
             
-            // Format tanggal surat - FIX untuk menghindari "undefined"
+            // Format tanggal surat
             let tanggalSuratFormatted;
             try {
                 tanggalSuratFormatted = formatLetterDate(currentData.tanggalSurat);
             } catch (error) {
                 console.error('Error formatting tanggal surat:', error);
-                tanggalSuratFormatted = formatLetterDate(new Date()); // Fallback ke hari ini
+                tanggalSuratFormatted = formatLetterDate(new Date());
             }
             
-            // Data untuk kedua template
+            // Data untuk kedua template (TANPA TANGGAL LAHIR)
             const templateData = {
                 noSurat: currentData.noSurat || '02/SK-HRD/NEXT/I/25',
                 penandatangan: currentData.namaPenandatangan || settings.defaultPenandatangan,
                 jabatanPenandatangan: currentData.jabatanPenandatangan || settings.defaultJabatan,
                 namaLengkap: currentData.namaLengkap || '.................................................',
-                ttl: `${tempatLahir}, ${tglLahir}`,
                 jabatan: currentData.jabatan || '.................................................',
                 nip: currentData.nip || '.................................................',
                 tanggalMasuk: formatLetterDate(currentData.tanggalMulai),
                 tanggalKeluar: formatLetterDate(currentData.tanggalBerakhir),
                 alasanBerhentiId: alasanBerhenti.id,
                 alasanBerhentiEn: alasanBerhenti.en,
-                tempatTanggal: `${settings.kotaTandaTangan}, ${tanggalSuratFormatted}`, // FIXED: Tidak akan ada "undefined"
+                tempatTanggal: `${settings.kotaTandaTangan}, ${tanggalSuratFormatted}`,
                 tandaTangan: currentData.namaPenandatangan || settings.defaultPenandatangan,
                 jabatanTTD: currentData.jabatanPenandatangan || settings.defaultJabatan
             };
             
-            // Debug log untuk memastikan data benar
-            console.log('Template data:', templateData);
-            
-            // Update PREVIEW template
+            // Update PREVIEW template (TANPA TANGGAL LAHIR)
             document.getElementById('letterNoPreview').textContent = `NO : ${templateData.noSurat}`;
             document.getElementById('fieldPenandatanganPreview').textContent = templateData.penandatangan;
             document.getElementById('fieldJabatanPenandatanganPreview').textContent = templateData.jabatanPenandatangan;
             document.getElementById('fieldNamaLengkapPreview').textContent = templateData.namaLengkap;
-            document.getElementById('fieldTTLPreview').textContent = templateData.ttl;
+            // HAPUS field tanggal lahir dari template preview
             document.getElementById('fieldJabatanPreview').textContent = templateData.jabatan;
             document.getElementById('fieldNIPPreview').textContent = templateData.nip;
             document.getElementById('fieldTanggalMasukPreview').textContent = templateData.tanggalMasuk;
@@ -1494,12 +1472,12 @@
             document.getElementById('fieldTandaTanganPreview').textContent = templateData.tandaTangan;
             document.getElementById('fieldJabatanTTDPreview').textContent = templateData.jabatanTTD;
             
-            // Update PRINT template
+            // Update PRINT template (TANPA TANGGAL LAHIR)
             document.getElementById('letterNoPrint').textContent = `NO : ${templateData.noSurat}`;
             document.getElementById('fieldPenandatanganPrint').textContent = templateData.penandatangan;
             document.getElementById('fieldJabatanPenandatanganPrint').textContent = templateData.jabatanPenandatangan;
             document.getElementById('fieldNamaLengkapPrint').textContent = templateData.namaLengkap;
-            document.getElementById('fieldTTLPrint').textContent = templateData.ttl;
+            // HAPUS field tanggal lahir dari template print
             document.getElementById('fieldJabatanPrint').textContent = templateData.jabatan;
             document.getElementById('fieldNIPPrint').textContent = templateData.nip;
             document.getElementById('fieldTanggalMasukPrint').textContent = templateData.tanggalMasuk;
@@ -1531,8 +1509,8 @@
                     backgroundColor: '#ffffff',
                     useCORS: true,
                     logging: false,
-                    windowWidth: 210 * 3, // 210mm dalam pixel
-                    windowHeight: 297 * 3  // 297mm dalam pixel
+                    windowWidth: 210 * 3,
+                    windowHeight: 297 * 3
                 });
                 
                 // Sembunyikan kembali
