@@ -245,18 +245,19 @@
             padding: 20mm;
             box-sizing: border-box;
             position: relative;
-            background-color: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            background: url('./template/next2.png');
+            filter: brightness(1.1);
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            background-origin: padding-box;
+            background-clip: padding-box;
             font-size: 11pt;
             line-height: 1.5;
             color: #333333;
             display: none; /* Sembunyikan, hanya untuk PDF */
-            overflow: hidden;
-            /* Background dengan padding untuk menghindari potongan */
-            background-image: url('./template/next2.png');
-            background-size: calc(100% - 40mm) calc(100% - 40mm); /* Mengurangi ukuran untuk margin */
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-origin: content-box;
         }
 
         /* Template Surat PREVIEW - untuk Tampilan Mobile */
@@ -267,39 +268,18 @@
             padding: 20mm;
             box-sizing: border-box;
             position: relative;
-            background-color: white;
+            background: url('./template/next2.png');
+            filter: brightness(1.1);
+            background-size: 100% 100%;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            background-origin: padding-box;
+            background-clip: padding-box;
             font-size: 11pt;
             line-height: 1.5;
             color: #333333;
             transform-origin: top left;
-            overflow: hidden;
-            /* Background dengan padding untuk menghindari potongan */
-            background-image: url('./template/next2.png');
-            background-size: calc(100% - 40mm) calc(100% - 40mm); /* Mengurangi ukuran untuk margin */
-            background-position: center center;
-            background-repeat: no-repeat;
-            background-origin: content-box;
-        }
-
-        /* Overlay untuk meningkatkan keterbacaan teks */
-        .letter-template-print::before,
-        .letter-template-preview::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.85); /* Overlay putih transparan */
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* Konten surat di atas background dan overlay */
-        .letter-template-print > *,
-        .letter-template-preview > * {
-            position: relative;
-            z-index: 2; /* Di atas background image dan overlay */
         }
 
         /* Styling untuk konten surat (sama untuk print dan preview) */
@@ -768,14 +748,6 @@
                 margin: 0;
                 transform: none !important;
                 display: block !important;
-                background-image: url('./template/next2.png');
-                background-size: contain;
-                background-position: center;
-                background-repeat: no-repeat;
-            }
-            
-            .letter-template-print::before {
-                display: none; /* Sembunyikan overlay saat print */
             }
             
             .action-buttons, .back-button-mobile, .header, .search-section, .zoom-controls, .letter-preview-container {
@@ -928,6 +900,7 @@
                                 <div class="data-label">Nama Lengkap</div>
                                 <div class="data-value">: <span id="fieldNamaLengkapPreview">..............................................................</span></div>
                             </div>
+                            <!-- FIELD TEMPAT/TGL LAHIR DIHAPUS -->
                             <div class="data-row">
                                 <div class="data-label">Jabatan Terakhir</div>
                                 <div class="data-value">: <span id="fieldJabatanPreview">..............................................................</span></div>
@@ -1012,26 +985,27 @@
                     <div class="letter-data-section">
                         <div class="data-row">
                             <div class="data-label">Nama Lengkap</div>
-                            <div class="data-value">: <span id="fieldNamaLengkapPrint">..............................................................</span></div>
+                                <div class="data-value">: <span id="fieldNamaLengkapPrint">..............................................................</span></div>
+                            </div>
+                            <!-- FIELD TEMPAT/TGL LAHIR DIHAPUS -->
+                            <div class="data-row">
+                                <div class="data-label">Jabatan Terakhir</div>
+                                <div class="data-value">: <span id="fieldJabatanPrint">..............................................................</span></div>
+                            </div>
+                            <div class="data-row">
+                                <div class="data-label">Nomor Identitas</div>
+                                <div class="data-value">: <span id="fieldNIPPrint">..............................................................</span></div>
+                            </div>
                         </div>
-                        <div class="data-row">
-                            <div class="data-label">Jabatan Terakhir</div>
-                            <div class="data-value">: <span id="fieldJabatanPrint">..............................................................</span></div>
-                        </div>
-                        <div class="data-row">
-                            <div class="data-label">Nomor Identitas</div>
-                            <div class="data-value">: <span id="fieldNIPPrint">..............................................................</span></div>
-                        </div>
-                    </div>
 
-                    <div class="letter-statement" style="margin-top:0.6cm;">
-                        Adalah benar pernah bekerja di perusahaan kami sejak:<br>
-                        <em>Was employed at our company starting from:</em>
-                    </div>
+                        <div class="letter-statement" style="margin-top:0.6cm;">
+                            Adalah benar pernah bekerja di perusahaan kami sejak:<br>
+                            <em>Was employed at our company starting from:</em>
+                        </div>
 
-                    <div class="letter-data-section">
-                        <div class="data-row">
-                            <div class="data-label">Start Contract</div>
+                        <div class="letter-data-section">
+                            <div class="data-row">
+                                <div class="data-label">Start Contract</div>
                                 <div class="data-value">: <span id="fieldTanggalMasukPrint">..............................................................</span></div>
                             </div>
                             <div class="data-row">
@@ -1430,7 +1404,7 @@
             }
         }
 
-        // Populate BOTH Letter Templates (TANPA TANGGAL LAHIR)
+        // Populate BOTH Letter Templates
         function populateLetterTemplates() {
             // Format alasan berhenti dalam dua bahasa
             const alasanBerhentiMap = {
@@ -1465,16 +1439,16 @@
                 }
             }
             
-            // Format tanggal surat
+            // Format tanggal surat - FIX untuk menghindari "undefined"
             let tanggalSuratFormatted;
             try {
                 tanggalSuratFormatted = formatLetterDate(currentData.tanggalSurat);
             } catch (error) {
                 console.error('Error formatting tanggal surat:', error);
-                tanggalSuratFormatted = formatLetterDate(new Date());
+                tanggalSuratFormatted = formatLetterDate(new Date()); // Fallback ke hari ini
             }
             
-            // Data untuk kedua template (TANPA TANGGAL LAHIR)
+            // Data untuk kedua template
             const templateData = {
                 noSurat: currentData.noSurat || '02/SK-HRD/NEXT/I/25',
                 penandatangan: currentData.namaPenandatangan || settings.defaultPenandatangan,
@@ -1491,7 +1465,10 @@
                 jabatanTTD: currentData.jabatanPenandatangan || settings.defaultJabatan
             };
             
-            // Update PREVIEW template (TANPA TANGGAL LAHIR)
+            // Debug log untuk memastikan data benar
+            console.log('Template data:', templateData);
+            
+            // Update PREVIEW template
             document.getElementById('letterNoPreview').textContent = `NO : ${templateData.noSurat}`;
             document.getElementById('fieldPenandatanganPreview').textContent = templateData.penandatangan;
             document.getElementById('fieldJabatanPenandatanganPreview').textContent = templateData.jabatanPenandatangan;
@@ -1506,7 +1483,7 @@
             document.getElementById('fieldTandaTanganPreview').textContent = templateData.tandaTangan;
             document.getElementById('fieldJabatanTTDPreview').textContent = templateData.jabatanTTD;
             
-            // Update PRINT template (TANPA TANGGAL LAHIR)
+            // Update PRINT template
             document.getElementById('letterNoPrint').textContent = `NO : ${templateData.noSurat}`;
             document.getElementById('fieldPenandatanganPrint').textContent = templateData.penandatangan;
             document.getElementById('fieldJabatanPenandatanganPrint').textContent = templateData.jabatanPenandatangan;
@@ -1536,35 +1513,14 @@
                 // Tampilkan template print sementara
                 element.style.display = 'block';
                 
-                // Preload image untuk memastikan render dengan baik
-                await new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.src = './template/next2.png';
-                    img.onload = () => {
-                        element.style.backgroundImage = `url('${img.src}')`;
-                        resolve();
-                    };
-                    img.onerror = reject;
-                    setTimeout(resolve, 1000); // Fallback timeout
-                });
-                
                 // Convert to canvas dengan kualitas tinggi
                 const canvas = await html2canvas(element, {
                     scale: 3, // Kualitas tinggi untuk PDF
                     backgroundColor: '#ffffff',
                     useCORS: true,
                     logging: false,
-                    windowWidth: 210 * 3,
-                    windowHeight: 297 * 3,
-                    allowTaint: true,
-                    useCORS: true,
-                    onclone: function(clonedDoc) {
-                        // Memastikan overlay tidak tampil di PDF
-                        const clonedElement = clonedDoc.getElementById('letterTemplatePrint');
-                        if (clonedElement) {
-                            clonedElement.style.setProperty('--background-overlay', 'none');
-                        }
-                    }
+                    windowWidth: 210 * 3, // 210mm dalam pixel
+                    windowHeight: 297 * 3  // 297mm dalam pixel
                 });
                 
                 // Sembunyikan kembali
