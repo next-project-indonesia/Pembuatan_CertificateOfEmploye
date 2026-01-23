@@ -246,14 +246,11 @@
             box-sizing: border-box;
             position: relative;
             background-color: white;
-            background-image: url('./template/next2.png');
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
             font-size: 11pt;
             line-height: 1.5;
             color: #333333;
             display: none; /* Sembunyikan, hanya untuk PDF */
+            overflow: hidden;
         }
 
         /* Template Surat PREVIEW - untuk Tampilan Mobile */
@@ -265,14 +262,36 @@
             box-sizing: border-box;
             position: relative;
             background-color: white;
-            background-image: url('./template/next2.png');
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
             font-size: 11pt;
             line-height: 1.5;
             color: #333333;
             transform-origin: top left;
+            overflow: hidden;
+        }
+
+        /* Image Background Template */
+        .letter-template-print::before,
+        .letter-template-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./template/next2.png');
+            background-size: cover; /* Menggunakan cover untuk mengisi seluruh area */
+            background-position: center center;
+            background-repeat: no-repeat;
+            opacity: 0.9; /* Sedikit transparan agar teks mudah dibaca */
+            z-index: 1;
+            pointer-events: none; /* Agar tidak mengganggu interaksi dengan teks */
+        }
+
+        /* Konten surat di atas background */
+        .letter-template-print > *,
+        .letter-template-preview > * {
+            position: relative;
+            z-index: 2; /* Di atas background image */
         }
 
         /* Styling untuk konten surat (sama untuk print dan preview) */
@@ -1011,7 +1030,7 @@
                         </div>
 
                         <!-- PARAGRAF UCAPAN TERIMA KASIH DENGAN BAHASA INGGRIS -->
-                        <div class="letter-statement" style="margin-top:1cm;font-weight: bold;">
+                        <div class="letter-statement" style="margin-top:0.3cm;font-weight: bold;">
                             Kami mengucapkan terimakasih atas kerjasama saudara selama bekerja dengan kami dan kami berharap saudara sukses dalam karir saudara di masa depan.<br>
                             <em style="font-weight: normal;">We would like to express our gratitude for your cooperation during your employment with us and we wish you success in your future career.</em>
                         </div>
@@ -1461,7 +1480,6 @@
             document.getElementById('fieldPenandatanganPreview').textContent = templateData.penandatangan;
             document.getElementById('fieldJabatanPenandatanganPreview').textContent = templateData.jabatanPenandatangan;
             document.getElementById('fieldNamaLengkapPreview').textContent = templateData.namaLengkap;
-            // HAPUS field tanggal lahir dari template preview
             document.getElementById('fieldJabatanPreview').textContent = templateData.jabatan;
             document.getElementById('fieldNIPPreview').textContent = templateData.nip;
             document.getElementById('fieldTanggalMasukPreview').textContent = templateData.tanggalMasuk;
@@ -1477,7 +1495,6 @@
             document.getElementById('fieldPenandatanganPrint').textContent = templateData.penandatangan;
             document.getElementById('fieldJabatanPenandatanganPrint').textContent = templateData.jabatanPenandatangan;
             document.getElementById('fieldNamaLengkapPrint').textContent = templateData.namaLengkap;
-            // HAPUS field tanggal lahir dari template print
             document.getElementById('fieldJabatanPrint').textContent = templateData.jabatan;
             document.getElementById('fieldNIPPrint').textContent = templateData.nip;
             document.getElementById('fieldTanggalMasukPrint').textContent = templateData.tanggalMasuk;
@@ -1510,7 +1527,19 @@
                     useCORS: true,
                     logging: false,
                     windowWidth: 210 * 3,
-                    windowHeight: 297 * 3
+                    windowHeight: 297 * 3,
+                    onclone: function(clonedDoc) {
+                        // Pastikan gambar background dimuat dengan benar
+                        const clonedElement = clonedDoc.getElementById('letterTemplatePrint');
+                        if (clonedElement) {
+                            // Preload image untuk memastikan render dengan baik
+                            const img = new Image();
+                            img.src = './template/next2.png';
+                            img.onload = function() {
+                                clonedElement.style.backgroundImage = `url('${img.src}')`;
+                            };
+                        }
+                    }
                 });
                 
                 // Sembunyikan kembali
