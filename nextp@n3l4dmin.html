@@ -3341,7 +3341,7 @@ ${downloadUrl}
     }
   }
 
-  // Edit Data - REVISI LENGKAP
+  // Edit Data - REVISI LENGKAP DENGAN PERBAIKAN TANGGAL SURAT
   function editData(docId) {
     selectedDocId = docId;
     const data = allData.find(d => d.id === docId);
@@ -3356,7 +3356,7 @@ ${downloadUrl}
       document.getElementById('editNomorKTP').value = data.nomorKTP || '';
       document.getElementById('editTempatLahir').value = data.tempatLahir || '';
       
-      // DIPERBAIKI: Format tanggal untuk input type="date" - hanya jika ada data
+      // PERBAIKAN: Format tanggal untuk input type="date" 
       if (data.tanggalLahir) {
         const tglLahir = new Date(data.tanggalLahir);
         document.getElementById('editTanggalLahir').value = tglLahir.toISOString().split('T')[0];
@@ -3367,7 +3367,7 @@ ${downloadUrl}
       document.getElementById('editJabatan').value = data.jabatan || '';
       document.getElementById('editDeptKaryawan').value = data.deptKaryawan || '';
       
-      // DIPERBAIKI: Format tanggal mulai
+      // PERBAIKAN: Format tanggal mulai
       if (data.tanggalMulai) {
         const tglMulai = new Date(data.tanggalMulai);
         document.getElementById('editTanggalMulai').value = tglMulai.toISOString().split('T')[0];
@@ -3375,7 +3375,7 @@ ${downloadUrl}
         document.getElementById('editTanggalMulai').value = '';
       }
       
-      // DIPERBAIKI: Format tanggal berakhir
+      // PERBAIKAN: Format tanggal berakhir
       if (data.tanggalBerakhir) {
         const tglBerakhir = new Date(data.tanggalBerakhir);
         document.getElementById('editTanggalBerakhir').value = tglBerakhir.toISOString().split('T')[0];
@@ -3386,10 +3386,43 @@ ${downloadUrl}
       document.getElementById('editAlasanBerhenti').value = data.alasanBerhenti || 'Kontrak Berakhir';
       document.getElementById('editNoSurat').value = data.noSurat || '';
       
-      // DIPERBAIKI: Format tanggal surat
+      // PERBAIKAN UTAMA: Format tanggal surat - Pastikan format yang benar untuk input date
       if (data.tanggalSurat) {
-        const tglSurat = new Date(data.tanggalSurat);
-        document.getElementById('editTanggalSurat').value = tglSurat.toISOString().split('T')[0];
+        let tglSurat;
+        
+        // Cek apakah tanggalSurat adalah objek Date atau string
+        if (data.tanggalSurat instanceof Date) {
+          tglSurat = data.tanggalSurat;
+        } else if (typeof data.tanggalSurat === 'string') {
+          // Jika string, parse menjadi Date
+          tglSurat = new Date(data.tanggalSurat);
+          
+          // Jika parsing gagal, coba format lain
+          if (isNaN(tglSurat.getTime())) {
+            // Coba format dd/mm/yyyy
+            const parts = data.tanggalSurat.split('/');
+            if (parts.length === 3) {
+              tglSurat = new Date(parts[2], parts[1] - 1, parts[0]);
+            } else {
+              // Coba format yyyy-mm-dd
+              tglSurat = new Date(data.tanggalSurat.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1'));
+            }
+          }
+        } else if (data.tanggalSurat && data.tanggalSurat.toDate) {
+          // Jika Firestore timestamp
+          tglSurat = data.tanggalSurat.toDate();
+        } else {
+          // Fallback: gunakan tanggal hari ini
+          tglSurat = new Date();
+        }
+        
+        // Pastikan tanggal valid
+        if (tglSurat && !isNaN(tglSurat.getTime())) {
+          document.getElementById('editTanggalSurat').value = tglSurat.toISOString().split('T')[0];
+        } else {
+          // Jika tidak valid, gunakan hari ini
+          document.getElementById('editTanggalSurat').value = new Date().toISOString().split('T')[0];
+        }
       } else {
         // Jika tidak ada tanggal surat, gunakan tanggal hari ini
         document.getElementById('editTanggalSurat').value = new Date().toISOString().split('T')[0];
@@ -3422,7 +3455,7 @@ ${downloadUrl}
     originalDataBeforeEdit = null;
   }
 
-  // Update Data - REVISI LENGKAP - FIX MASALAH TANGGAL
+  // Update Data - REVISI LENGKAP - PERBAIKAN UTAMA TANGGAL SURAT
   async function updateData() {
     showLoading(true);
     
@@ -3450,7 +3483,7 @@ ${downloadUrl}
         updatedBy: 'Admin'
       };
       
-      // PERBAIKAN BESAR: Hanya update field tanggal jika diisi di form
+      // PERBAIKAN: Handle semua field tanggal dengan benar
       // Tanggal Lahir
       const tanggalLahirInput = document.getElementById('editTanggalLahir').value;
       if (tanggalLahirInput) {
@@ -3476,11 +3509,16 @@ ${downloadUrl}
         formData.tanggalBerakhir = originalDataBeforeEdit.tanggalBerakhir;
       }
       
-      // Tanggal Surat
+      // PERBAIKAN UTAMA: Tanggal Surat - Tangani dengan hati-hati
       const tanggalSuratInput = document.getElementById('editTanggalSurat').value;
+      console.log('Tanggal Surat Input:', tanggalSuratInput);
+      
       if (tanggalSuratInput) {
+        // Input date selalu dalam format YYYY-MM-DD
         formData.tanggalSurat = new Date(tanggalSuratInput);
+        console.log('Tanggal Surat setelah parse:', formData.tanggalSurat);
       } else if (originalDataBeforeEdit && originalDataBeforeEdit.tanggalSurat) {
+        // Jika kosong, pertahankan nilai asli
         formData.tanggalSurat = originalDataBeforeEdit.tanggalSurat;
       } else {
         // Jika tidak ada, gunakan tanggal hari ini
@@ -3552,6 +3590,10 @@ ${downloadUrl}
           return;
         }
       }
+      
+      // Debug: Tampilkan data yang akan diupdate
+      console.log('Data yang akan diupdate:', formData);
+      console.log('Tanggal Surat untuk update:', formData.tanggalSurat);
       
       // Update ke Firebase
       await db.collection('packlaring').doc(selectedDocId).update(formData);
