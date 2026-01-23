@@ -737,14 +737,6 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="required">Tempat Lahir</label>
-          <input type="text" id="tempatLahir" class="form-control" placeholder="MASUKKAN KOTA KELAHIRAN"
-            oninput="this.value = this.value.toUpperCase()" onblur="this.value = this.value.trim().toUpperCase()">
-          <span class="help-text">Contoh: JAKARTA, SURABAYA, BANDUNG</span>
-          <div class="error-message" id="errorTempatLahir"></div>
-        </div>
-
         <div class="form-row">
           <div class="form-group">
             <label class="required">NIP / ID Karyawan</label>
@@ -919,9 +911,10 @@
         </div>
 
         <div class="form-group">
-          <label>No. WhatsApp untuk Konfirmasi</label>
-          <input type="tel" id="whatsapp" class="form-control" placeholder="081234567890">
-          <span class="help-text">Admin akan menghubungi via WhatsApp</span>
+          <label class="required">No. WhatsApp untuk Konfirmasi</label>
+          <input type="tel" id="whatsapp" class="form-control" placeholder="081234567890" required>
+          <span class="help-text">Nomor WhatsApp aktif untuk konfirmasi dari admin (wajib diisi)</span>
+          <div class="error-message" id="errorWhatsApp"></div>
         </div>
 
         <div class="alert alert-info" style="display: block;">
@@ -930,6 +923,7 @@
             • DATA YANG SUDAH DIKIRIM AKAN DIPROSES OLEH HRD DALAM 1-3 HARI KERJA<br>
             • PASTIKAN SEMUA DATA SUDAH BENAR SEBELUM MENGIRIM<br>
             • ADMIN AKAN MENGHUBUNGI VIA WHATSAPP UNTUK KONFIRMASI<br>
+            • NOMOR WHATSAPP WAJIB DIISI UNTUK KONFIRMASI<br>
             • SETIAP NOMOR KTP HANYA BOLEH TERDAFTAR SATU KALI
           </p>
         </div>
@@ -1055,6 +1049,24 @@
         return false;
       }
 
+      return true;
+    }
+
+    // Fungsi untuk validasi nomor WhatsApp
+    function validateWhatsApp(whatsapp) {
+      // Hapus semua karakter non-digit
+      const cleanWA = whatsapp.replace(/\D/g, '');
+      
+      // Validasi minimal 10 digit (tanpa kode negara)
+      if (cleanWA.length < 10) {
+        return false;
+      }
+      
+      // Validasi hanya angka
+      if (!/^\d+$/.test(cleanWA)) {
+        return false;
+      }
+      
       return true;
     }
 
@@ -1292,11 +1304,6 @@
             errors.push('Wilayah Area Kerja harus dipilih');
           }
           
-          if (!document.getElementById('tempatLahir').value.trim()) {
-            showError('errorTempatLahir', 'Tempat Lahir harus diisi');
-            errors.push('Tempat Lahir harus diisi');
-          }
-          
           if (!generatedData.nip) {
             showError('errorNIP', 'Generate NIP terlebih dahulu');
             errors.push('Generate NIP terlebih dahulu');
@@ -1350,6 +1357,17 @@
           if (tanggalBerakhir <= tanggalMulai) {
             showError('errorTanggalBerakhir', 'Tanggal Berakhir harus setelah Tanggal Mulai');
             errors.push('Tanggal Berakhir harus setelah Tanggal Mulai');
+          }
+          break;
+
+        case 4: // Konfirmasi
+          const whatsappValue = document.getElementById('whatsapp').value.trim();
+          if (!whatsappValue) {
+            showError('errorWhatsApp', 'Nomor WhatsApp harus diisi');
+            errors.push('Nomor WhatsApp harus diisi');
+          } else if (!validateWhatsApp(whatsappValue)) {
+            showError('errorWhatsApp', 'Nomor WhatsApp tidak valid. Minimal 10 digit angka');
+            errors.push('Nomor WhatsApp tidak valid');
           }
           break;
       }
@@ -1592,12 +1610,12 @@
         nip: document.getElementById('nip').value,
         jabatan: jabatan,
         dept: document.getElementById('deptKaryawan').value,
-        tempatLahir: document.getElementById('tempatLahir').value,
         tglMulai: formatDate(document.getElementById('tanggalMulai').value),
         tglBerakhir: formatDate(document.getElementById('tanggalBerakhir').value),
         alasan: document.getElementById('alasanBerhenti').value,
         tglSurat: formatDate(document.getElementById('tanggalSurat').value),
-        tujuan: document.getElementById('tujuanSurat').value
+        tujuan: document.getElementById('tujuanSurat').value,
+        whatsapp: document.getElementById('whatsapp').value
       };
 
       const previewHTML = `
@@ -1616,10 +1634,6 @@
       <div class="preview-item">
         <div class="preview-label">Wilayah Area Kerja</div>
         <div class="preview-value">${data.wilayahArea}</div>
-      </div>
-      <div class="preview-item">
-        <div class="preview-label">Tempat Lahir</div>
-        <div class="preview-value">${data.tempatLahir}</div>
       </div>
       ${kordinatorInfo}
       <div class="preview-item">
@@ -1641,6 +1655,10 @@
       <div class="preview-item">
         <div class="preview-label">Alasan Berhenti</div>
         <div class="preview-value">${data.alasan}</div>
+      </div>
+      <div class="preview-item">
+        <div class="preview-label">WhatsApp</div>
+        <div class="preview-value">${data.whatsapp}</div>
       </div>
       <div class="preview-item">
         <div class="preview-label">Tanggal Surat</div>
@@ -1683,7 +1701,6 @@
           namaLengkap: document.getElementById('namaLengkap').value.trim().toUpperCase(),
           nomorKTP: document.getElementById('nomorKTP').value.toUpperCase(),
           wilayahArea: document.getElementById('wilayahArea').value.toUpperCase(),
-          tempatLahir: document.getElementById('tempatLahir').value.trim().toUpperCase(),
           nip: document.getElementById('nip').value,
           jabatan: document.getElementById('jabatan').value.trim().toUpperCase(),
           deptKaryawan: document.getElementById('deptKaryawan').value.toUpperCase(),
@@ -1809,7 +1826,6 @@ ${data.catatanKordinator ? `📝 ${data.catatanKordinator}` : ''}
 NAMA: *${data.namaLengkap}*
 NOMOR KTP: ${data.nomorKTP}
 WILAYAH AREA: ${data.wilayahArea}
-TEMPAT LAHIR: ${data.tempatLahir}
 NIP: ${data.nip}
 JABATAN: ${data.jabatan}
 DEPARTEMEN: ${data.deptKaryawan}
@@ -1845,7 +1861,6 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
       document.getElementById('namaLengkap').value = '';
       document.getElementById('nomorKTP').value = '';
       document.getElementById('wilayahArea').value = '';
-      document.getElementById('tempatLahir').value = '';
       document.getElementById('nip').value = '';
       document.getElementById('jabatan').value = '';
       document.getElementById('deptKaryawan').value = '';
@@ -1958,6 +1973,16 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
 
       // Event listener untuk validasi KTP saat input
       document.getElementById('nomorKTP').addEventListener('blur', validateUniqueKTP);
+
+      // Event listener untuk validasi WhatsApp
+      document.getElementById('whatsapp').addEventListener('blur', function() {
+        const value = this.value.trim();
+        if (value && !validateWhatsApp(value)) {
+          showError('errorWhatsApp', 'Nomor WhatsApp tidak valid. Minimal 10 digit angka');
+        } else {
+          hideError('errorWhatsApp');
+        }
+      });
 
       // Show welcome message
       setTimeout(() => {
