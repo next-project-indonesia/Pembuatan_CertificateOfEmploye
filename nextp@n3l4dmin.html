@@ -673,7 +673,7 @@ body {
     background: white;
     border-radius: 15px;
     width: 90%;
-    max-width: 700px;
+    max-width: 900px;
     max-height: 90vh;
     overflow-y: auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -713,30 +713,37 @@ body {
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     color: #333;
     font-weight: 500;
+    font-size: 13px;
 }
 
 .form-control {
     width: 100%;
-    padding: 12px 15px;
+    padding: 10px 12px;
     border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 6px;
+    font-size: 13px;
     background: #f8f9fa;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
 /* Extended Edit Modal */
 .extended-edit-form {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
 }
 
 .extended-edit-form .form-group.full-width {
@@ -767,6 +774,10 @@ body {
     
     .data-table {
         min-width: 1400px;
+    }
+    
+    .extended-edit-form {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
@@ -827,6 +838,12 @@ body {
         margin-bottom: 2px;
     }
     
+    .extended-edit-form {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
     .extended-edit-form {
         grid-template-columns: 1fr;
     }
@@ -1270,7 +1287,7 @@ body {
   <button class="notification-close" onclick="hideNotification()">×</button>
 </div>
 
-<!-- Modal Edit Data Lengkap -->
+<!-- Modal Edit Data Lengkap (REVISI) -->
 <div class="modal" id="editModal">
   <div class="modal-content">
     <div class="modal-header">
@@ -1281,54 +1298,116 @@ body {
       <form id="editForm" class="extended-edit-form">
         <!-- Data Pribadi -->
         <div class="form-group">
-          <label>Nama Lengkap</label>
-          <input type="text" id="editNamaLengkap" class="form-control" placeholder="Nama Lengkap">
+          <label>Nama Lengkap *</label>
+          <input type="text" id="editNamaLengkap" class="form-control" placeholder="Nama Lengkap" required>
         </div>
         <div class="form-group">
-          <label>NIP</label>
-          <input type="text" id="editNIP" class="form-control" placeholder="NIP">
+          <label>NIP *</label>
+          <input type="text" id="editNIP" class="form-control" placeholder="NIP" required>
+        </div>
+        <div class="form-group">
+          <label>Nomor KTP *</label>
+          <input type="text" id="editNomorKTP" class="form-control" placeholder="Nomor KTP" required>
+        </div>
+        <div class="form-group">
+          <label>Tempat Lahir</label>
+          <input type="text" id="editTempatLahir" class="form-control" placeholder="Tempat Lahir">
+        </div>
+        <div class="form-group">
+          <label>Tanggal Lahir</label>
+          <input type="date" id="editTanggalLahir" class="form-control">
+        </div>
+        
+        <!-- Data Perusahaan -->
+        <div class="form-group">
+          <label>Jabatan *</label>
+          <input type="text" id="editJabatan" class="form-control" placeholder="Jabatan" required>
+        </div>
+        <div class="form-group">
+          <label>Departemen</label>
+          <input type="text" id="editDeptKaryawan" class="form-control" placeholder="Departemen">
+        </div>
+        <div class="form-group">
+          <label>Tanggal Mulai *</label>
+          <input type="date" id="editTanggalMulai" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Tanggal Berakhir *</label>
+          <input type="date" id="editTanggalBerakhir" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Alasan Berhenti *</label>
+          <select id="editAlasanBerhenti" class="form-control" required>
+            <option value="Kontrak Berakhir">Kontrak Berakhir</option>
+            <option value="Pengunduran Diri">Pengunduran Diri</option>
+            <option value="PHK">PHK</option>
+            <option value="Pensiun">Pensiun</option>
+            <option value="Meninggal Dunia">Meninggal Dunia</option>
+          </select>
         </div>
         
         <!-- Data Surat -->
         <div class="form-group">
-          <label>Nomor Surat</label>
-          <input type="text" id="editNoSurat" class="form-control" placeholder="Nomor Surat">
+          <label>Nomor Surat *</label>
+          <input type="text" id="editNoSurat" class="form-control" placeholder="Nomor Surat" required>
         </div>
         <div class="form-group">
-          <label>Tanggal Surat</label>
-          <input type="date" id="editTanggalSurat" class="form-control">
+          <label>Tanggal Surat *</label>
+          <input type="date" id="editTanggalSurat" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Tujuan Surat</label>
+          <input type="text" id="editTujuanSurat" class="form-control" placeholder="Tujuan Surat">
         </div>
         
-        <!-- Data Kontak -->
+        <!-- Data Kontak & Lokasi -->
         <div class="form-group">
-          <label>WhatsApp</label>
-          <input type="text" id="editWhatsapp" class="form-control" placeholder="WhatsApp">
+          <label>WhatsApp *</label>
+          <input type="text" id="editWhatsapp" class="form-control" placeholder="WhatsApp" required>
         </div>
         <div class="form-group">
-          <label>Provinsi/Wilayah</label>
-          <input type="text" id="editWilayah" class="form-control" placeholder="Provinsi/Wilayah">
+          <label>Email</label>
+          <input type="email" id="editEmail" class="form-control" placeholder="Email">
+        </div>
+        <div class="form-group">
+          <label>Provinsi/Wilayah *</label>
+          <input type="text" id="editWilayah" class="form-control" placeholder="Provinsi/Wilayah" required>
         </div>
         
         <!-- Data Teknisi -->
         <div class="form-group">
-          <label>Kabupaten (Khusus Teknisi)</label>
+          <label>Kabupaten</label>
           <input type="text" id="editKabupaten" class="form-control" placeholder="Nama Kabupaten">
         </div>
         <div class="form-group">
-          <label>Koordinator (Khusus Teknisi)</label>
+          <label>Koordinator</label>
           <input type="text" id="editKoordinator" class="form-control" placeholder="Nama Koordinator">
+        </div>
+        
+        <!-- Penandatangan -->
+        <div class="form-group">
+          <label>Nama Penandatangan *</label>
+          <input type="text" id="editNamaPenandatangan" class="form-control" placeholder="Nama Penandatangan" required>
+        </div>
+        <div class="form-group">
+          <label>Jabatan Penandatangan *</label>
+          <input type="text" id="editJabatanPenandatangan" class="form-control" placeholder="Jabatan Penandatangan" required>
+        </div>
+        <div class="form-group">
+          <label>Kota Penandatangan *</label>
+          <input type="text" id="editKotaPenandatangan" class="form-control" placeholder="Kota Penandatangan" required>
         </div>
         
         <!-- Keterangan -->
         <div class="form-group full-width">
           <label>Keterangan User</label>
-          <textarea id="editKeterangan" class="form-control" rows="3" placeholder="Keterangan yang diinputkan user..."></textarea>
+          <textarea id="editKeterangan" class="form-control" rows="2" placeholder="Keterangan yang diinputkan user..."></textarea>
         </div>
         
         <!-- Status -->
-        <div class="form-group full-width">
-          <label>Status Surat</label>
-          <select id="editStatus" class="form-control">
+        <div class="form-group">
+          <label>Status Surat *</label>
+          <select id="editStatus" class="form-control" required>
             <option value="pending">⏳ Pending</option>
             <option value="processed">🔄 Dalam Proses</option>
             <option value="completed">✅ Selesai</option>
@@ -1338,10 +1417,10 @@ body {
         <!-- Catatan -->
         <div class="form-group full-width">
           <label>Catatan Admin</label>
-          <textarea id="editCatatan" class="form-control" rows="4" placeholder="Tambahkan catatan jika perlu..."></textarea>
+          <textarea id="editCatatan" class="form-control" rows="3" placeholder="Tambahkan catatan jika perlu..."></textarea>
         </div>
         
-        <div style="display: flex; gap: 15px; margin-top: 30px;">
+        <div style="display: flex; gap: 15px; margin-top: 30px; grid-column: 1 / -1;">
           <button type="button" class="btn btn-primary" onclick="updateData()" style="flex: 1;">
             💾 Simpan Perubahan
           </button>
@@ -2013,7 +2092,7 @@ body {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
               <div>
                 <small style="color: #888;">Versi Sistem</small>
-                <div><strong>v2.7.0</strong></div>
+                <div><strong>v2.7.1</strong></div>
               </div>
               <div>
                 <small style="color: #888;">Terakhir Update</small>
@@ -3078,6 +3157,12 @@ ${downloadUrl}
             <strong>Nomor KTP:</strong> ${formatNomorKTPDisplay(data.nomorKTP || '-')}
           </div>
           <div class="detail-item">
+            <strong>Tempat Lahir:</strong> ${data.tempatLahir || '-'}
+          </div>
+          <div class="detail-item">
+            <strong>Tanggal Lahir:</strong> ${formatDate(data.tanggalLahir)}
+          </div>
+          <div class="detail-item">
             <strong>Wilayah Area:</strong> ${data.wilayahArea || '-'}
           </div>
           <div class="detail-item">
@@ -3108,10 +3193,6 @@ ${downloadUrl}
           <div class="detail-item">
             <strong>Tujuan Surat:</strong> ${data.tujuanSurat || '-'}
           </div>
-        </div>
-        
-        <div>
-          <h4 style="margin-bottom: 15px; color: #333;">📅 Masa Kerja & Status</h4>
           <div class="detail-item">
             <strong>Tanggal Mulai:</strong> ${formatDate(data.tanggalMulai)}
           </div>
@@ -3121,6 +3202,10 @@ ${downloadUrl}
           <div class="detail-item">
             <strong>Alasan Berhenti:</strong> ${data.alasanBerhenti || '-'}
           </div>
+        </div>
+        
+        <div>
+          <h4 style="margin-bottom: 15px; color: #333;">📅 Status & Download</h4>
           <div class="detail-item">
             <strong>Status:</strong> <span class="status-badge status-${data.status || 'pending'}">
               ${getStatusText(data.status)}
@@ -3131,6 +3216,12 @@ ${downloadUrl}
           </div>
           <div class="detail-item">
             <strong>Total Download:</strong> ${data.downloadCount || 0} kali
+          </div>
+          <div class="detail-item">
+            <strong>Terakhir Download:</strong> ${data.lastDownloadedAt ? formatDate(data.lastDownloadedAt) : '-'}
+          </div>
+          <div class="detail-item">
+            <strong>Download oleh:</strong> ${data.lastDownloadedBy || '-'}
           </div>
         </div>
         
@@ -3149,10 +3240,13 @@ ${downloadUrl}
             <strong>Terakhir Update:</strong> ${formatDate(data.updatedAt || data.createdAt)}
           </div>
           <div class="detail-item">
-            <strong>Terakhir Download:</strong> ${data.lastDownloadedAt ? formatDate(data.lastDownloadedAt) : '-'}
+            <strong>Penandatangan:</strong> ${data.namaPenandatangan || '-'}
           </div>
           <div class="detail-item">
-            <strong>Download oleh:</strong> ${data.lastDownloadedBy || '-'}
+            <strong>Jabatan Penandatangan:</strong> ${data.jabatanPenandatangan || '-'}
+          </div>
+          <div class="detail-item">
+            <strong>Kota Penandatangan:</strong> ${data.kotaPenandatangan || '-'}
           </div>
         </div>
       </div>
@@ -3187,37 +3281,43 @@ ${downloadUrl}
     if (detailModal) detailModal.classList.remove('active');
   }
 
-  // Edit Data
+  // ==================== FUNGSI EDIT YANG DIPERBAIKI ====================
+
+  // Edit Data - REVISI LENGKAP
   function editData(docId) {
     selectedDocId = docId;
     const data = allData.find(d => d.id === docId);
     
     if (data) {
-      // Populate form with current data
-      const editNamaLengkap = document.getElementById('editNamaLengkap');
-      const editNIP = document.getElementById('editNIP');
-      const editNoSurat = document.getElementById('editNoSurat');
-      const editTanggalSurat = document.getElementById('editTanggalSurat');
-      const editWhatsapp = document.getElementById('editWhatsapp');
-      const editWilayah = document.getElementById('editWilayah');
-      const editKabupaten = document.getElementById('editKabupaten');
-      const editKoordinator = document.getElementById('editKoordinator');
-      const editKeterangan = document.getElementById('editKeterangan');
-      const editStatus = document.getElementById('editStatus');
-      const editCatatan = document.getElementById('editCatatan');
-      
-      if (editNamaLengkap) editNamaLengkap.value = data.namaLengkap || '';
-      if (editNIP) editNIP.value = data.nip || '';
-      if (editNoSurat) editNoSurat.value = data.noSurat || '';
-      if (editTanggalSurat) editTanggalSurat.value = data.tanggalSurat ? 
+      // Populate form dengan semua data
+      document.getElementById('editNamaLengkap').value = data.namaLengkap || '';
+      document.getElementById('editNIP').value = data.nip || '';
+      document.getElementById('editNomorKTP').value = data.nomorKTP || '';
+      document.getElementById('editTempatLahir').value = data.tempatLahir || '';
+      document.getElementById('editTanggalLahir').value = data.tanggalLahir ? 
+        new Date(data.tanggalLahir).toISOString().split('T')[0] : '';
+      document.getElementById('editJabatan').value = data.jabatan || '';
+      document.getElementById('editDeptKaryawan').value = data.deptKaryawan || '';
+      document.getElementById('editTanggalMulai').value = data.tanggalMulai ? 
+        new Date(data.tanggalMulai).toISOString().split('T')[0] : '';
+      document.getElementById('editTanggalBerakhir').value = data.tanggalBerakhir ? 
+        new Date(data.tanggalBerakhir).toISOString().split('T')[0] : '';
+      document.getElementById('editAlasanBerhenti').value = data.alasanBerhenti || 'Kontrak Berakhir';
+      document.getElementById('editNoSurat').value = data.noSurat || '';
+      document.getElementById('editTanggalSurat').value = data.tanggalSurat ? 
         new Date(data.tanggalSurat).toISOString().split('T')[0] : '';
-      if (editWhatsapp) editWhatsapp.value = data.whatsapp || '';
-      if (editWilayah) editWilayah.value = data.wilayahArea || '';
-      if (editKabupaten) editKabupaten.value = data.kabupaten || '';
-      if (editKoordinator) editKoordinator.value = data.koordinator || '';
-      if (editKeterangan) editKeterangan.value = data.keterangan || '';
-      if (editStatus) editStatus.value = data.status || 'pending';
-      if (editCatatan) editCatatan.value = data.catatanAdmin || '';
+      document.getElementById('editTujuanSurat').value = data.tujuanSurat || '';
+      document.getElementById('editWhatsapp').value = data.whatsapp || '';
+      document.getElementById('editEmail').value = data.email || '';
+      document.getElementById('editWilayah').value = data.wilayahArea || '';
+      document.getElementById('editKabupaten').value = data.kabupaten || '';
+      document.getElementById('editKoordinator').value = data.koordinator || '';
+      document.getElementById('editNamaPenandatangan').value = data.namaPenandatangan || settings.defaultPenandatangan;
+      document.getElementById('editJabatanPenandatangan').value = data.jabatanPenandatangan || settings.defaultJabatan;
+      document.getElementById('editKotaPenandatangan').value = data.kotaPenandatangan || settings.kotaTandaTangan;
+      document.getElementById('editKeterangan').value = data.keterangan || '';
+      document.getElementById('editStatus').value = data.status || 'pending';
+      document.getElementById('editCatatan').value = data.catatanAdmin || '';
       
       const editModal = document.getElementById('editModal');
       if (editModal) editModal.classList.add('active');
@@ -3229,43 +3329,62 @@ ${downloadUrl}
     if (editModal) editModal.classList.remove('active');
   }
 
-  // Update Data
+  // Update Data - REVISI LENGKAP
   async function updateData() {
     showLoading(true);
     
     try {
-      const editNamaLengkap = document.getElementById('editNamaLengkap');
-      const editNIP = document.getElementById('editNIP');
-      const editNoSurat = document.getElementById('editNoSurat');
-      const editTanggalSurat = document.getElementById('editTanggalSurat');
-      const editWhatsapp = document.getElementById('editWhatsapp');
-      const editWilayah = document.getElementById('editWilayah');
-      const editKabupaten = document.getElementById('editKabupaten');
-      const editKoordinator = document.getElementById('editKoordinator');
-      const editKeterangan = document.getElementById('editKeterangan');
-      const editStatus = document.getElementById('editStatus');
-      const editCatatan = document.getElementById('editCatatan');
+      // Ambil semua nilai dari form
+      const updateData = {
+        namaLengkap: document.getElementById('editNamaLengkap').value,
+        nip: document.getElementById('editNIP').value,
+        nomorKTP: document.getElementById('editNomorKTP').value,
+        tempatLahir: document.getElementById('editTempatLahir').value,
+        tanggalLahir: document.getElementById('editTanggalLahir').value ? 
+          new Date(document.getElementById('editTanggalLahir').value) : null,
+        jabatan: document.getElementById('editJabatan').value,
+        deptKaryawan: document.getElementById('editDeptKaryawan').value,
+        tanggalMulai: document.getElementById('editTanggalMulai').value ? 
+          new Date(document.getElementById('editTanggalMulai').value) : null,
+        tanggalBerakhir: document.getElementById('editTanggalBerakhir').value ? 
+          new Date(document.getElementById('editTanggalBerakhir').value) : null,
+        alasanBerhenti: document.getElementById('editAlasanBerhenti').value,
+        noSurat: document.getElementById('editNoSurat').value,
+        tanggalSurat: document.getElementById('editTanggalSurat').value ? 
+          new Date(document.getElementById('editTanggalSurat').value) : null,
+        tujuanSurat: document.getElementById('editTujuanSurat').value,
+        whatsapp: document.getElementById('editWhatsapp').value,
+        email: document.getElementById('editEmail').value,
+        wilayahArea: document.getElementById('editWilayah').value,
+        kabupaten: document.getElementById('editKabupaten').value,
+        koordinator: document.getElementById('editKoordinator').value,
+        namaPenandatangan: document.getElementById('editNamaPenandatangan').value,
+        jabatanPenandatangan: document.getElementById('editJabatanPenandatangan').value,
+        kotaPenandatangan: document.getElementById('editKotaPenandatangan').value,
+        keterangan: document.getElementById('editKeterangan').value,
+        status: document.getElementById('editStatus').value,
+        catatanAdmin: document.getElementById('editCatatan').value,
+        updatedAt: new Date(),
+        updatedBy: 'Admin'
+      };
       
-      if (!editNamaLengkap || !editNIP || !editNoSurat) {
-        throw new Error('Form tidak lengkap');
+      // Validasi data wajib
+      if (!updateData.namaLengkap || !updateData.nip || !updateData.nomorKTP) {
+        throw new Error('Nama, NIP, dan Nomor KTP wajib diisi');
       }
       
-      const namaLengkap = editNamaLengkap.value;
-      const nip = editNIP.value;
-      const noSurat = editNoSurat.value;
-      const tanggalSurat = editTanggalSurat ? editTanggalSurat.value : '';
-      const whatsapp = editWhatsapp ? editWhatsapp.value : '';
-      const wilayah = editWilayah ? editWilayah.value : '';
-      const kabupaten = editKabupaten ? editKabupaten.value : '';
-      const koordinator = editKoordinator ? editKoordinator.value : '';
-      const keterangan = editKeterangan ? editKeterangan.value : '';
-      const status = editStatus ? editStatus.value : 'pending';
-      const catatan = editCatatan ? editCatatan.value : '';
+      if (!updateData.jabatan || !updateData.tanggalMulai || !updateData.tanggalBerakhir) {
+        throw new Error('Jabatan dan tanggal kerja wajib diisi');
+      }
+      
+      if (!updateData.noSurat || !updateData.tanggalSurat) {
+        throw new Error('Nomor surat dan tanggal surat wajib diisi');
+      }
       
       // Check for duplicate NIP
-      if (nip) {
+      if (updateData.nip) {
         const duplicateNIP = allData.find(d => 
-          d.id !== selectedDocId && d.nip === nip
+          d.id !== selectedDocId && d.nip === updateData.nip
         );
         
         if (duplicateNIP) {
@@ -3274,10 +3393,22 @@ ${downloadUrl}
         }
       }
       
+      // Check for duplicate No KTP
+      if (updateData.nomorKTP) {
+        const duplicateKTP = allData.find(d => 
+          d.id !== selectedDocId && d.nomorKTP === updateData.nomorKTP
+        );
+        
+        if (duplicateKTP) {
+          showNotification('Nomor KTP sudah digunakan!', 'warning');
+          return;
+        }
+      }
+      
       // Check for duplicate No Surat
-      if (noSurat) {
+      if (updateData.noSurat) {
         const duplicateNoSurat = allData.find(d => 
-          d.id !== selectedDocId && d.noSurat === noSurat
+          d.id !== selectedDocId && d.noSurat === updateData.noSurat
         );
         
         if (duplicateNoSurat) {
@@ -3286,21 +3417,8 @@ ${downloadUrl}
         }
       }
       
-      await db.collection('packlaring').doc(selectedDocId).update({
-        namaLengkap: namaLengkap,
-        nip: nip,
-        noSurat: noSurat,
-        tanggalSurat: tanggalSurat ? new Date(tanggalSurat) : null,
-        whatsapp: whatsapp,
-        wilayahArea: wilayah,
-        kabupaten: kabupaten,
-        koordinator: koordinator,
-        keterangan: keterangan,
-        status: status,
-        catatanAdmin: catatan,
-        updatedAt: new Date(),
-        updatedBy: 'Admin'
-      });
+      // Update ke Firebase
+      await db.collection('packlaring').doc(selectedDocId).update(updateData);
       
       closeModal();
       loadData();
@@ -4115,7 +4233,7 @@ Admin NEXT Logistics`;
     }
   }
 
-  // Populate Letter Template
+  // Populate Letter Template - REVISI: Tempat/Tgl Lahir bisa dikosongkan
   function populateLetterTemplate(data) {
     // Format tanggal untuk Indonesia
     function formatLetterDate(dateString) {
@@ -4126,9 +4244,13 @@ Admin NEXT Logistics`;
       return `${date.getDate()} ${bulan[date.getMonth()]} ${date.getFullYear()}`;
     }
     
-    // Format TTL
-    const tempatLahir = data.tempatLahir || '-';
-    const tglLahir = data.tanggalLahir ? formatLetterDate(data.tanggalLahir) : '-';
+    // Format TTL - Bisa dikosongkan jika tidak ada data
+    const tempatLahir = data.tempatLahir || '';
+    const tglLahir = data.tanggalLahir ? formatLetterDate(data.tanggalLahir) : '';
+    const ttl = tempatLahir && tglLahir ? `${tempatLahir}, ${tglLahir}` : 
+                tempatLahir ? tempatLahir :
+                tglLahir ? tglLahir :
+                '..............................................................';
     
     // Format alasan berhenti dalam dua bahasa
     const alasanBerhentiMap = {
@@ -4163,14 +4285,19 @@ Admin NEXT Logistics`;
     if (fieldPenandatangan) fieldPenandatangan.textContent = data.namaPenandatangan || settings.defaultPenandatangan;
     if (fieldJabatanPenandatangan) fieldJabatanPenandatangan.textContent = data.jabatanPenandatangan || settings.defaultJabatan;
     if (fieldNamaLengkap) fieldNamaLengkap.textContent = data.namaLengkap || '.................................................';
-    if (fieldTTL) fieldTTL.textContent = `${tempatLahir}, ${tglLahir}`;
+    if (fieldTTL) fieldTTL.textContent = ttl;
     if (fieldJabatan) fieldJabatan.textContent = data.jabatan || '.................................................';
     if (fieldNIP) fieldNIP.textContent = data.nip || '.................................................';
     if (fieldTanggalMasuk) fieldTanggalMasuk.textContent = data.tanggalMulai ? formatLetterDate(data.tanggalMulai) : '.................................................';
     if (fieldTanggalKeluar) fieldTanggalKeluar.textContent = data.tanggalBerakhir ? formatLetterDate(data.tanggalBerakhir) : '.................................................';
     if (fieldAlasanBerhenti) fieldAlasanBerhenti.textContent = alasanBerhenti.id;
     if (fieldAlasanBerhentiEn) fieldAlasanBerhentiEn.textContent = alasanBerhenti.en;
-    if (fieldTempatTanggal) fieldTempatTanggal.textContent = `${settings.kotaTandaTangan}, ${formatLetterDate(data.tanggalSurat || new Date())}`;
+    
+    // PERBAIKAN: Tanggal assign dari direktur menggunakan kotaPenandatangan
+    const kotaTTD = data.kotaPenandatangan || settings.kotaTandaTangan;
+    const tanggalTTD = formatLetterDate(data.tanggalSurat || new Date());
+    if (fieldTempatTanggal) fieldTempatTanggal.textContent = `${kotaTTD}, ${tanggalTTD}`;
+    
     if (fieldTandaTangan) fieldTandaTangan.textContent = data.namaPenandatangan || settings.defaultPenandatangan;
     if (fieldJabatanTTD) fieldJabatanTTD.textContent = data.jabatanPenandatangan || settings.defaultJabatan;
   }
@@ -4291,7 +4418,10 @@ Admin NEXT Logistics`;
       'Terakhir Update': formatShortDate(data.updatedAt || data.createdAt),
       'Total Download': data.downloadCount || 0,
       'Terakhir Download': data.lastDownloadedAt ? formatShortDate(data.lastDownloadedAt) : '',
-      'Download oleh': data.lastDownloadedBy || ''
+      'Download oleh': data.lastDownloadedBy || '',
+      'Penandatangan': data.namaPenandatangan || '',
+      'Jabatan Penandatangan': data.jabatanPenandatangan || '',
+      'Kota Penandatangan': data.kotaPenandatangan || ''
     }));
     
     // Create worksheet
@@ -4303,7 +4433,8 @@ Admin NEXT Logistics`;
       {wch: 15}, {wch: 15}, {wch: 15}, {wch: 25}, {wch: 15},
       {wch: 20}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15},
       {wch: 15}, {wch: 20}, {wch: 15}, {wch: 15}, {wch: 25},
-      {wch: 25}, {wch: 15}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 15}
+      {wch: 25}, {wch: 15}, {wch: 15}, {wch: 10}, {wch: 15}, {wch: 15},
+      {wch: 20}, {wch: 20}, {wch: 20}
     ];
     ws['!cols'] = wscols;
     
