@@ -737,19 +737,12 @@
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="required">Tempat Lahir</label>
-            <input type="text" id="tempatLahir" class="form-control" placeholder="KOTA KELAHIRAN"
-              oninput="this.value = this.value.toUpperCase()" onblur="this.value = this.value.trim().toUpperCase()">
-            <div class="error-message" id="errorTempatLahir"></div>
-          </div>
-
-          <div class="form-group">
-            <label class="required">Tanggal Lahir</label>
-            <input type="date" id="tanggalLahir" class="form-control">
-            <div class="error-message" id="errorTanggalLahir"></div>
-          </div>
+        <div class="form-group">
+          <label class="required">Tempat Lahir</label>
+          <input type="text" id="tempatLahir" class="form-control" placeholder="MASUKKAN KOTA KELAHIRAN"
+            oninput="this.value = this.value.toUpperCase()" onblur="this.value = this.value.trim().toUpperCase()">
+          <span class="help-text">Contoh: JAKARTA, SURABAYA, BANDUNG</span>
+          <div class="error-message" id="errorTempatLahir"></div>
         </div>
 
         <div class="form-row">
@@ -1304,11 +1297,6 @@
             errors.push('Tempat Lahir harus diisi');
           }
           
-          if (!document.getElementById('tanggalLahir').value) {
-            showError('errorTanggalLahir', 'Tanggal Lahir harus diisi');
-            errors.push('Tanggal Lahir harus diisi');
-          }
-          
           if (!generatedData.nip) {
             showError('errorNIP', 'Generate NIP terlebih dahulu');
             errors.push('Generate NIP terlebih dahulu');
@@ -1436,7 +1424,6 @@
 
         // Fallback dengan timestamp untuk menghindari bentrok
         const timestamp = Date.now();
-        const randomNum = Math.floor(Math.random() * 900) + 100;
         const now = new Date();
         const bulan = (now.getMonth() + 1).toString().padStart(2, '0');
         const tahun2 = now.getFullYear().toString().slice(-2);
@@ -1506,7 +1493,6 @@
 
         // Fallback dengan timestamp untuk menghindari bentrok
         const timestamp = Date.now();
-        const randomNum = Math.floor(Math.random() * 9000) + 1000;
         const uniqueNumber = (timestamp % 9000) + 1000; // Ambil 4 digit dari timestamp
 
         const nip = `NEXT${uniqueNumber}`;
@@ -1606,7 +1592,7 @@
         nip: document.getElementById('nip').value,
         jabatan: jabatan,
         dept: document.getElementById('deptKaryawan').value,
-        ttl: `${document.getElementById('tempatLahir').value}, ${formatDate(document.getElementById('tanggalLahir').value)}`,
+        tempatLahir: document.getElementById('tempatLahir').value,
         tglMulai: formatDate(document.getElementById('tanggalMulai').value),
         tglBerakhir: formatDate(document.getElementById('tanggalBerakhir').value),
         alasan: document.getElementById('alasanBerhenti').value,
@@ -1631,6 +1617,10 @@
         <div class="preview-label">Wilayah Area Kerja</div>
         <div class="preview-value">${data.wilayahArea}</div>
       </div>
+      <div class="preview-item">
+        <div class="preview-label">Tempat Lahir</div>
+        <div class="preview-value">${data.tempatLahir}</div>
+      </div>
       ${kordinatorInfo}
       <div class="preview-item">
         <div class="preview-label">NIP</div>
@@ -1643,10 +1633,6 @@
       <div class="preview-item">
         <div class="preview-label">Departemen</div>
         <div class="preview-value">${data.dept}</div>
-      </div>
-      <div class="preview-item">
-        <div class="preview-label">Tempat/Tgl Lahir</div>
-        <div class="preview-value">${data.ttl}</div>
       </div>
       <div class="preview-item">
         <div class="preview-label">Masa Kerja</div>
@@ -1698,7 +1684,6 @@
           nomorKTP: document.getElementById('nomorKTP').value.toUpperCase(),
           wilayahArea: document.getElementById('wilayahArea').value.toUpperCase(),
           tempatLahir: document.getElementById('tempatLahir').value.trim().toUpperCase(),
-          tanggalLahir: document.getElementById('tanggalLahir').value,
           nip: document.getElementById('nip').value,
           jabatan: document.getElementById('jabatan').value.trim().toUpperCase(),
           deptKaryawan: document.getElementById('deptKaryawan').value.toUpperCase(),
@@ -1824,6 +1809,7 @@ ${data.catatanKordinator ? `📝 ${data.catatanKordinator}` : ''}
 NAMA: *${data.namaLengkap}*
 NOMOR KTP: ${data.nomorKTP}
 WILAYAH AREA: ${data.wilayahArea}
+TEMPAT LAHIR: ${data.tempatLahir}
 NIP: ${data.nip}
 JABATAN: ${data.jabatan}
 DEPARTEMEN: ${data.deptKaryawan}
@@ -1860,7 +1846,6 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
       document.getElementById('nomorKTP').value = '';
       document.getElementById('wilayahArea').value = '';
       document.getElementById('tempatLahir').value = '';
-      document.getElementById('tanggalLahir').value = '';
       document.getElementById('nip').value = '';
       document.getElementById('jabatan').value = '';
       document.getElementById('deptKaryawan').value = '';
@@ -1924,7 +1909,6 @@ SILAKAN PROSES MELALUI PANEL ADMIN.`;
       // Set default tanggal surat ke hari ini
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('tanggalSurat').value = today;
-      document.getElementById('tanggalLahir').value = '';
 
       // Set min date for tanggal berakhir
       const tanggalMulaiInput = document.getElementById('tanggalMulai');
